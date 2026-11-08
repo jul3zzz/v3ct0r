@@ -97,6 +97,7 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
   const btnCalc = tbBtn('CALC', 'calc', 'Calculatrice et raccourcis de caractères (=)');
   const btnAccount = tbBtn('COMPTE', 'user', 'Compte : ta progression sur tous tes appareils');
   const btnDownload = tbBtn('TÉLÉCHARGER', 'download', 'Télécharger V3CT0R pour l’utiliser hors ligne (zip : index.html à ouvrir d’un double-clic)');
+  btnDownload.classList.add('tb-dl');
   const btnScan = tbBtn('SCAN', 'grid', 'Scanlines (L)');
   const btnHelp = tbBtn('AIDE', 'help', 'Raccourcis clavier (?)');
   const top = h(

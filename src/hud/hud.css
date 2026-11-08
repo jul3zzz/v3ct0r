@@ -450,3 +450,10 @@ body.touring .vp-hint { display: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
 }
+
+/* top bar on narrower screens: the HUD meters go first, then the button labels (titles stay),
+   TÉLÉCHARGER keeps its label longest; the breadcrumb shrinks instead of pushing buttons out */
+.topbar .crumbs { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 1640px) { .topbar .meta > :not(.rec-dot) { display: none; } }
+@media (max-width: 1400px) { .topbar .tb-btn:not(.tb-dl) > span { display: none; } }
+@media (max-width: 1000px) { .topbar .tb-btn > span { display: none; } .topbar .crumbs { display: none; } }
