@@ -324,6 +324,7 @@ export class App {
     // background music: the first gesture starts it (browsers forbid audio before one)
     this.moodNow();
     this.paintAccount();
+    this.paintDownload();
     cloud.onChange(() => this.paintAccount());
     // the account's progress may have moved on another device
     if (cloud.enabled && cloud.email) setTimeout(() => void cloud.sync().then((changed) => changed && reloadAfterSync(), () => undefined), 1500);
@@ -1168,6 +1169,35 @@ export class App {
     this.openDialog(accountDialog());
   }
 
+  /** where the offline version is: next to the site on GitHub Pages, else the latest release */
+  private downloadUrl(): string {
+    return location.hostname.endsWith('github.io') ? 'V3CT0R.zip' : 'https://github.com/jul3zzz/v3ct0r/releases/latest/download/V3CT0R.zip';
+  }
+
+  /** the TÉLÉCHARGER button exists only online (the downloaded version is already offline) */
+  private paintDownload(): void {
+    const b = this.L.btnDownload;
+    const online = location.protocol === 'https:' || location.protocol === 'http:';
+    b.style.display = online ? '' : 'none';
+    if (!online || !location.hostname.endsWith('github.io')) return;
+    void fetch(this.downloadUrl(), { method: 'HEAD' })
+      .then((r) => {
+        const n = Number(r.headers.get('content-length') ?? 0);
+        if (r.ok && n > 0) b.replaceChildren(icon('download'), h('span', { text: `TÉLÉCHARGER · ${(n / 1e6).toFixed(1).replace('.', ',')} Mo` }));
+      })
+      .catch(() => undefined);
+  }
+
+  downloadApp(): void {
+    const a = document.createElement('a');
+    a.href = this.downloadUrl();
+    a.download = 'V3CT0R.zip';
+    document.body.append(a);
+    a.click();
+    a.remove();
+    toast('TÉLÉCHARGEMENT DE V3CT0R.ZIP — DÉZIPPER PUIS OUVRIR INDEX.HTML (HORS LIGNE)', 4200);
+  }
+
   private paintAccount(): void {
     const b = this.L.btnAccount;
     b.style.display = cloud.enabled ? '' : 'none';
@@ -1209,6 +1239,7 @@ export class App {
     act('sound', 'Sons on/off', () => this.toggleSound(), 'audio');
     act('scan', 'Scanlines on/off', () => this.toggleScan(), 'crt');
     act('keymap', 'Raccourcis clavier', () => this.openKeymap(), 'aide help');
+    if (location.protocol.startsWith('http')) act('download', 'Télécharger V3CT0R (version hors ligne)', () => this.downloadApp(), 'télécharger zip hors ligne installer local offline');
     act('account', 'Compte : connexion et synchro de la progression', () => this.openAccount(), 'compte connexion inscription créer email mot de passe synchroniser cloud');
     act('calc', 'Calculatrice', () => this.calc.open(), 'calcul calculer intégrale somme dérivée racine factorielle');
     act('story', 'Histoire : entrer dans la Grande Entropie', () => this.openAtlas('story'), 'mode histoire récit chronologie babylone euclide archimède entropie vaisseau');
@@ -1318,6 +1349,7 @@ export class App {
     });
     on(L.btnCalc, () => this.calc.toggle());
     on(L.btnAccount, () => this.openAccount());
+    on(L.btnDownload, () => this.downloadApp());
     on(L.btnScan, () => this.toggleScan());
     on(L.btnHelp, () => this.openKeymap());
     on(L.btnChallenge, () => this.openChallenge());

@@ -172,11 +172,14 @@ const acc = await page.evaluate(() => ({ ...window.__vm.account(), shown: getCom
 await page.keyboard.press('Escape');
 const accOk = acc.enabled ? acc.shown && acc.inputs === 2 : !acc.shown;
 if (!accOk) errors.push(`[compte] ${JSON.stringify(acc)}`);
+// TÉLÉCHARGER: only online; this smoke runs the downloaded version (file://), where it is hidden
+const dlShown = await page.evaluate(() => getComputedStyle([...document.querySelectorAll('.tb-btn')].find((b) => b.textContent.includes('TÉLÉCHARGER'))).display !== 'none');
+if (dlShown) errors.push('[télécharger] bouton visible dans la version hors ligne');
 
 // features: PNG export, WebM recording, quality switch, cinematic tour
 const features = [];
 features.push(atlasReport);
-features.push(`CALC ∛27 + 2¹⁰ = 1027 · Σ1/k² ≈ π²/6 · ${calc.rows} raccourcis ${calcOk ? '✓' : '✕'} · MUSIQUE ${mus.mood} ${musicOk ? '✓' : '✕'} · COMPTE ${acc.enabled ? 'configuré' : 'non configuré (bouton masqué)'} ${accOk ? '✓' : '✕'}`);
+features.push(`CALC ∛27 + 2¹⁰ = 1027 · Σ1/k² ≈ π²/6 · ${calc.rows} raccourcis ${calcOk ? '✓' : '✕'} · MUSIQUE ${mus.mood} ${musicOk ? '✓' : '✕'} · COMPTE ${acc.enabled ? 'configuré' : 'non configuré (bouton masqué)'} ${accOk ? '✓' : '✕'} · TÉLÉCHARGER masqué hors ligne ${dlShown ? '✕' : '✓'}`);
 current = 'features';
 await page.evaluate(() => window.__vm.go('4d/polytopes'));
 await page.waitForTimeout(400);

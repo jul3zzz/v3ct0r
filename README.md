@@ -11,7 +11,8 @@ Fonctionne **hors ligne**, sans serveur : un fichier `index.html` (plus, pour la
 - **En ligne** : le site GitHub Pages du dépôt ([jul3zzz.github.io/v3ct0r](https://jul3zzz.github.io/v3ct0r/)), mis à jour à chaque push sur
   `main` (`.github/workflows/pages.yml`). Bouton **COMPTE** : créer un compte (e-mail + mot de passe) pour retrouver sa
   progression sur tous ses appareils.
-- **Téléchargeable** : `V3CT0R.zip` dans les *Releases* du dépôt (une par tag `v*`, `.github/workflows/release.yml`).
+- **Téléchargeable** : bouton **TÉLÉCHARGER** du site (le zip de la même version, servi à côté du site), ou `V3CT0R.zip`
+  dans les *Releases* du dépôt (une par tag `v*`, `.github/workflows/release.yml`).
 
 Version téléchargée :
 

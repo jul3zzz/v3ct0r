@@ -26,6 +26,7 @@ export interface Layout {
   btnMusic: HTMLButtonElement;
   btnCalc: HTMLButtonElement;
   btnAccount: HTMLButtonElement;
+  btnDownload: HTMLButtonElement;
   btnScan: HTMLButtonElement;
   btnHelp: HTMLButtonElement;
   mods: Map<ModuleId, ModEls>;
@@ -95,6 +96,7 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
   const btnMusic = tbBtn('MUSIQUE', 'sound', 'Musique de fond (clic droit : volume)');
   const btnCalc = tbBtn('CALC', 'calc', 'Calculatrice et raccourcis de caractères (=)');
   const btnAccount = tbBtn('COMPTE', 'user', 'Compte : ta progression sur tous tes appareils');
+  const btnDownload = tbBtn('TÉLÉCHARGER', 'download', 'Télécharger V3CT0R pour l’utiliser hors ligne (zip : index.html à ouvrir d’un double-clic)');
   const btnScan = tbBtn('SCAN', 'grid', 'Scanlines (L)');
   const btnHelp = tbBtn('AIDE', 'help', 'Raccourcis clavier (?)');
   const top = h(
@@ -111,6 +113,7 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
     btnMusic,
     btnCalc,
     btnAccount,
+    btnDownload,
     btnScan,
     btnHelp,
   );
@@ -238,6 +241,7 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
     btnMusic,
     btnCalc,
     btnAccount,
+    btnDownload,
     btnScan,
     btnHelp,
     mods,

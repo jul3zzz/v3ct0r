@@ -28,10 +28,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npm run build
+      # the site and its offline version, built from the same commit (TÉLÉCHARGER button)
+      - run: npm run package
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+      - run: cp ../V3CT0R.zip dist/V3CT0R.zip
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
