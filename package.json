@@ -1,0 +1,38 @@
+{
+  "name": "v3ct0r",
+  "private": true,
+  "version": "1.0.0",
+  "description": "V3CT0R — logiciel web d'exploration mathématique (HUD monochrome, hors ligne)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
+    "test": "vitest run",
+    "smoke": "node scripts/smoke.mjs",
+    "digits": "node scripts/gen-digits.mjs",
+    "fonts": "node scripts/fetch-fonts.mjs",
+    "package": "vite build && node scripts/package.mjs",
+    "check": "npm run typecheck && npm test && npm run build && npm run smoke",
+    "voice": "node tools/generate-voice.ts",
+    "voice:list": "node tools/list-voices.ts",
+    "voice:sample": "node tools/voice-sample.ts",
+    "videos:check": "node tools/check-videos.ts"
+  },
+  "dependencies": {
+    "katex": "^0.19.1",
+    "three": "^0.187.0"
+  },
+  "devDependencies": {
+    "@types/katex": "^0.16.8",
+    "@types/node": "^24.19.2",
+    "@types/three": "^0.187.0",
+    "fflate": "^0.8.3",
+    "playwright-core": "^1.65.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6",
+    "vite-plugin-singlefile": "^2.3.4",
+    "vitest": "^5.1.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "intro-probability",
+  "title": "Intro · Probabilités",
+  "subtitle": "Trente secondes pour entrer dans le module : la planche de Galton, la loi des grands nombres, le théorème central limite et l'aiguille de Buffon.",
+  "level": "intro",
+  "module": "probability",
+  "minutes": 0.5,
+  "soundtrack": true,
+  "voiceVolume": 0.6,
+  "prerequisites": [],
+  "tags": ["intro", "probabilités", "Galton", "loi des grands nombres", "théorème central limite", "Buffon"],
+  "status": "ready",
+  "chapters": [{ "id": "intro", "title": "Probabilités" }]
+}

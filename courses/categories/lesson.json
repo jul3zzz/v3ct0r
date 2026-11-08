@@ -1,0 +1,50 @@
+{
+  "id": "categories",
+  "title": "Théorie des catégories",
+  "level": "doctorat",
+  "minutes": 70,
+  "prerequisites": [
+    "galois",
+    "topologie-algebrique"
+  ],
+  "tags": [
+    "catégories",
+    "foncteurs",
+    "adjonctions",
+    "Yoneda"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Catégories et foncteurs",
+      "items": [
+        "Catégories, foncteurs, transformations naturelles",
+        "Exemples : ensembles, groupes, espaces topologiques, $\\pi_1$ comme foncteur"
+      ]
+    },
+    {
+      "title": "2. Lemme de Yoneda",
+      "items": [
+        "Foncteurs représentables",
+        "Lemme de Yoneda et plongement de Yoneda"
+      ]
+    },
+    {
+      "title": "3. Limites et adjonctions",
+      "items": [
+        "Produits, limites, colimites",
+        "Foncteurs adjoints, unités et co-unités, exemples (libre ⊣ oubli)"
+      ]
+    },
+    {
+      "title": "4. Ouverture",
+      "items": [
+        "Catégories abéliennes, foncteurs dérivés (aperçu)"
+      ]
+    }
+  ],
+  "references": [
+    "S. Mac Lane, Categories for the Working Mathematician (Springer)"
+  ]
+}

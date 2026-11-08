@@ -1,0 +1,6 @@
+{
+  "eq": {
+    "mandel": "z_{n+1} = z_n^{2} + c"
+  },
+  "statements": {}
+}

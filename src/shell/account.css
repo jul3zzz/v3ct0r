@@ -1,0 +1,10 @@
+/* COMPTE dialog. Monochrome, 1px lines. */
+.acc { font-size: var(--fs-sm); line-height: 1.6; color: var(--fg-80); }
+.acc-note { color: var(--fg-60); margin: 0 0 12px; }
+.acc-f { display: grid; gap: 4px; margin-bottom: 10px; }
+.acc-f span { font-size: 10px; letter-spacing: var(--track-caps); color: var(--fg-40); }
+.acc-f input { background: transparent; border: var(--line-mid); color: var(--fg); font: inherit; padding: 7px 10px; outline: 0; }
+.acc-f input:focus { border-color: var(--fg); }
+.acc-btns { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 6px; }
+.acc-msg { min-height: 1.6em; color: var(--fg); }
+.acc-msg.bad { color: var(--fg-70); }

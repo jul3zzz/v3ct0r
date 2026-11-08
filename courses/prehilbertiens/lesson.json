@@ -1,0 +1,74 @@
+{
+  "id": "prehilbertiens",
+  "title": "Espaces préhilbertiens et euclidiens",
+  "subtitle": "Produit scalaire, orthogonalité, isométries, théorème spectral",
+  "level": "prepa",
+  "format": "written",
+  "minutes": 30,
+  "prerequisites": [
+    "reduction"
+  ],
+  "tags": [
+    "produit scalaire",
+    "orthogonalité",
+    "projection",
+    "théorème spectral"
+  ],
+  "status": "ready",
+  "chapters": [
+    {
+      "id": "produit-scalaire",
+      "title": "Produit scalaire"
+    },
+    {
+      "id": "orthogonalite",
+      "title": "Orthogonalité"
+    },
+    {
+      "id": "endomorphismes",
+      "title": "Endomorphismes remarquables"
+    },
+    {
+      "id": "spectral",
+      "title": "Le théorème spectral"
+    }
+  ],
+  "plan": [
+    {
+      "title": "1. Produit scalaire",
+      "items": [
+        "Formes bilinéaires symétriques définies positives",
+        "Inégalité de Cauchy-Schwarz et cas d’égalité",
+        "Norme associée, identités de polarisation et du parallélogramme"
+      ]
+    },
+    {
+      "title": "2. Orthogonalité",
+      "items": [
+        "Familles orthonormées, procédé de Gram-Schmidt",
+        "Supplémentaire orthogonal en dimension finie",
+        "Projection orthogonale et distance à un sous-espace"
+      ]
+    },
+    {
+      "title": "3. Endomorphismes remarquables",
+      "items": [
+        "Adjoint, endomorphismes symétriques et orthogonaux",
+        "Groupe orthogonal $O(n)$, isométries du plan et de l’espace"
+      ]
+    },
+    {
+      "title": "4. Théorème spectral",
+      "items": [
+        "Un endomorphisme symétrique réel se diagonalise dans une base orthonormée",
+        "Matrices symétriques positives, définies positives",
+        "Application : réduction des formes quadratiques"
+      ]
+    }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Algèbre (Ellipses)",
+    "J. Grifone, Algèbre linéaire (Cépaduès)",
+    "M. Audin, Géométrie (EDP Sciences)"
+  ]
+}

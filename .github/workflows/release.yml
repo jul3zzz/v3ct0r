@@ -1,0 +1,29 @@
+# Version téléchargeable : à chaque tag v* (ex. git tag v1.1.0 && git push --tags), construit
+# V3CT0R.zip (index.html à ouvrir d'un double-clic + voix + sources) et l'attache à une release.
+name: Version téléchargeable
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run package
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+      - run: gh release create "$GITHUB_REF_NAME" ../V3CT0R.zip --title "V3CT0R $GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

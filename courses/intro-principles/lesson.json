@@ -1,0 +1,14 @@
+{
+  "id": "intro-principles",
+  "title": "Intro · Principes",
+  "subtitle": "Trente secondes pour entrer dans le module : séries de Fourier, fonction zêta, conjecture de Collatz et infinis de Cantor.",
+  "level": "intro",
+  "module": "principles",
+  "minutes": 0.5,
+  "soundtrack": true,
+  "voiceVolume": 0.6,
+  "prerequisites": [],
+  "tags": ["intro", "Fourier", "zêta", "Riemann", "Collatz", "Cantor"],
+  "status": "ready",
+  "chapters": [{ "id": "intro", "title": "Principes" }]
+}

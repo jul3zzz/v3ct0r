@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+.env.local
+*.zip
+voice-samples/
+.env.*
+!.env.example
+.claude/settings.local.json
+*.log

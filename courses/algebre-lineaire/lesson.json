@@ -1,0 +1,84 @@
+{
+  "id": "algebre-lineaire",
+  "title": "Algèbre linéaire : espaces, bases, dimension",
+  "subtitle": "Espaces, bases, applications linéaires, matrices, déterminant",
+  "level": "prepa",
+  "format": "written",
+  "minutes": 50,
+  "prerequisites": [],
+  "tags": [
+    "espaces vectoriels",
+    "dimension",
+    "rang",
+    "matrices"
+  ],
+  "status": "ready",
+  "chapters": [
+    {
+      "id": "espaces",
+      "title": "Espaces et sous-espaces vectoriels"
+    },
+    {
+      "id": "dimension",
+      "title": "Familles et dimension"
+    },
+    {
+      "id": "lineaires",
+      "title": "Applications linéaires"
+    },
+    {
+      "id": "matrices",
+      "title": "Matrices"
+    },
+    {
+      "id": "determinant",
+      "title": "Déterminant"
+    }
+  ],
+  "plan": [
+    {
+      "title": "1. Espaces et sous-espaces vectoriels",
+      "items": [
+        "Axiomes, sous-espaces, sous-espace engendré",
+        "Somme, somme directe, supplémentaires"
+      ]
+    },
+    {
+      "title": "2. Familles et dimension",
+      "items": [
+        "Familles libres, génératrices, bases",
+        "Théorème de la base incomplète, dimension",
+        "Formule de Grassmann $\\dim(F+G) = \\dim F + \\dim G - \\dim(F\\cap G)$"
+      ]
+    },
+    {
+      "title": "3. Applications linéaires",
+      "items": [
+        "Noyau, image, injectivité, surjectivité",
+        "Théorème du rang $\\dim E = \\dim\\ker u + \\operatorname{rg} u$",
+        "Projecteurs et symétries"
+      ]
+    },
+    {
+      "title": "4. Matrices",
+      "items": [
+        "Matrice d’une application linéaire dans des bases",
+        "Changement de base, matrices semblables, équivalentes",
+        "Rang d’une matrice, opérations élémentaires, pivot de Gauss"
+      ]
+    },
+    {
+      "title": "5. Déterminant",
+      "items": [
+        "Formes $n$-linéaires alternées, unicité du déterminant",
+        "Déterminant d’un produit, caractérisation de l’inversibilité",
+        "Développement selon une ligne, comatrice"
+      ]
+    }
+  ],
+  "references": [
+    "J. Grifone, Algèbre linéaire (Cépaduès)",
+    "X. Gourdon, Les maths en tête — Algèbre (Ellipses)",
+    "F. Liret, D. Martinais, Algèbre 1re année (Dunod)"
+  ]
+}

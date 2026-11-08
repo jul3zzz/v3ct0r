@@ -1,0 +1,21 @@
+{
+  "_doc": "Cursus V3CT0R LEARN : l'ordre des cours dans chaque niveau. Chaque cours est un dossier courses/<id>/ (voir README).",
+  "tracks": [
+    { "id": "demo", "title": "DÉMO", "courses": ["demo"] },
+    {
+      "id": "prepa",
+      "title": "PRÉPA MPSI/MP",
+      "courses": ["suites-series", "riemann", "algebre-lineaire", "reduction", "prehilbertiens", "topologie-evn", "series-entieres", "equations-differentielles"]
+    },
+    {
+      "id": "master",
+      "title": "LICENCE / MASTER",
+      "courses": ["riemann-lebesgue", "mesure-lebesgue", "analyse-fonctionnelle", "analyse-complexe", "topologie-algebrique", "galois", "geometrie-differentielle", "probabilites"]
+    },
+    {
+      "id": "doctorat",
+      "title": "DOCTORAT · INTRODUCTIONS",
+      "courses": ["theorie-spectrale", "distributions-edp", "geometrie-riemannienne", "categories", "nombres-analytique"]
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "suites-series",
+  "title": "Suites et séries numériques",
+  "subtitle": "Limites, vitesses de convergence, séries : le socle de l’analyse",
+  "level": "prepa",
+  "format": "written",
+  "minutes": 55,
+  "prerequisites": [],
+  "tags": [
+    "suites",
+    "séries",
+    "convergence",
+    "Cauchy"
+  ],
+  "status": "ready",
+  "chapters": [
+    {
+      "id": "suites",
+      "title": "Suites réelles et complexes"
+    },
+    {
+      "id": "comparaison",
+      "title": "Relations de comparaison"
+    },
+    {
+      "id": "series",
+      "title": "Séries numériques"
+    },
+    {
+      "id": "complements",
+      "title": "Compléments"
+    }
+  ],
+  "plan": [
+    {
+      "title": "1. Suites réelles et complexes",
+      "items": [
+        "Définition de la limite ($\\varepsilon$, $N$), unicité, opérations",
+        "Théorème de la limite monotone, suites adjacentes",
+        "Théorème de Bolzano-Weierstrass (par dichotomie)",
+        "Suites de Cauchy ; complétude de $\\mathbb{R}$"
+      ]
+    },
+    {
+      "title": "2. Relations de comparaison",
+      "items": [
+        "$o$, $O$, $\\sim$ : définitions et règles de calcul",
+        "Croissances comparées",
+        "Développements asymptotiques de suites définies implicitement"
+      ]
+    },
+    {
+      "title": "3. Séries numériques",
+      "items": [
+        "Convergence, reste, condition nécessaire $u_n \\to 0$",
+        "Séries à termes positifs : comparaison, équivalents, règle de d’Alembert",
+        "Comparaison série-intégrale, séries de Riemann $\\sum 1/n^\\alpha$",
+        "Convergence absolue ; critère spécial des séries alternées"
+      ]
+    },
+    {
+      "title": "4. Compléments",
+      "items": [
+        "Produit de Cauchy de deux séries absolument convergentes",
+        "Sommation des relations de comparaison",
+        "Exercices : constante d’Euler $\\gamma$, formule de Stirling (idée)"
+      ]
+    }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Analyse (Ellipses)",
+    "W. Rudin, Principles of Mathematical Analysis, chap. 3 (McGraw-Hill)",
+    "J.-M. Monier, Analyse MPSI (Dunod)"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": "galois",
+  "title": "Groupes et théorie de Galois",
+  "level": "master",
+  "minutes": 90,
+  "prerequisites": [
+    "algebre-lineaire"
+  ],
+  "tags": [
+    "groupes",
+    "corps",
+    "extensions",
+    "Galois"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Groupes",
+      "items": [
+        "Sous-groupes, quotients, théorèmes d’isomorphisme",
+        "Actions de groupes, équation aux classes",
+        "Théorèmes de Sylow, groupes résolubles"
+      ]
+    },
+    {
+      "title": "2. Anneaux et corps",
+      "items": [
+        "Idéaux, anneaux principaux, irréductibilité (Eisenstein)",
+        "Extensions de corps, degré, éléments algébriques",
+        "Corps de rupture, corps de décomposition, corps finis"
+      ]
+    },
+    {
+      "title": "3. Correspondance de Galois",
+      "items": [
+        "Extensions normales et séparables",
+        "Théorème fondamental de la théorie de Galois",
+        "Exemples : $\\mathbb{Q}(\\sqrt[3]{2}, j)$, corps cyclotomiques"
+      ]
+    },
+    {
+      "title": "4. Applications",
+      "items": [
+        "Résolubilité par radicaux et groupes résolubles",
+        "Constructions à la règle et au compas"
+      ]
+    }
+  ],
+  "references": [
+    "D. Perrin, Cours d’algèbre (Ellipses)",
+    "J.-P. Escofier, Théorie de Galois (Dunod)"
+  ]
+}

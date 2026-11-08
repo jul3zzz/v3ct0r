@@ -1,0 +1,50 @@
+{
+  "id": "geometrie-riemannienne",
+  "title": "Géométrie riemannienne",
+  "level": "doctorat",
+  "minutes": 90,
+  "prerequisites": [
+    "geometrie-differentielle"
+  ],
+  "tags": [
+    "métriques",
+    "géodésiques",
+    "courbure"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Métriques",
+      "items": [
+        "Métriques riemanniennes, longueur, distance",
+        "Exemples : sphère, espace hyperbolique"
+      ]
+    },
+    {
+      "title": "2. Connexions",
+      "items": [
+        "Connexion de Levi-Civita, transport parallèle",
+        "Géodésiques, application exponentielle, théorème de Hopf-Rinow"
+      ]
+    },
+    {
+      "title": "3. Courbure",
+      "items": [
+        "Tenseur de courbure, courbure sectionnelle, de Ricci, scalaire",
+        "Champs de Jacobi, points conjugués"
+      ]
+    },
+    {
+      "title": "4. Théorèmes globaux",
+      "items": [
+        "Gauss-Bonnet pour les surfaces",
+        "Théorème de Bonnet-Myers, de Cartan-Hadamard"
+      ]
+    }
+  ],
+  "references": [
+    "S. Gallot, D. Hulin, J. Lafontaine, Riemannian Geometry (Springer)",
+    "M. do Carmo, Riemannian Geometry (Birkhäuser)"
+  ]
+}

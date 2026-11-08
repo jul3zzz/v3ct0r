@@ -1,0 +1,19 @@
+[
+  {
+    "id": "ex1",
+    "title": "Deux rectangles",
+    "level": 1,
+    "minutes": 2,
+    "statement": "On découpe $[0,1]$ en $n = 2$ morceaux de même longueur. Calcule la somme $S_2$ des aires des rectangles inférieurs sous la courbe de $x \\mapsto x^{2}$.",
+    "hints": [
+      "Les deux rectangles ont pour largeur $\\tfrac12$.",
+      "La fonction est croissante sur $[0,1]$ : la hauteur du rectangle inférieur est la valeur à gauche, soit $f(0)$ puis $f(\\tfrac12)$.",
+      "$S_2 = \\tfrac12\\big(0^{2} + (\\tfrac12)^{2}\\big)$."
+    ],
+    "solution": [
+      { "text": "Les morceaux sont $[0,\\tfrac12]$ et $[\\tfrac12, 1]$, de largeur $\\tfrac12$. Comme $x \\mapsto x^2$ est croissante, son minimum sur chacun est atteint à gauche.", "points": 2 },
+      { "text": "$S_2 = \\tfrac12 \\cdot 0^{2} + \\tfrac12 \\cdot \\big(\\tfrac12\\big)^{2} = \\tfrac18 = 0{,}125$, bien en dessous de $\\tfrac13$ : deux rectangles ne suffisent pas.", "points": 2 }
+    ],
+    "answer": { "kind": "num", "value": 0.125, "tol": 0.001 }
+  }
+]

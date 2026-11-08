@@ -1,0 +1,75 @@
+[
+  {
+    "id": "ex1",
+    "title": "Une bosse qui s'écrase",
+    "level": 2,
+    "minutes": 6,
+    "statement": "Pour $n \\ge 1$, soit $f_n(x) = n^2\\,x\\,(1-x)^n$ sur $[0,1]$.\n\n1. Montre que $f_n(x) \\to 0$ pour tout $x \\in [0,1]$.\n2. Calcule $\\int_0^1 x(1-x)^n\\,dx$, puis $\\int_0^1 f_n$.\n3. Donne la valeur numérique de $\\int_0^1 f_{10}$.",
+    "hints": [
+      "Pour $x \\in \\,]0,1]$, compare $n^2$ et $(1-x)^n$ : une croissance polynomiale contre une décroissance géométrique.",
+      "Pose $t = 1 - x$ : $\\int_0^1 x(1-x)^n\\,dx = \\int_0^1 (1-t)\\,t^n\\,dt$.",
+      "$\\int_0^1 (t^n - t^{n+1})\\,dt = \\frac{1}{n+1} - \\frac{1}{n+2} = \\frac{1}{(n+1)(n+2)}$."
+    ],
+    "solution": [
+      { "text": "$f_n(0) = 0$. Pour $x \\in \\,]0,1]$, $0 \\le 1 - x < 1$, donc $n^2 (1-x)^n \\to 0$ (croissances comparées), et $f_n(x) \\to 0$.", "points": 2 },
+      { "text": "Avec $t = 1 - x$ : $\\int_0^1 x(1-x)^n\\,dx = \\int_0^1 (1 - t)\\,t^n\\,dt = \\frac{1}{n+1} - \\frac{1}{n+2} = \\frac{1}{(n+1)(n+2)}$.", "points": 2 },
+      { "text": "Donc $\\int_0^1 f_n = \\frac{n^2}{(n+1)(n+2)} \\to 1 \\ne 0 = \\int_0^1 \\lim f_n$. Pour $n = 10$ : $\\frac{100}{132} \\approx 0{,}7576$.", "points": 2 }
+    ],
+    "answer": { "kind": "num", "value": 0.7575758, "tol": 0.001 }
+  },
+  {
+    "id": "ex2",
+    "title": "Ce que l'on retire du segment",
+    "level": 1,
+    "minutes": 5,
+    "statement": "Dans la construction de l'ensemble de Cantor, quelle longueur totale a-t-on retirée de $[0,1]$ après les $5$ premières étapes ? Que se passe-t-il quand le nombre d'étapes tend vers l'infini ?",
+    "hints": [
+      "À l'étape $k$ (en partant de $k = 1$), on retire $2^{k-1}$ intervalles de longueur $3^{-k}$.",
+      "La longueur restante après $n$ étapes est $\\lambda(K_n) = (2/3)^n$.",
+      "Longueur retirée : $1 - (2/3)^5 = 1 - \\frac{32}{243}$."
+    ],
+    "solution": [
+      { "text": "Après $n$ étapes il reste $2^n$ segments de longueur $3^{-n}$, soit $\\lambda(K_n) = (2/3)^n$.", "points": 2 },
+      { "text": "Longueur retirée après 5 étapes : $1 - (2/3)^5 = \\frac{211}{243} \\approx 0{,}8683$. On retrouve la somme $\\sum_{k=1}^5 \\frac{2^{k-1}}{3^k}$.", "points": 2 },
+      { "text": "Quand $n \\to \\infty$, la longueur retirée tend vers $\\sum_{k \\ge 1} \\frac{2^{k-1}}{3^k} = 1$ : l'ensemble de Cantor est de mesure nulle, bien qu'il ne soit pas dénombrable.", "points": 1 }
+    ],
+    "answer": { "kind": "num", "value": 0.8683128, "tol": 0.001 }
+  },
+  {
+    "id": "ex3",
+    "title": "Intégrer une fonction partout discontinue",
+    "level": 1,
+    "minutes": 5,
+    "statement": "Soit $f = \\mathbf{1}_{[0, 1/2]} + 3\\,\\mathbf{1}_{\\mathbb{Q} \\cap [0,1]}$, définie sur $[0,1]$. Est-elle intégrable au sens de Riemann ? Calcule $\\int_{[0,1]} f\\,d\\lambda$.",
+    "hints": [
+      "Où $f$ est-elle continue ?",
+      "$f$ est étagée au sens de Lebesgue : une combinaison linéaire finie d'indicatrices d'ensembles mesurables.",
+      "$\\int f\\,d\\lambda = 1 \\cdot \\lambda([0, 1/2]) + 3 \\cdot \\lambda(\\mathbb{Q} \\cap [0,1])$."
+    ],
+    "solution": [
+      { "text": "En tout point, $f$ prend dans tout voisinage des valeurs qui diffèrent de $3$ (rationnels et irrationnels) : $f$ est discontinue partout. Par le critère de Lebesgue (ou comme pour la fonction de Dirichlet), elle n'est pas Riemann-intégrable.", "points": 2 },
+      { "text": "$f$ est étagée : $\\int f\\,d\\lambda = \\lambda([0, \\tfrac12]) + 3\\,\\lambda(\\mathbb{Q} \\cap [0,1]) = \\tfrac12 + 3 \\cdot 0 = \\tfrac12$.", "points": 2 },
+      { "text": "Autre lecture : $f = \\mathbf{1}_{[0,1/2]}$ presque partout, donc elles ont la même intégrale.", "points": 1 }
+    ],
+    "answer": { "kind": "num", "value": 0.5, "tol": 0.001 }
+  },
+  {
+    "id": "ex4",
+    "title": "Convergence dominée en action",
+    "level": 2,
+    "minutes": 7,
+    "statement": "Calcule $\\displaystyle \\lim_{n \\to +\\infty} \\int_0^n \\Big(1 - \\frac{x}{n}\\Big)^n dx$ à l'aide du théorème de convergence dominée, puis vérifie par un calcul direct.",
+    "hints": [
+      "Écris l'intégrale sur $[0, +\\infty[$ avec $h_n(x) = \\mathbf{1}_{[0,n]}(x)\\,(1 - x/n)^n$. Quelle est sa limite simple ?",
+      "Pour $t \\in [0,1[$, $\\ln(1 - t) \\le -t$ : donc $0 \\le h_n(x) \\le e^{-x}$, fonction intégrable sur $[0, +\\infty[$.",
+      "Calcul direct : avec $u = 1 - x/n$, $\\int_0^n (1 - x/n)^n dx = n \\int_0^1 u^n du = \\frac{n}{n+1}$."
+    ],
+    "solution": [
+      { "text": "$h_n(x) = \\mathbf{1}_{[0,n]}(x)(1 - x/n)^n \\to e^{-x}$ pour tout $x \\ge 0$ (pour $n > x$, $n \\ln(1 - x/n) \\to -x$).", "points": 2 },
+      { "text": "Domination : $\\ln(1 - t) \\le -t$ donne $0 \\le h_n(x) \\le e^{-x}$, intégrable sur $[0, +\\infty[$.", "points": 2 },
+      { "text": "Le théorème de convergence dominée donne $\\int_0^n (1 - x/n)^n dx \\to \\int_0^{+\\infty} e^{-x} dx = 1$.", "points": 1 },
+      { "text": "Vérification : $\\int_0^n (1 - x/n)^n dx = \\frac{n}{n+1} \\to 1$.", "points": 1 }
+    ],
+    "answer": { "kind": "num", "value": 1, "tol": 0.001 }
+  }
+]

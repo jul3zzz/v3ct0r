@@ -1,0 +1,154 @@
+{
+  "eq": {
+    "eig": "u(x) = \\lambda\\,x, \\qquad x \\neq 0",
+    "Elam": "E_\\lambda(u) = \\ker(u - \\lambda\\,\\mathrm{id}_E)",
+    "vpdet": "\\lambda \\in \\mathrm{Sp}(u) \\iff u - \\lambda\\,\\mathrm{id}_E \\text{ n'est pas injectif} \\iff \\det(u - \\lambda\\,\\mathrm{id}_E) = 0",
+    "direct": "x_1 + \\cdots + x_p = 0,\\ \\ x_i \\in E_{\\lambda_i} \\ \\Longrightarrow\\ \\sum_{i=1}^{p-1} (\\lambda_i - \\lambda_p)\\,x_i = 0",
+    "A21": "A = \\begin{pmatrix} 2 & 1 \\\\ 1 & 2 \\end{pmatrix}, \\qquad A \\begin{pmatrix} 1 \\\\ 1 \\end{pmatrix} = 3 \\begin{pmatrix} 1 \\\\ 1 \\end{pmatrix}, \\qquad A \\begin{pmatrix} 1 \\\\ -1 \\end{pmatrix} = \\begin{pmatrix} 1 \\\\ -1 \\end{pmatrix}",
+    "rot": "R_\\theta = \\begin{pmatrix} \\cos\\theta & -\\sin\\theta \\\\ \\sin\\theta & \\cos\\theta \\end{pmatrix}, \\qquad \\chi_{R_\\theta} = X^2 - 2\\cos\\theta\\,X + 1",
+    "chi": "\\chi_A(X) = \\det(X I_n - A) = X^n - \\operatorname{tr}(A)\\,X^{n-1} + \\cdots + (-1)^n \\det(A)",
+    "chi2": "n = 2 : \\qquad \\chi_A = X^2 - \\operatorname{tr}(A)\\,X + \\det(A)",
+    "simil": "\\det\\big(X I_n - P^{-1} A P\\big) = \\det\\big(P^{-1}(X I_n - A)\\,P\\big) = \\det(X I_n - A)",
+    "block": "\\mathrm{Mat}_{\\mathcal{B}}(u) = \\begin{pmatrix} \\lambda I_d & B \\\\ 0 & C \\end{pmatrix} \\ \\Longrightarrow\\ \\chi_u = (X - \\lambda)^d\\,\\chi_C",
+    "dimineq": "1 \\le \\dim E_\\lambda(u) \\le m_\\lambda",
+    "diagcns": "u \\text{ diagonalisable} \\iff E = \\bigoplus_{\\lambda \\in \\mathrm{Sp}(u)} E_\\lambda(u) \\iff \\sum_{\\lambda \\in \\mathrm{Sp}(u)} \\dim E_\\lambda(u) = n",
+    "chain": "\\sum_{\\lambda} \\dim E_\\lambda \\;\\le\\; \\sum_{\\lambda} m_\\lambda \\;\\le\\; \\deg \\chi_u = n",
+    "PDP": "A = P\\,D\\,P^{-1} \\ \\Longrightarrow\\ A^k = P\\,D^k\\,P^{-1}",
+    "Ak": "A^k = \\frac12 \\begin{pmatrix} 3^k + 1 & 3^k - 1 \\\\ 3^k - 1 & 3^k + 1 \\end{pmatrix}",
+    "fib": "\\begin{pmatrix} F_{n+1} \\\\ F_n \\end{pmatrix} = \\begin{pmatrix} 1 & 1 \\\\ 1 & 0 \\end{pmatrix} \\begin{pmatrix} F_n \\\\ F_{n-1} \\end{pmatrix}, \\qquad \\chi = X^2 - X - 1",
+    "binet": "F_n = \\frac{\\varphi^n - \\bar\\varphi^{\\,n}}{\\sqrt5}, \\qquad \\varphi = \\frac{1 + \\sqrt5}{2}, \\quad \\bar\\varphi = \\frac{1 - \\sqrt5}{2}",
+    "poly": "P(u) = \\sum_{k=0}^{d} a_k\\,u^k, \\qquad (PQ)(u) = P(u) \\circ Q(u) = Q(u) \\circ P(u)",
+    "annul": "P(u) = 0,\\ \\ u(x) = \\lambda x,\\ \\ x \\ne 0 \\ \\Longrightarrow\\ P(u)(x) = P(\\lambda)\\,x = 0 \\ \\Longrightarrow\\ P(\\lambda) = 0",
+    "noyaux": "P \\wedge Q = 1 \\ \\Longrightarrow\\ \\ker (PQ)(u) = \\ker P(u) \\oplus \\ker Q(u)",
+    "bezout": "UP + VQ = 1 \\ \\Longrightarrow\\ x = \\underbrace{U(u)P(u)\\,x}_{\\in\\, \\ker Q(u)} + \\underbrace{V(u)Q(u)\\,x}_{\\in\\, \\ker P(u)}",
+    "diagpoly": "u \\text{ diagonalisable} \\iff \\exists\\, P \\text{ scindé à racines simples},\\ P(u) = 0",
+    "proj": "p \\circ p = p \\ \\Longrightarrow\\ X(X-1) \\text{ annule } p \\ \\Longrightarrow\\ E = \\ker p \\oplus \\ker(p - \\mathrm{id}_E)",
+    "ch": "\\chi_u(u) = 0",
+    "comat": "(X I_n - A)\\,B(X) = \\chi_A(X)\\,I_n, \\qquad B(X) = {}^t\\mathrm{Com}(X I_n - A) = \\sum_{k=0}^{n-1} B_k X^k",
+    "coef": "a_k\\,I_n = B_{k-1} - A\\,B_k \\qquad (0 \\le k \\le n,\\ \\ B_{-1} = B_n = 0)",
+    "telesc": "\\chi_A(A) = \\sum_{k=0}^{n} a_k A^k = \\sum_{k=0}^{n} \\big(A^k B_{k-1} - A^{k+1} B_k\\big) = 0",
+    "trig": "\\mathrm{Mat}_{\\mathcal{B}}(u) = \\begin{pmatrix} \\lambda & L \\\\ 0 & A' \\end{pmatrix}, \\qquad \\chi_u = (X - \\lambda)\\,\\chi_{A'}",
+    "trdet": "\\operatorname{tr}(A) = \\sum_{i=1}^n \\lambda_i, \\qquad \\det(A) = \\prod_{i=1}^n \\lambda_i",
+    "jordan2": "N = \\begin{pmatrix} 1 & 1 \\\\ 0 & 1 \\end{pmatrix}, \\qquad \\chi_N = (X - 1)^2, \\qquad \\dim E_1(N) = 1 < 2",
+    "comm": "u \\circ v = v \\circ u,\\ \\ x \\in E_\\lambda(u) \\ \\Longrightarrow\\ u\\big(v(x)\\big) = v\\big(u(x)\\big) = \\lambda\\,v(x)",
+    "m3": "A = \\begin{pmatrix} 0 & 1 & 1 \\\\ 1 & 0 & 1 \\\\ 1 & 1 & 0 \\end{pmatrix}, \\qquad \\chi_A = (X - 2)(X + 1)^2",
+    "m3b": "E_2 = \\mathrm{Vect}\\big((1,1,1)\\big), \\qquad E_{-1} = \\{\\, x + y + z = 0 \\,\\}, \\qquad 1 + 2 = 3",
+    "minpoly": "\\pi_u \\mid P \\ \\text{ pour tout polynôme annulateur } P, \\qquad \\pi_N = (X - 1)^2",
+    "inv2": "A^2 - \\operatorname{tr}(A)\\,A + \\det(A)\\,I_2 = 0 \\ \\Longrightarrow\\ A^{-1} = \\frac{\\operatorname{tr}(A)\\,I_2 - A}{\\det(A)}",
+    "nilp": "N^k = 0 \\ \\Longrightarrow\\ \\mathrm{Sp}_{\\mathbb{C}}(N) = \\{0\\} \\ \\Longrightarrow\\ \\chi_N = X^n \\ \\Longrightarrow\\ N^n = 0",
+    "expo": "X' = AX,\\ \\ A = PDP^{-1} \\ \\Longrightarrow\\ X(t) = P\\,e^{tD}\\,P^{-1} X(0), \\qquad e^{tD} = \\mathrm{diag}\\big(e^{t\\lambda_1}, \\ldots, e^{t\\lambda_n}\\big)"
+  },
+  "statements": {
+    "def-vp": {
+      "kind": "definition",
+      "title": "Éléments propres",
+      "body": "Soit $E$ un $\\mathbb{K}$-espace vectoriel de dimension finie $n \\ge 1$ et $u \\in \\mathcal{L}(E)$. Un scalaire $\\lambda$ est une **valeur propre** de $u$ s'il existe $x \\neq 0$ tel que $u(x) = \\lambda x$ ; un tel $x$ est un **vecteur propre**. Le **sous-espace propre** associé est $E_\\lambda(u) = \\ker(u - \\lambda\\,\\mathrm{id}_E)$. Le **spectre** $\\mathrm{Sp}(u)$ est l'ensemble des valeurs propres."
+    },
+    "prop-somme": {
+      "kind": "proposition",
+      "title": "Sous-espaces propres en somme directe",
+      "body": "Si $\\lambda_1, \\ldots, \\lambda_p$ sont des valeurs propres **deux à deux distinctes**, la somme $E_{\\lambda_1} + \\cdots + E_{\\lambda_p}$ est directe. En particulier, une famille de vecteurs propres associés à des valeurs propres distinctes est libre, et $u$ a au plus $n$ valeurs propres.\n\n*Preuve.* Récurrence sur $p$. Si $x_1 + \\cdots + x_p = 0$ avec $x_i \\in E_{\\lambda_i}$, on applique $u - \\lambda_p\\,\\mathrm{id}$ : $\\sum_{i<p} (\\lambda_i - \\lambda_p) x_i = 0$. Par hypothèse de récurrence, chaque $(\\lambda_i - \\lambda_p) x_i$ est nul, donc $x_i = 0$ pour $i < p$, puis $x_p = 0$."
+    },
+    "def-chi": {
+      "kind": "definition",
+      "title": "Polynôme caractéristique",
+      "body": "Pour $A \\in \\mathcal{M}_n(\\mathbb{K})$, $\\chi_A(X) = \\det(X I_n - A)$. Deux matrices semblables ont le même polynôme caractéristique ; on définit donc $\\chi_u$ comme celui de la matrice de $u$ dans n'importe quelle base."
+    },
+    "prop-chi": {
+      "kind": "proposition",
+      "title": "Propriétés du polynôme caractéristique",
+      "body": "$\\chi_A$ est **unitaire de degré $n$** : $\\chi_A = X^n - \\operatorname{tr}(A) X^{n-1} + \\cdots + (-1)^n \\det(A)$. Les valeurs propres de $A$ sont **exactement les racines** de $\\chi_A$ dans $\\mathbb{K}$. La **multiplicité** $m_\\lambda$ d'une valeur propre est sa multiplicité comme racine de $\\chi_A$."
+    },
+    "prop-dim": {
+      "kind": "proposition",
+      "title": "Dimension d'un sous-espace propre",
+      "body": "Pour toute valeur propre $\\lambda$ : $1 \\le \\dim E_\\lambda(u) \\le m_\\lambda$.\n\n*Preuve.* Soit $d = \\dim E_\\lambda$. On complète une base de $E_\\lambda$ en une base $\\mathcal{B}$ de $E$ : la matrice de $u$ est triangulaire par blocs, de premier bloc $\\lambda I_d$. Son polynôme caractéristique est $(X - \\lambda)^d \\chi_C$, donc $(X - \\lambda)^d$ divise $\\chi_u$ et $d \\le m_\\lambda$."
+    },
+    "def-diag": {
+      "kind": "definition",
+      "title": "Endomorphisme diagonalisable",
+      "body": "$u$ est **diagonalisable** s'il existe une base de $E$ formée de vecteurs propres de $u$, c'est-à-dire une base dans laquelle sa matrice est diagonale. Une matrice $A$ est diagonalisable si elle est semblable à une matrice diagonale : $A = P D P^{-1}$ avec $P$ inversible."
+    },
+    "thm-diag": {
+      "kind": "theorem",
+      "title": "Critères de diagonalisabilité",
+      "body": "Les assertions suivantes sont équivalentes :\n\n1. $u$ est diagonalisable ;\n2. $E = \\bigoplus_{\\lambda \\in \\mathrm{Sp}(u)} E_\\lambda(u)$ ;\n3. $\\sum_{\\lambda \\in \\mathrm{Sp}(u)} \\dim E_\\lambda(u) = n$ ;\n4. $\\chi_u$ est scindé sur $\\mathbb{K}$ et $\\dim E_\\lambda(u) = m_\\lambda$ pour toute valeur propre $\\lambda$."
+    },
+    "pf-diag": {
+      "kind": "proof",
+      "title": "des critères",
+      "body": "(1 ⇒ 2) Une base de vecteurs propres montre que $E$ est la somme des $E_\\lambda$, et cette somme est directe. (2 ⇒ 3) On prend les dimensions. (3 ⇒ 1) En réunissant des bases des $E_\\lambda$, on obtient une famille libre (somme directe) de $n$ vecteurs propres : une base. (3 ⇔ 4) On a $\\sum \\dim E_\\lambda \\le \\sum m_\\lambda \\le \\deg \\chi_u = n$ ; il y a égalité partout si et seulement si $\\chi_u$ est scindé ($\\sum m_\\lambda = n$) et $\\dim E_\\lambda = m_\\lambda$ pour tout $\\lambda$."
+    },
+    "cor-simple": {
+      "kind": "corollary",
+      "title": "Polynôme caractéristique à racines simples",
+      "body": "Si $\\chi_u$ est **scindé à racines simples** (c'est-à-dire si $u$ a $n$ valeurs propres distinctes), alors $u$ est diagonalisable, et chaque sous-espace propre est une droite. La réciproque est fausse : $\\mathrm{id}_E$ est diagonalisable avec $\\chi = (X - 1)^n$."
+    },
+    "ex-fib": {
+      "kind": "example",
+      "title": "Fibonacci et le nombre d'or",
+      "body": "Avec $F_0 = 0$, $F_1 = 1$ et $F_{n+1} = F_n + F_{n-1}$, la matrice $M = \\begin{pmatrix} 1 & 1 \\\\ 1 & 0 \\end{pmatrix}$ a pour polynôme caractéristique $X^2 - X - 1$, de racines distinctes $\\varphi$ et $\\bar\\varphi$. Elle est diagonalisable, et l'on obtient la formule de Binet : $F_n = \\frac{\\varphi^n - \\bar\\varphi^{\\,n}}{\\sqrt5}$."
+    },
+    "lem-noyaux": {
+      "kind": "lemma",
+      "title": "Lemme des noyaux",
+      "body": "Si $P, Q \\in \\mathbb{K}[X]$ sont **premiers entre eux**, alors $\\ker (PQ)(u) = \\ker P(u) \\oplus \\ker Q(u)$. Plus généralement, pour $P_1, \\ldots, P_r$ deux à deux premiers entre eux : $\\ker (P_1 \\cdots P_r)(u) = \\bigoplus_i \\ker P_i(u)$.\n\n*Preuve.* Bézout donne $U, V$ avec $UP + VQ = 1$, donc $\\mathrm{id} = U(u)P(u) + V(u)Q(u)$. Pour $x \\in \\ker(PQ)(u)$, $a = U(u)P(u)x$ vérifie $Q(u)a = U(u)(PQ)(u)x = 0$, et de même $b = V(u)Q(u)x \\in \\ker P(u)$ : $x = a + b$. Si $x \\in \\ker P(u) \\cap \\ker Q(u)$, la même identité donne $x = 0$. L'inclusion réciproque est claire."
+    },
+    "thm-annul": {
+      "kind": "theorem",
+      "title": "Diagonalisabilité et polynômes annulateurs",
+      "body": "$u$ est diagonalisable **si et seulement si** $u$ est annulé par un polynôme **scindé à racines simples** ; de façon équivalente, si et seulement si son polynôme minimal est scindé à racines simples.\n\n*Preuve.* ($\\Leftarrow$) Si $P = \\prod_{i=1}^r (X - \\lambda_i)$, $\\lambda_i$ distincts, annule $u$, le lemme des noyaux donne $E = \\ker P(u) = \\bigoplus_i \\ker(u - \\lambda_i\\,\\mathrm{id})$. ($\\Rightarrow$) Si $\\mathrm{Sp}(u) = \\{\\lambda_1, \\ldots, \\lambda_r\\}$, le polynôme $\\prod (X - \\lambda_i)$ s'annule en $u$ sur chaque vecteur d'une base propre."
+    },
+    "thm-ch": {
+      "kind": "theorem",
+      "title": "Théorème de Cayley-Hamilton",
+      "body": "Pour tout $u \\in \\mathcal{L}(E)$ : $\\chi_u(u) = 0$. Par conséquent, le polynôme minimal $\\pi_u$ divise $\\chi_u$, et ils ont les mêmes racines : les valeurs propres de $u$."
+    },
+    "pf-ch": {
+      "kind": "proof",
+      "title": "de Cayley-Hamilton par la comatrice",
+      "body": "Soit $A$ la matrice de $u$ et $B(X) = {}^t\\mathrm{Com}(X I_n - A)$. Ses coefficients sont des polynômes de degré $\\le n - 1$ : $B(X) = \\sum_{k=0}^{n-1} B_k X^k$ avec $B_k \\in \\mathcal{M}_n(\\mathbb{K})$. La formule de la comatrice donne $(X I_n - A) B(X) = \\chi_A(X) I_n$. En notant $\\chi_A = \\sum_{k=0}^n a_k X^k$ et en identifiant les coefficients de $X^k$ : $a_k I_n = B_{k-1} - A B_k$ (avec $B_{-1} = B_n = 0$). On multiplie à gauche par $A^k$ et l'on somme : $\\chi_A(A) = \\sum_k (A^k B_{k-1} - A^{k+1} B_k) = 0$, somme télescopique."
+    },
+    "thm-trig": {
+      "kind": "theorem",
+      "title": "Trigonalisation",
+      "body": "$u$ est **trigonalisable** (il existe une base où sa matrice est triangulaire supérieure) **si et seulement si** $\\chi_u$ est scindé sur $\\mathbb{K}$. En particulier, toute matrice complexe est trigonalisable, et si $\\lambda_1, \\ldots, \\lambda_n$ sont ses valeurs propres comptées avec multiplicité : $\\operatorname{tr}(A) = \\sum \\lambda_i$ et $\\det(A) = \\prod \\lambda_i$."
+    },
+    "pf-trig": {
+      "kind": "proof",
+      "title": "de la trigonalisation",
+      "body": "($\\Rightarrow$) Le polynôme caractéristique d'une matrice triangulaire est $\\prod (X - t_{ii})$. ($\\Leftarrow$) Récurrence sur $n$. Si $\\chi_u$ est scindé, il a une racine $\\lambda$ : soit $e_1$ un vecteur propre associé, complété en une base. La matrice de $u$ s'écrit $\\begin{pmatrix} \\lambda & L \\\\ 0 & A' \\end{pmatrix}$ et $\\chi_u = (X - \\lambda)\\chi_{A'}$, donc $\\chi_{A'}$ est scindé. Par récurrence, $A' = Q T' Q^{-1}$ avec $T'$ triangulaire ; la matrice $\\begin{pmatrix} 1 & 0 \\\\ 0 & Q \\end{pmatrix}$ trigonalise alors $u$."
+    },
+    "prop-comm": {
+      "kind": "proposition",
+      "title": "Endomorphismes qui commutent",
+      "body": "Si $u \\circ v = v \\circ u$, tout sous-espace propre de $u$ est **stable** par $v$ : pour $x \\in E_\\lambda(u)$, $u(v(x)) = v(u(x)) = \\lambda\\,v(x)$, donc $v(x) \\in E_\\lambda(u)$."
+    },
+    "ex-m3": {
+      "kind": "example",
+      "title": "Une diagonalisation complète",
+      "body": "Pour $A = \\begin{pmatrix} 0 & 1 & 1 \\\\ 1 & 0 & 1 \\\\ 1 & 1 & 0 \\end{pmatrix}$ : $A + I$ est de rang $1$, donc $\\dim E_{-1} = 2$ et $-1$ est au moins double ; la trace vaut $0$, donc la troisième valeur propre est $2$, et $\\chi_A = (X - 2)(X + 1)^2$. On a $E_2 = \\mathrm{Vect}((1,1,1))$, $E_{-1} = \\{x + y + z = 0\\}$ et $1 + 2 = 3$ : $A$ est diagonalisable."
+    },
+    "def-min": {
+      "kind": "definition",
+      "title": "Polynôme minimal",
+      "body": "L'ensemble des polynômes annulateurs de $u$ est un idéal non nul de $\\mathbb{K}[X]$. Son unique générateur unitaire est le **polynôme minimal** $\\pi_u$ : un polynôme $P$ annule $u$ si et seulement si $\\pi_u$ divise $P$. Exemple : pour $N = \\begin{pmatrix} 1 & 1 \\\\ 0 & 1 \\end{pmatrix}$, $\\pi_N = (X - 1)^2$, qui n'est pas à racines simples."
+    },
+    "ex-inv": {
+      "kind": "example",
+      "title": "L'inverse par Cayley-Hamilton",
+      "body": "En dimension $2$, $A^2 - \\operatorname{tr}(A)\\,A + \\det(A)\\,I_2 = 0$. Si $\\det(A) \\ne 0$, on factorise par $A$ : $A^{-1} = \\frac{1}{\\det A}\\big(\\operatorname{tr}(A)\\,I_2 - A\\big)$. En dimension $n$, de même, $A^{-1}$ est un polynôme en $A$."
+    },
+    "prop-nilp": {
+      "kind": "proposition",
+      "title": "Endomorphismes nilpotents",
+      "body": "Si $N^k = 0$ pour un entier $k$, toute valeur propre complexe $\\lambda$ vérifie $\\lambda^k = 0$, donc $\\chi_N = X^n$, et Cayley-Hamilton donne $N^n = 0$. Un nilpotent non nul n'est jamais diagonalisable : sa seule valeur propre est $0$, et il n'est pas nul."
+    },
+    "rem-bilan": {
+      "kind": "remark",
+      "title": "Quel critère utiliser ?",
+      "body": "- $n$ valeurs propres distinctes : diagonalisable, sans autre calcul.\n- Un polynôme annulateur évident ($p^2 = p$, $s^2 = \\mathrm{id}$, $u^3 = u$…) : regarder s'il est scindé à racines simples.\n- Sinon : calculer $\\chi_u$, puis comparer $\\dim E_\\lambda$ et $m_\\lambda$ pour les valeurs propres multiples.\n- Sur $\\mathbb{C}$, on peut toujours trigonaliser."
+    }
+  },
+  "recap": ["eig", "chi", "chi2", "dimineq", "diagcns", "PDP", "noyaux", "diagpoly", "ch", "trdet"]
+}

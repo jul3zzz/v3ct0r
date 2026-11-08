@@ -1,0 +1,93 @@
+[
+  {
+    "id": "ex1",
+    "title": "Éléments propres d'une matrice 2 × 2",
+    "level": 1,
+    "minutes": 5,
+    "statement": "Soit $A = \\begin{pmatrix} 4 & -2 \\\\ 1 & 1 \\end{pmatrix}$. Détermine le spectre de $A$, puis un vecteur propre pour chaque valeur propre.",
+    "hints": [
+      "En dimension 2, $\\chi_A = X^2 - \\operatorname{tr}(A) X + \\det(A)$.",
+      "$\\operatorname{tr}(A) = 5$ et $\\det(A) = 4 + 2 = 6$ : factorise $X^2 - 5X + 6$.",
+      "Les racines sont $2$ et $3$ ; résous $(A - 2I)x = 0$ puis $(A - 3I)x = 0$."
+    ],
+    "solution": [
+      { "text": "$\\chi_A = X^2 - 5X + 6 = (X - 2)(X - 3)$, donc $\\mathrm{Sp}(A) = \\{2, 3\\}$.", "points": 2 },
+      { "text": "$A - 2I = \\begin{pmatrix} 2 & -2 \\\\ 1 & -1 \\end{pmatrix}$ : le noyau est la droite engendrée par $(1, 1)$.", "points": 1 },
+      { "text": "$A - 3I = \\begin{pmatrix} 1 & -2 \\\\ 1 & -2 \\end{pmatrix}$ : le noyau est la droite engendrée par $(2, 1)$.", "points": 1 },
+      { "text": "Deux valeurs propres distinctes en dimension 2 : $A$ est diagonalisable, $A = P\\,\\mathrm{diag}(2,3)\\,P^{-1}$ avec $P = \\begin{pmatrix} 1 & 2 \\\\ 1 & 1 \\end{pmatrix}$.", "points": 1 }
+    ],
+    "answer": { "kind": "qcm", "choices": ["$\\{1, 4\\}$", "$\\{2, 3\\}$", "$\\{-2, -3\\}$", "$\\{1, 5\\}$"], "answer": 1 }
+  },
+  {
+    "id": "ex2",
+    "title": "Une valeur propre double",
+    "level": 2,
+    "minutes": 6,
+    "statement": "Soit $A = \\begin{pmatrix} 1 & 1 & 0 \\\\ 0 & 1 & 0 \\\\ 0 & 0 & 2 \\end{pmatrix}$. Calcule $\\chi_A$, puis la dimension du sous-espace propre $E_1(A)$. Quelle valeur trouves-tu pour $\\dim E_1(A)$ ?",
+    "hints": [
+      "La matrice est triangulaire : son polynôme caractéristique se lit sur la diagonale.",
+      "$\\chi_A = (X-1)^2(X-2)$. Pour $E_1$, calcule le rang de $A - I$.",
+      "$A - I = \\begin{pmatrix} 0 & 1 & 0 \\\\ 0 & 0 & 0 \\\\ 0 & 0 & 1 \\end{pmatrix}$ est de rang 2 : applique le théorème du rang."
+    ],
+    "solution": [
+      { "text": "$A$ est triangulaire, donc $\\chi_A = (X - 1)^2 (X - 2)$ : $m_1 = 2$ et $m_2 = 1$.", "points": 1 },
+      { "text": "$A - I$ a deux colonnes non nulles indépendantes : son rang vaut 2, donc $\\dim E_1(A) = 3 - 2 = 1$ (c'est la droite engendrée par $e_1$).", "points": 2 },
+      { "text": "On a $\\dim E_1 = 1 < 2 = m_1$ : le critère 4 échoue, $A$ n'est **pas** diagonalisable (elle est déjà triangulaire).", "points": 2 }
+    ],
+    "answer": { "kind": "num", "value": 1, "tol": 0.001 }
+  },
+  {
+    "id": "ex3",
+    "title": "Puissances d'une matrice diagonalisable",
+    "level": 2,
+    "minutes": 7,
+    "statement": "Soit $A = \\begin{pmatrix} 2 & 1 \\\\ 1 & 2 \\end{pmatrix}$. Diagonalise $A$, puis calcule $A^k$ pour tout entier $k \\ge 0$. Donne la valeur du coefficient en haut à gauche de $A^5$.",
+    "hints": [
+      "Les vecteurs $(1,1)$ et $(1,-1)$ sont propres : pour quelles valeurs propres ?",
+      "$A = P D P^{-1}$ avec $P = \\begin{pmatrix} 1 & 1 \\\\ 1 & -1 \\end{pmatrix}$, $D = \\mathrm{diag}(3, 1)$ et $P^{-1} = \\frac12 P$.",
+      "$A^k = P D^k P^{-1} = \\frac12 \\begin{pmatrix} 3^k + 1 & 3^k - 1 \\\\ 3^k - 1 & 3^k + 1 \\end{pmatrix}$."
+    ],
+    "solution": [
+      { "text": "$A(1,1) = (3,3)$ et $A(1,-1) = (1,-1)$ : valeurs propres $3$ et $1$, donc $A = PDP^{-1}$ avec $P = \\begin{pmatrix} 1 & 1 \\\\ 1 & -1 \\end{pmatrix}$, $D = \\mathrm{diag}(3,1)$.", "points": 2 },
+      { "text": "$P^2 = 2I$, donc $P^{-1} = \\frac12 P$. Par récurrence, $A^k = P D^k P^{-1}$.", "points": 1 },
+      { "text": "$A^k = \\frac12 \\begin{pmatrix} 3^k + 1 & 3^k - 1 \\\\ 3^k - 1 & 3^k + 1 \\end{pmatrix}$ ; pour $k = 5$ : $\\frac{243 + 1}{2} = 122$.", "points": 2 }
+    ],
+    "answer": { "kind": "num", "value": 122, "tol": 0.001 }
+  },
+  {
+    "id": "ex4",
+    "title": "Les projecteurs sont diagonalisables",
+    "level": 2,
+    "minutes": 5,
+    "statement": "Soit $p \\in \\mathcal{L}(E)$ tel que $p \\circ p = p$. Parmi les affirmations suivantes, laquelle est toujours vraie ?",
+    "hints": [
+      "Trouve un polynôme annulateur évident de $p$.",
+      "$X^2 - X = X(X - 1)$ annule $p$. Est-il scindé à racines simples ?",
+      "Le spectre est contenu dans l'ensemble des racines de tout polynôme annulateur."
+    ],
+    "solution": [
+      { "text": "$P = X^2 - X = X(X - 1)$ annule $p$, et il est scindé à racines simples : $p$ est diagonalisable.", "points": 2 },
+      { "text": "Toute valeur propre est racine de $P$, donc $\\mathrm{Sp}(p) \\subset \\{0, 1\\}$, et le lemme des noyaux donne $E = \\ker p \\oplus \\ker(p - \\mathrm{id}_E)$.", "points": 2 },
+      { "text": "Les autres affirmations sont fausses en général : un projecteur différent de l'identité n'est pas inversible, et $\\chi_p$ est de degré $n$, pas $2$.", "points": 1 }
+    ],
+    "answer": { "kind": "qcm", "choices": ["$p$ est diagonalisable et $\\mathrm{Sp}(p) \\subset \\{0, 1\\}$", "$p$ est inversible", "$p$ n'est diagonalisable que si $p = 0$ ou $p = \\mathrm{id}_E$", "$\\chi_p = X^2 - X$"], "answer": 0 }
+  },
+  {
+    "id": "ex5",
+    "title": "Trace et déterminant par trigonalisation",
+    "level": 1,
+    "minutes": 5,
+    "statement": "Soit $A \\in \\mathcal{M}_3(\\mathbb{R})$ dont le polynôme caractéristique est $\\chi_A = (X - 1)^2 (X - 2)$. Justifie que $A$ est trigonalisable, puis calcule $\\det(A)$.",
+    "hints": [
+      "Le polynôme caractéristique est-il scindé sur $\\mathbb{R}$ ?",
+      "Dans une base où la matrice est triangulaire, la diagonale porte les valeurs propres avec leur multiplicité : $1, 1, 2$.",
+      "Le déterminant est le produit des valeurs propres comptées avec multiplicité."
+    ],
+    "solution": [
+      { "text": "$\\chi_A$ est scindé sur $\\mathbb{R}$, donc $A$ est trigonalisable : $A = P T P^{-1}$ avec $T$ triangulaire de diagonale $(1, 1, 2)$.", "points": 2 },
+      { "text": "$\\det(A) = \\det(T) = 1 \\cdot 1 \\cdot 2 = 2$, et $\\operatorname{tr}(A) = \\operatorname{tr}(T) = 4$.", "points": 2 },
+      { "text": "Vérification : le coefficient constant de $\\chi_A$ vaut $(-1)^3 \\det(A) = -2$, et l'on a bien $(0-1)^2(0-2) = -2$.", "points": 1 }
+    ],
+    "answer": { "kind": "num", "value": 2, "tol": 0.001 }
+  }
+]

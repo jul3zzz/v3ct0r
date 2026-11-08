@@ -1,0 +1,54 @@
+{
+  "id": "analyse-fonctionnelle",
+  "title": "Analyse fonctionnelle",
+  "level": "master",
+  "minutes": 90,
+  "prerequisites": [
+    "topologie-evn",
+    "mesure-lebesgue",
+    "prehilbertiens"
+  ],
+  "tags": [
+    "Banach",
+    "Hilbert",
+    "Hahn-Banach",
+    "opérateurs"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Espaces de Banach",
+      "items": [
+        "Complétude, séries absolument convergentes",
+        "Théorème de Baire et ses conséquences : Banach-Steinhaus, application ouverte, graphe fermé"
+      ]
+    },
+    {
+      "title": "2. Dualité",
+      "items": [
+        "Théorème de Hahn-Banach (formes analytique et géométrique)",
+        "Topologies faibles, théorème de Banach-Alaoglu (énoncé)"
+      ]
+    },
+    {
+      "title": "3. Espaces de Hilbert",
+      "items": [
+        "Projection sur un convexe fermé",
+        "Théorème de représentation de Riesz",
+        "Bases hilbertiennes, séries de Fourier dans $L^2$"
+      ]
+    },
+    {
+      "title": "4. Opérateurs",
+      "items": [
+        "Opérateurs compacts, alternative de Fredholm",
+        "Spectre des opérateurs compacts autoadjoints"
+      ]
+    }
+  ],
+  "references": [
+    "H. Brezis, Analyse fonctionnelle : théorie et applications (Dunod)",
+    "W. Rudin, Functional Analysis (McGraw-Hill)"
+  ]
+}

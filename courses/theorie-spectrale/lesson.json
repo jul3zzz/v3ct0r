@@ -1,0 +1,51 @@
+{
+  "id": "theorie-spectrale",
+  "title": "Théorie spectrale",
+  "level": "doctorat",
+  "minutes": 90,
+  "prerequisites": [
+    "analyse-fonctionnelle",
+    "reduction"
+  ],
+  "tags": [
+    "spectre",
+    "opérateurs autoadjoints",
+    "calcul fonctionnel"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Spectre",
+      "items": [
+        "Spectre, résolvante, rayon spectral (formule de Gelfand)",
+        "Spectre ponctuel, continu, résiduel"
+      ]
+    },
+    {
+      "title": "2. Opérateurs compacts",
+      "items": [
+        "Théorie de Riesz-Schauder",
+        "Théorème spectral pour les compacts autoadjoints"
+      ]
+    },
+    {
+      "title": "3. Opérateurs autoadjoints bornés",
+      "items": [
+        "Calcul fonctionnel continu",
+        "Mesures spectrales, théorème spectral (forme multiplicative)"
+      ]
+    },
+    {
+      "title": "4. Opérateurs non bornés",
+      "items": [
+        "Domaines, opérateurs fermés, adjoint",
+        "Exemple : le laplacien, oscillateur harmonique"
+      ]
+    }
+  ],
+  "references": [
+    "M. Reed, B. Simon, Methods of Modern Mathematical Physics I : Functional Analysis (Academic Press)",
+    "H. Brezis, Analyse fonctionnelle : théorie et applications (Dunod)"
+  ]
+}

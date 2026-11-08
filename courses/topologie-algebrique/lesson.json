@@ -1,0 +1,51 @@
+{
+  "id": "topologie-algebrique",
+  "title": "Topologie algébrique",
+  "level": "master",
+  "minutes": 80,
+  "prerequisites": [
+    "topologie-evn"
+  ],
+  "tags": [
+    "homotopie",
+    "groupe fondamental",
+    "revêtements",
+    "homologie"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Homotopie",
+      "items": [
+        "Chemins, lacets, homotopies",
+        "Groupe fondamental, invariance par homotopie"
+      ]
+    },
+    {
+      "title": "2. Revêtements",
+      "items": [
+        "Relèvement des chemins et des homotopies",
+        "$\\pi_1(S^1) = \\mathbb{Z}$ ; théorème de Brouwer en dimension 2",
+        "Classification des revêtements (énoncé)"
+      ]
+    },
+    {
+      "title": "3. Van Kampen",
+      "items": [
+        "Théorème de Seifert-van Kampen",
+        "Groupes fondamentaux des surfaces (lien avec la vue « Surfaces 3D »)"
+      ]
+    },
+    {
+      "title": "4. Homologie",
+      "items": [
+        "Complexes simpliciaux, homologie simpliciale",
+        "Caractéristique d’Euler-Poincaré (lien avec les polytopes 4D)"
+      ]
+    }
+  ],
+  "references": [
+    "A. Hatcher, Algebraic Topology (Cambridge University Press)"
+  ]
+}

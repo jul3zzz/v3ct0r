@@ -1,0 +1,52 @@
+{
+  "id": "probabilites",
+  "title": "Probabilités",
+  "level": "master",
+  "minutes": 90,
+  "prerequisites": [
+    "mesure-lebesgue"
+  ],
+  "tags": [
+    "espérance",
+    "indépendance",
+    "lois des grands nombres",
+    "TCL"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Espaces probabilisés",
+      "items": [
+        "Variables aléatoires, lois, fonctions de répartition",
+        "Espérance comme intégrale de Lebesgue, moments"
+      ]
+    },
+    {
+      "title": "2. Indépendance",
+      "items": [
+        "Tribus indépendantes, lemme de Borel-Cantelli",
+        "Loi du 0-1 de Kolmogorov"
+      ]
+    },
+    {
+      "title": "3. Convergences",
+      "items": [
+        "Presque sûre, en probabilité, $L^p$, en loi",
+        "Loi faible et loi forte des grands nombres (lien avec la vue « Loi des grands nombres »)"
+      ]
+    },
+    {
+      "title": "4. Théorème central limite",
+      "items": [
+        "Fonctions caractéristiques, théorème de Lévy",
+        "Théorème central limite (lien avec les vues Galton et TCL)"
+      ]
+    }
+  ],
+  "references": [
+    "P. Billingsley, Probability and Measure (Wiley)",
+    "R. Durrett, Probability: Theory and Examples (Cambridge University Press)",
+    "J.-Y. Ouvrard, Probabilités 1 et 2 (Cassini)"
+  ]
+}

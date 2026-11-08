@@ -1,0 +1,56 @@
+{
+  "id": "mesure-lebesgue",
+  "title": "Théorie de la mesure et intégrale de Lebesgue",
+  "level": "master",
+  "minutes": 90,
+  "prerequisites": [
+    "riemann-lebesgue"
+  ],
+  "tags": [
+    "tribus",
+    "mesures",
+    "Fubini",
+    "espaces Lp"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Espaces mesurés",
+      "items": [
+        "Tribus, classes monotones, lemme de Dynkin",
+        "Mesures, continuité monotone, mesures extérieures",
+        "Construction de Carathéodory, mesure de Lebesgue, régularité"
+      ]
+    },
+    {
+      "title": "2. Intégration",
+      "items": [
+        "Fonctions mesurables, fonctions étagées",
+        "Convergence monotone, lemme de Fatou, convergence dominée",
+        "Intégrales à paramètre : continuité, dérivation"
+      ]
+    },
+    {
+      "title": "3. Produits",
+      "items": [
+        "Mesure produit",
+        "Théorèmes de Fubini-Tonelli et de Fubini",
+        "Changement de variables dans $\\mathbb{R}^n$"
+      ]
+    },
+    {
+      "title": "4. Espaces $L^p$",
+      "items": [
+        "Inégalités de Hölder et de Minkowski",
+        "Complétude (Riesz-Fischer), densité des fonctions continues à support compact",
+        "Dual de $L^p$ pour $1<p<\\infty$ (énoncé)"
+      ]
+    }
+  ],
+  "references": [
+    "W. Rudin, Real and Complex Analysis (McGraw-Hill)",
+    "M. Briane, G. Pagès, Théorie de l’intégration (Vuibert)",
+    "G. B. Folland, Real Analysis (Wiley)"
+  ]
+}

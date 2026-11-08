@@ -1,0 +1,24 @@
+{
+  "id": "reduction",
+  "title": "Réduction des endomorphismes",
+  "subtitle": "Valeurs propres, polynôme caractéristique, diagonalisation, polynômes annulateurs, Cayley-Hamilton, trigonalisation : les énoncés exacts et leurs preuves.",
+  "level": "prepa",
+  "minutes": 50,
+  "prerequisites": ["algebre-lineaire"],
+  "tags": ["valeurs propres", "diagonalisation", "polynôme caractéristique", "Cayley-Hamilton", "lemme des noyaux", "MP"],
+  "status": "ready",
+  "chapters": [
+    { "id": "pourquoi", "title": "Pourquoi réduire ?" },
+    { "id": "propres", "title": "Éléments propres" },
+    { "id": "caracteristique", "title": "Polynôme caractéristique" },
+    { "id": "diagonalisation", "title": "Diagonalisation" },
+    { "id": "annulateurs", "title": "Polynômes annulateurs" },
+    { "id": "trigonalisation", "title": "Trigonalisation" },
+    { "id": "bilan", "title": "Bilan" }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Algèbre (Ellipses)",
+    "J. Grifone, Algèbre linéaire (Cépaduès)",
+    "E. Ramis, C. Deschamps, J. Odoux, Cours de mathématiques spéciales, tome 1 : Algèbre (Masson)"
+  ]
+}

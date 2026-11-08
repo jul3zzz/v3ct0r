@@ -1,0 +1,23 @@
+{
+  "id": "riemann-lebesgue",
+  "title": "De Riemann à Lebesgue : pourquoi il fallait une nouvelle intégrale",
+  "subtitle": "Les défauts de l'intégrale de Riemann, l'idée de découper les valeurs, la mesure, et les théorèmes de convergence qui justifient tout l'effort.",
+  "level": "master",
+  "minutes": 50,
+  "prerequisites": ["riemann"],
+  "tags": ["Lebesgue", "mesure", "tribu", "convergence dominée", "Fatou", "Beppo Levi", "ensemble de Cantor"],
+  "status": "ready",
+  "chapters": [
+    { "id": "defauts", "title": "Trois défauts de l'intégrale de Riemann" },
+    { "id": "idee", "title": "L'idée de Lebesgue : découper les valeurs" },
+    { "id": "mesure", "title": "Mesurer des ensembles" },
+    { "id": "integrale", "title": "Fonctions mesurables et intégrale" },
+    { "id": "convergence", "title": "Les théorèmes de convergence" },
+    { "id": "reconcilies", "title": "Riemann et Lebesgue réconciliés" }
+  ],
+  "references": [
+    "W. Rudin, Real and Complex Analysis (McGraw-Hill), chapitres 1 et 2",
+    "M. Briane, G. Pagès, Théorie de l'intégration (Vuibert)",
+    "H. Lebesgue, Leçons sur l'intégration et la recherche des fonctions primitives (Gauthier-Villars, 1904)"
+  ]
+}

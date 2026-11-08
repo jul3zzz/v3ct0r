@@ -1,0 +1,14 @@
+{
+  "id": "intro-4d",
+  "title": "Intro · Dimensions",
+  "subtitle": "Trente secondes pour entrer dans le module : le tesseract, ses coupes, la fibration de Hopf et la bouteille de Klein.",
+  "level": "intro",
+  "module": "4d",
+  "minutes": 0.5,
+  "soundtrack": true,
+  "voiceVolume": 0.6,
+  "prerequisites": [],
+  "tags": ["intro", "4D", "tesseract", "fibration de Hopf", "bouteille de Klein"],
+  "status": "ready",
+  "chapters": [{ "id": "intro", "title": "Dimensions" }]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "intro-integrals",
+  "title": "Intro · Intégrales",
+  "subtitle": "Trente secondes pour entrer dans le module : des rectangles de Riemann jusqu'à l'hypervolume en quatre dimensions.",
+  "level": "intro",
+  "module": "integrals",
+  "minutes": 0.5,
+  "soundtrack": true,
+  "voiceVolume": 0.6,
+  "prerequisites": [],
+  "tags": ["intro", "intégrale", "sommes de Riemann", "théorème fondamental", "volume"],
+  "status": "ready",
+  "chapters": [{ "id": "intro", "title": "Intégrales" }]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "geometrie-differentielle",
+  "title": "Géométrie différentielle",
+  "level": "master",
+  "minutes": 90,
+  "prerequisites": [
+    "topologie-evn",
+    "equations-differentielles"
+  ],
+  "tags": [
+    "variétés",
+    "champs de vecteurs",
+    "formes différentielles"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Calcul différentiel",
+      "items": [
+        "Différentielle, théorème d’inversion locale, fonctions implicites",
+        "Sous-variétés de $\\mathbb{R}^n$ : quatre définitions équivalentes"
+      ]
+    },
+    {
+      "title": "2. Variétés",
+      "items": [
+        "Cartes, atlas, applications lisses",
+        "Espace tangent, fibré tangent"
+      ]
+    },
+    {
+      "title": "3. Champs de vecteurs",
+      "items": [
+        "Flots, crochet de Lie",
+        "Lien avec les équations différentielles"
+      ]
+    },
+    {
+      "title": "4. Formes différentielles",
+      "items": [
+        "Produit extérieur, différentielle extérieure",
+        "Intégration, théorème de Stokes"
+      ]
+    }
+  ],
+  "references": [
+    "J. Lafontaine, Introduction aux variétés différentielles (EDP Sciences)",
+    "M. do Carmo, Differential Geometry of Curves and Surfaces (Prentice-Hall)"
+  ]
+}

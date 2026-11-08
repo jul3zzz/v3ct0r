@@ -1,0 +1,14 @@
+{
+  "id": "intro-fractals",
+  "title": "Intro · Fractales",
+  "subtitle": "Trente secondes pour entrer dans le module : Mandelbrot, le flocon de Koch, l'attracteur de Lorenz et le Mandelbulb.",
+  "level": "intro",
+  "module": "fractals",
+  "minutes": 0.5,
+  "soundtrack": true,
+  "voiceVolume": 0.6,
+  "prerequisites": [],
+  "tags": ["intro", "fractale", "Mandelbrot", "Koch", "Lorenz", "chaos"],
+  "status": "ready",
+  "chapters": [{ "id": "intro", "title": "Fractales" }]
+}

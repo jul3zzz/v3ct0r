@@ -1,0 +1,76 @@
+[
+  {
+    "id": "ex1",
+    "title": "Intégrale d'une fonction en escalier",
+    "level": 1,
+    "minutes": 4,
+    "statement": "Sur $[0,3]$, soit $\\varphi$ la fonction qui vaut $2$ sur $]0,1[$, $-1$ sur $]1,\\, 2{,}5[$ et $4$ sur $]2{,}5,\\, 3[$, et qui prend des valeurs quelconques en $0$, $1$, $2{,}5$ et $3$. Calcule $I(\\varphi)$.",
+    "hints": [
+      "Commence par écrire une subdivision adaptée à $\\varphi$.",
+      "$\\sigma = (0,\\ 1,\\ 2{,}5,\\ 3)$ convient. Les valeurs de $\\varphi$ aux points de $\\sigma$ n'interviennent pas.",
+      "$I(\\varphi) = 2 \\times 1 + (-1) \\times 1{,}5 + 4 \\times 0{,}5$."
+    ],
+    "solution": [
+      { "text": "La subdivision $\\sigma = (0, 1, 2{,}5, 3)$ est adaptée : $\\varphi$ est constante sur chacun des intervalles ouverts $]0,1[$, $]1, 2{,}5[$, $]2{,}5, 3[$.", "points": 1 },
+      { "text": "Par définition, $I(\\varphi) = \\sum c_i (x_i - x_{i-1}) = 2 \\cdot 1 + (-1) \\cdot 1{,}5 + 4 \\cdot 0{,}5 = 2{,}5$.", "points": 2 },
+      { "text": "Les valeurs en $0, 1, 2{,}5, 3$ ne jouent aucun rôle : modifier une fonction en escalier en un nombre fini de points ne change pas son intégrale.", "points": 1 }
+    ],
+    "answer": { "kind": "num", "value": 2.5, "tol": 0.001 }
+  },
+  {
+    "id": "ex2",
+    "title": "La fonction de Dirichlet",
+    "level": 2,
+    "minutes": 5,
+    "statement": "Soit $f = \\mathbf{1}_{\\mathbb{Q}}$ sur $[0,1]$ : $f(x) = 1$ si $x$ est rationnel, $0$ sinon. Calcule $I^-(f)$ et $I^+(f)$ en justifiant, puis donne la valeur de $I^+(f) - I^-(f)$.",
+    "hints": [
+      "Prends $\\varphi \\in \\mathcal{E}$ avec $\\varphi \\le f$, et une subdivision adaptée. Que dire de la valeur $c_i$ sur $]x_{i-1}, x_i[$ ?",
+      "Tout intervalle ouvert non vide contient un irrationnel $y$ : donc $c_i = \\varphi(y) \\le f(y) = 0$.",
+      "Tu obtiens $I(\\varphi) \\le 0$ pour toute $\\varphi \\le f$, et la fonction nulle convient : $I^-(f) = 0$. Raisonne de même avec un rationnel pour $I^+(f)$."
+    ],
+    "solution": [
+      { "text": "Soit $\\varphi \\in \\mathcal{E}([0,1])$ avec $\\varphi \\le f$, et $\\sigma$ adaptée. L'intervalle $]x_{i-1}, x_i[$ contient un irrationnel $y$, donc $c_i = \\varphi(y) \\le f(y) = 0$. Ainsi $I(\\varphi) = \\sum c_i (x_i - x_{i-1}) \\le 0$.", "points": 2 },
+      { "text": "La fonction nulle est en escalier et minore $f$ : $I^-(f) = \\sup I(\\varphi) = 0$.", "points": 1 },
+      { "text": "Symétriquement, si $\\psi \\ge f$ est en escalier, chaque $]x_{i-1}, x_i[$ contient un rationnel $r$, d'où $c_i = \\psi(r) \\ge 1$ et $I(\\psi) \\ge 1$ ; la constante $1$ convient, donc $I^+(f) = 1$.", "points": 2 },
+      { "text": "$I^+(f) - I^-(f) = 1 \\ne 0$ : $f$ n'est pas intégrable au sens de Riemann.", "points": 1 }
+    ],
+    "answer": { "kind": "num", "value": 1, "tol": 0.001 }
+  },
+  {
+    "id": "ex3",
+    "title": "Les fonctions monotones sont intégrables",
+    "level": 2,
+    "minutes": 6,
+    "statement": "Soit $f$ **croissante** sur $[a,b]$ et $\\sigma_n$ la subdivision régulière $x_k = a + k\\,\\frac{b-a}{n}$.\n\n1. Montre que $S(f,\\sigma_n) - s(f,\\sigma_n) \\le \\frac{(b-a)\\,(f(b) - f(a))}{n}$.\n2. Déduis-en que $f$ est intégrable.\n3. Application : pour $f = \\exp$ sur $[0,1]$ et $n = 100$, donne la valeur numérique de ce majorant.",
+    "hints": [
+      "Sur $]x_{k-1}, x_k[$, compare $m_k$ et $M_k$ aux valeurs $f(x_{k-1})$ et $f(x_k)$.",
+      "Par croissance, $f(x_{k-1}) \\le m_k \\le M_k \\le f(x_k)$. La somme $\\sum_k (f(x_k) - f(x_{k-1}))$ est télescopique.",
+      "Le majorant vaut $\\frac{(1-0)(e - 1)}{100}$."
+    ],
+    "solution": [
+      { "text": "Pour $x \\in \\,]x_{k-1}, x_k[$, la croissance donne $f(x_{k-1}) \\le f(x) \\le f(x_k)$, donc $f(x_{k-1}) \\le m_k \\le M_k \\le f(x_k)$.", "points": 2 },
+      { "text": "Ainsi $S - s = \\sum_{k=1}^n (M_k - m_k)\\frac{b-a}{n} \\le \\frac{b-a}{n} \\sum_{k=1}^n \\big(f(x_k) - f(x_{k-1})\\big) = \\frac{(b-a)(f(b) - f(a))}{n}$ (somme télescopique).", "points": 2 },
+      { "text": "Le majorant tend vers $0$ : pour $\\varepsilon > 0$, on choisit $n$ assez grand et les fonctions en escalier associées à $s$ et $S$ vérifient le critère d'intégrabilité.", "points": 1 },
+      { "text": "Pour $\\exp$ sur $[0,1]$ et $n = 100$ : $\\frac{e - 1}{100} \\approx 0{,}01718$.", "points": 1 }
+    ],
+    "answer": { "kind": "num", "value": 0.0171828, "tol": 0.0001 }
+  },
+  {
+    "id": "ex4",
+    "title": "Une limite par les sommes de Riemann",
+    "level": 2,
+    "minutes": 6,
+    "statement": "Calcule $\\displaystyle \\lim_{n \\to +\\infty} \\sum_{k=1}^{n} \\frac{n}{n^2 + k^2}$.",
+    "hints": [
+      "Fais apparaître un facteur $\\frac1n$ et une fonction de $\\frac{k}{n}$.",
+      "$\\frac{n}{n^2 + k^2} = \\frac1n \\cdot \\frac{1}{1 + (k/n)^2}$ : c'est une somme de Riemann de $x \\mapsto \\frac{1}{1+x^2}$ sur $[0,1]$.",
+      "La limite vaut $\\int_0^1 \\frac{dx}{1+x^2} = \\arctan 1$."
+    ],
+    "solution": [
+      { "text": "On écrit $u_n = \\frac1n \\sum_{k=1}^n g\\big(\\frac{k}{n}\\big)$ avec $g(x) = \\frac{1}{1 + x^2}$, continue sur $[0,1]$.", "points": 2 },
+      { "text": "C'est la somme de Riemann de $g$ pour la subdivision régulière avec les points de droite $\\xi_k = \\frac{k}{n}$ ; son pas $\\frac1n$ tend vers $0$.", "points": 1 },
+      { "text": "Par le théorème de convergence des sommes de Riemann, $u_n \\to \\int_0^1 \\frac{dx}{1+x^2} = \\big[\\arctan x\\big]_0^1 = \\frac{\\pi}{4} \\approx 0{,}7854$.", "points": 2 }
+    ],
+    "answer": { "kind": "num", "value": 0.7853982, "tol": 0.001 }
+  }
+]

@@ -1,0 +1,75 @@
+{
+  "id": "topologie-evn",
+  "title": "Topologie des espaces vectoriels normés",
+  "subtitle": "Normes, ouverts et fermés, continuité, compacité, dimension finie",
+  "level": "prepa",
+  "format": "written",
+  "minutes": 30,
+  "prerequisites": [
+    "suites-series"
+  ],
+  "tags": [
+    "normes",
+    "ouverts",
+    "compacité",
+    "continuité"
+  ],
+  "status": "ready",
+  "chapters": [
+    {
+      "id": "normes",
+      "title": "Normes"
+    },
+    {
+      "id": "topologie",
+      "title": "Ouverts, fermés, adhérence"
+    },
+    {
+      "id": "continuite",
+      "title": "Continuité"
+    },
+    {
+      "id": "compacite",
+      "title": "Compacité et dimension finie"
+    }
+  ],
+  "plan": [
+    {
+      "title": "1. Normes",
+      "items": [
+        "Normes, distances, boules ; exemples $\\|\\cdot\\|_1$, $\\|\\cdot\\|_2$, $\\|\\cdot\\|_\\infty$",
+        "Normes équivalentes"
+      ]
+    },
+    {
+      "title": "2. Topologie",
+      "items": [
+        "Ouverts, fermés, adhérence, intérieur, frontière",
+        "Caractérisation séquentielle des fermés",
+        "Parties denses"
+      ]
+    },
+    {
+      "title": "3. Continuité",
+      "items": [
+        "Limites et continuité, caractérisation séquentielle",
+        "Applications lipschitziennes, uniformément continues",
+        "Applications linéaires continues, norme subordonnée"
+      ]
+    },
+    {
+      "title": "4. Compacité et dimension finie",
+      "items": [
+        "Parties compactes (Bolzano-Weierstrass)",
+        "Image continue d’un compact, théorème des bornes atteintes",
+        "En dimension finie, toutes les normes sont équivalentes",
+        "Connexité par arcs, théorème des valeurs intermédiaires"
+      ]
+    }
+  ],
+  "references": [
+    "G. Skandalis, Topologie et analyse 3e année (Dunod)",
+    "X. Gourdon, Les maths en tête — Analyse (Ellipses)",
+    "C. Deschamps, A. Warusfel et al., Mathématiques tout-en-un MP (Dunod)"
+  ]
+}

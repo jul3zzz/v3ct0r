@@ -1,0 +1,192 @@
+{
+  "_doc": "Vidéos YouTube conseillées pour chaque vue de l'explorateur (bloc VIDÉOS du panneau). Titre, chaîne et durée viennent de YouTube : npm run videos:check les revérifie, npm run videos:check -- --write les met à jour.",
+  "checked": "2026-11-08",
+  "views": {
+    "integrals/riemann": [
+      {"id":"R6ge0QBu3Nk","lang":"fr","title":"[UT#1] Comprendre les sommes de Riemann (L'idée)","channel":"Øljen – Les maths en finesse","len":"8:44"},
+      {"id":"CXCtqBlEZ7g","lang":"en","title":"Definite integral as the limit of a Riemann sum | AP Calculus AB | Khan Academy","channel":"Khan Academy","len":"4:26"}
+    ],
+    "integrals/ftc": [
+      {"id":"QPllqTbbqA4","lang":"fr","title":"Le théorème fondamental de l'analyse (dérivée et intégrale) | Lê Nguyên Hoang","channel":"Wandida, EPFL","len":"5:37"},
+      {"id":"rfG8ce4nNh0","lang":"en","title":"Integration and the fundamental theorem of calculus | Chapter 8, Essence of calculus","channel":"3Blue1Brown","len":"20:46"}
+    ],
+    "integrals/double": [
+      {"id":"9J7SNFb6l0E","lang":"fr","title":"Tu vas tout comprendre aux intégrales doubles et triples","channel":"Romain - L'élégance des maths","len":"20:03"},
+      {"id":"DTVk8oa2f8s","lang":"en","title":"What are double integrals? What are they for? | #SoME1 #3b1b","channel":"ClearMath","len":"15:34"}
+    ],
+    "integrals/triple": [
+      {"id":"9J7SNFb6l0E","lang":"fr","title":"Tu vas tout comprendre aux intégrales doubles et triples","channel":"Romain - L'élégance des maths","len":"20:03"},
+      {"id":"ZIn1rgZVPFw","lang":"en","title":"Triple Integrals in Cartesian Coordinates | Volume between Surfaces","channel":"Dr. Trefor Bazett","len":"7:13"}
+    ],
+    "integrals/hyper": [
+      {"id":"dy_MUfBuq2I","lang":"fr","title":"L'hypersphère : la sphère en quatre dimensions","channel":"Les idées froides (Alain Bernard)","len":"13:47"},
+      {"id":"fsLh-NYhOoU","lang":"en","title":"The most beautiful formula not enough people understand","channel":"3Blue1Brown","len":"1:00:23"}
+    ],
+    "4d/polytopes": [
+      {"id":"sgMwD9fzk80","lang":"fr","title":"La quatrième dimension #4 - L'hypercube - Micmaths","channel":"Mickaël Launay (Micmaths)","len":"18:17"},
+      {"id":"iPTTDzI8waM","lang":"fr","note":"Film Dimensions (J. Leys, É. Ghys, A. Alvarez), chapitre 4 : la quatrième dimension","title":"Dimensions 4 Francais","channel":"Jos Leys","len":"13:44"},
+      {"id":"2s4TqVAbfz4","lang":"en","title":"Perfect Shapes in Higher Dimensions - Numberphile","channel":"Numberphile","len":"26:19"}
+    ],
+    "4d/slices": [
+      {"id":"IbV0UoXXcOY","lang":"fr","title":"La quatrième dimension #2 - Représenter la 4D - Micmaths","channel":"Mickaël Launay (Micmaths)","len":"18:36"},
+      {"id":"6kq-qZW7QuM","lang":"fr","note":"Film Dimensions (J. Leys, É. Ghys, A. Alvarez), chapitre 3 : la quatrième dimension","title":"Dimensions 3 Francais","channel":"Jos Leys","len":"14:08"},
+      {"id":"iGO12Z5Lw8s","lang":"en","title":"Understanding 4D -- The Tesseract","channel":"Leios","len":"3:57"}
+    ],
+    "4d/hopf": [
+      {"id":"mQEsxj5wgOc","lang":"fr","note":"Film Dimensions (J. Leys, É. Ghys, A. Alvarez), chapitre 7 : la fibration de Hopf","title":"Dimensions 7 Francais","channel":"Jos Leys","len":"13:44"},
+      {"id":"AKotMPGFJYk","lang":"en","title":"Hopf fibration -- fibers and base","channel":"Niles Johnson","len":"2:54"}
+    ],
+    "4d/surfaces": [
+      {"id":"spE5_QW2nh8","lang":"fr","title":"12 Curiosités Topologiques - Micmaths","channel":"Mickaël Launay (Micmaths)","len":"11:55"},
+      {"id":"AAsICMPwGPY","lang":"en","title":"Klein Bottles - Numberphile","channel":"Numberphile","len":"8:24"}
+    ],
+    "fractals/mandelbrot": [
+      {"id":"Y4ICbYtBGzA","lang":"fr","title":"Deux (deux ?) minutes pour Mandelbrot","channel":"El Jj","len":"9:28"},
+      {"id":"NGMRB4O922I","lang":"en","title":"The Mandelbrot Set - Numberphile","channel":"Numberphile","len":"9:11"}
+    ],
+    "fractals/julia": [
+      {"id":"dctJ7ISkU-4","lang":"en","title":"Julia Sets, and how they relate to The Mandelbrot Set","channel":"The Mathemagicians' Guild","len":"13:58"},
+      {"id":"LqbZpur38nw","lang":"en","title":"Beyond the Mandelbrot set, an intro to holomorphic dynamics","channel":"3Blue1Brown","len":"27:36"}
+    ],
+    "fractals/mandelbulb": [
+      {"id":"BLmAV6O_ea0","lang":"en","title":"Beauty of the Bulb - Mandelbulb 3D Fractal Tour (8k)","channel":"Maths Town","len":"6:42"},
+      {"id":"NJCiUVGiNyA","lang":"en","title":"Coding Challenge 168: MandelBulb 3D Fractal","channel":"The Coding Train","len":"28:01"}
+    ],
+    "fractals/sierpinski": [
+      {"id":"6N5iXI_bSn4","lang":"fr","title":"Une fractale dans le sang - Micmaths","channel":"Mickaël Launay (Micmaths)","len":"5:42"},
+      {"id":"kbKtFN71Lfs","lang":"en","title":"Chaos Game - Numberphile","channel":"Numberphile","len":"8:38"}
+    ],
+    "fractals/sierpinski3d": [
+      {"id":"OtGYG7-i1co","lang":"en","title":"What Do Famous Fractals Look Like in 3D? ","channel":"Chabe Maths","len":"2:12"},
+      {"id":"FnRhnZbDprE","lang":"en","title":"A 1.58-Dimensional Object - Numberphile","channel":"Numberphile","len":"20:25"}
+    ],
+    "fractals/koch": [
+      {"id":"PW_Pka9iBko","lang":"fr","title":"Le flocon de Koch - une figure fractale","channel":"KhanAcademyFrancophone","len":"15:56"},
+      {"id":"8D_ThIqoJL8","lang":"fr","title":"L'étonnant puzzle fractal de von Koch - Micmaths","channel":"Mickaël Launay (Micmaths)","len":"13:51"}
+    ],
+    "fractals/menger": [
+      {"id":"B5ZKU5rmiMo","lang":"fr","title":"Les trous du cube - Micmaths","channel":"Mickaël Launay (Micmaths)","len":"4:59"},
+      {"id":"8pj8_zjelDo","lang":"en","title":"The Fractal Menger Sponge and Pi","channel":"Stand-up Maths","len":"13:06"}
+    ],
+    "fractals/hilbert": [
+      {"id":"u-W1jXq5JGg","lang":"fr","title":"Ces courbes qui colorient tout l'espace | Infini 10","channel":"Science4All","len":"16:45"},
+      {"id":"3s7h2MHQtxc","lang":"en","title":"Hilbert's Curve: Is infinite math useful?","channel":"3Blue1Brown","len":"18:18"}
+    ],
+    "fractals/fern": [
+      {"id":"xoXe0AljUMA","lang":"en","title":"Barnsley ferns, but actually explaining each function","channel":"Leios","len":"2:33"},
+      {"id":"JFugGF1URNo","lang":"en","title":"Coding Challenge 108: Barnsley Fern","channel":"The Coding Train","len":"17:06"}
+    ],
+    "fractals/tree": [
+      {"id":"iFA3g_4myFw","lang":"fr","title":"Les fractales - Micmaths","channel":"Mickaël Launay (Micmaths)","len":"11:12"},
+      {"id":"0jjeOYMjmDU","lang":"en","title":"Coding Challenge 14: Fractal Trees - Recursive","channel":"The Coding Train","len":"15:52"}
+    ],
+    "fractals/attractors": [
+      {"id":"YrOyRCD7M14","lang":"fr","title":"Effet Papillon et Théorie du Chaos","channel":"ScienceEtonnante","len":"24:18"},
+      {"id":"3T0T0_0zHNc","lang":"fr","note":"Film Chaos (J. Leys, É. Ghys, A. Alvarez), chapitre 7","title":"Chaos7  Attracteurs étranges : L'effet papillon","channel":"Jos Leys","len":"13:21"},
+      {"id":"fDek6cYijxI","lang":"en","title":"Chaos: The Science of the Butterfly Effect","channel":"Veritasium","len":"12:51"}
+    ],
+    "constants/pi": [
+      {"id":"A6FWL6_Yp94","lang":"fr","title":"Carnets de voyages du nombre pi - Micmaths","channel":"Mickaël Launay (Micmaths)","len":"13:40"},
+      {"id":"DLZMZ-CT7YU","lang":"en","title":"How to Calculate Pi, Archimedes' Method","channel":"mathematicsonline","len":"5:01"}
+    ],
+    "constants/phi": [
+      {"id":"DxmFbdp7v9Q","lang":"fr","title":"Le nombre d'or - Micmaths","channel":"Mickaël Launay (Micmaths)","len":"12:51"},
+      {"id":"sj8Sg8qnjOg","lang":"en","title":"The Golden Ratio (why it is so irrational) - Numberphile","channel":"Numberphile","len":"15:13"}
+    ],
+    "constants/sqrt2": [
+      {"id":"uXHpxDnJBZo","lang":"fr","title":"Le nombre racine de deux","channel":"Axel Arno","len":"15:58"},
+      {"id":"5sKah3pJnHI","lang":"en","title":"Root 2 - Numberphile","channel":"Numberphile","len":"8:49"}
+    ],
+    "constants/e": [
+      {"id":"-T9qge2ckLU","lang":"fr","title":"Pourquoi 2,718 Est Le Meilleur Nombre?","channel":"ParaMaths","len":"6:34"},
+      {"id":"m2MIpDrF7Es","lang":"en","title":"What's so special about Euler's number e? | Chapter 5, Essence of calculus","channel":"3Blue1Brown","len":"13:50"}
+    ],
+    "constants/i": [
+      {"id":"TRVdwiY6JPw","lang":"fr","title":"On vous a appris les nombres complexes sans jamais vous dire ce qu'ils sont","channel":"ParaMaths","len":"16:54"},
+      {"id":"T647CGsuOVU","lang":"en","title":"Imaginary Numbers Are Real [Part 1: Introduction]","channel":"Welch Labs","len":"5:47"}
+    ],
+    "constants/gamma": [
+      {"id":"2Qx8e9ZUQ8o","lang":"fr","title":"[EM#40] La série harmonique diverge ! (Démonstration)","channel":"Øljen – Les maths en finesse","len":"7:10"},
+      {"id":"UEqI9GKYozU","lang":"en","title":"Euler's other constant","channel":"Michael Penn","len":"23:27"}
+    ],
+    "constants/zeta3": [
+      {"id":"ur-iLy4z3QE","lang":"en","title":"Apéry's constant (calculated with Twitter) - Numberphile","channel":"Numberphile","len":"10:47"}
+    ],
+    "constants/ln2": [
+      {"id":"6Fh-Fd26rnU","lang":"fr","title":"Peut-on calculer ln(2) exactement ?","channel":"Romain - L'élégance des maths","len":"23:33"},
+      {"id":"VO2A6I3Woos","lang":"en","title":"The best A – A ≠ 0 paradox","channel":"Mathologer","len":"24:48"}
+    ],
+    "constants/compare": [
+      {"id":"3PK2Wm7_HSI","lang":"fr","title":"Les nombres irrationnels | Voyages au pays des maths | ARTE","channel":"ARTE","len":"10:35"},
+      {"id":"CaasbfdJdJg","lang":"en","title":"Infinite fractions and the most irrational number","channel":"Mathologer","len":"13:29"}
+    ],
+    "constants/walk": [
+      {"id":"HLb3bi8F20o","lang":"en","title":"Is π Random?  Exploring the Elusive Normal Numbers","channel":"Dr Sean","len":"5:43"},
+      {"id":"NPoj8lk9Fo4","lang":"en","title":"Pi is Beautiful - Numberphile","channel":"Numberphile","len":"8:23"}
+    ],
+    "constants/euler": [
+      {"id":"n4uD-MT0nD4","lang":"fr","title":"IDENTITÉ D'EULER - La plus belle formule mathématique - Tous niveaux","channel":"Médématiques","len":"14:17"},
+      {"id":"v0YEaeIClKY","lang":"en","title":"e^(iπ) in 3.14 minutes, using dynamics | DE5","channel":"3Blue1Brown","len":"4:08"}
+    ],
+    "principles/limits": [
+      {"id":"VYdI-z4exck","lang":"fr","title":"Limite par la définition - Technique d'utilisation avec \"epsilon\" | El Mahdi El Mhamdi","channel":"Wandida, EPFL","len":"3:38"},
+      {"id":"kfF40MiS7zA","lang":"en","title":"Limits, L'Hôpital's rule, and epsilon delta definitions | Chapter 7, Essence of calculus","channel":"3Blue1Brown","len":"18:26"}
+    ],
+    "principles/derivative": [
+      {"id":"RLEE-iSBimc","lang":"fr","title":"Comment comprendre FACILEMENT les dérivées","channel":"ParaMaths","len":"14:04"},
+      {"id":"9vKqVkMQHKk","lang":"en","title":"The paradox of the derivative | Chapter 2, Essence of calculus","channel":"3Blue1Brown","len":"16:50"}
+    ],
+    "principles/taylor": [
+      {"id":"yHflvAua-U0","lang":"fr","title":"[UT#21] Formule de Taylor-Young – Introduction aux développements limités","channel":"Øljen – Les maths en finesse","len":"10:37"},
+      {"id":"3d6DsjIBzJ4","lang":"en","title":"Taylor series | Chapter 11, Essence of calculus","channel":"3Blue1Brown","len":"22:19"}
+    ],
+    "principles/fourier": [
+      {"id":"eOehH6H42Es","lang":"fr","title":"L'analyse de Fourier | Infini 9","channel":"Science4All","len":"17:57"},
+      {"id":"r6sGWTCMz2k","lang":"en","title":"But what is a Fourier series?  From heat flow to drawing with circles | DE4","channel":"3Blue1Brown","len":"24:47"}
+    ],
+    "principles/complex": [
+      {"id":"M6o5CRYfNxA","lang":"fr","title":"Pique-nique sur le plan complexe | Voyages au pays des maths | ARTE","channel":"ARTE","len":"10:39"},
+      {"id":"pNp8Qf20-sA","lang":"en","title":"Imaginary Numbers Are Real [Part 10: Complex Functions]","channel":"Welch Labs","len":"7:29"}
+    ],
+    "principles/primes": [
+      {"id":"iFuR97YcSLM","lang":"en","title":"Prime Spirals - Numberphile","channel":"Numberphile","len":"9:05"},
+      {"id":"EK32jo7i5LQ","lang":"en","title":"Why do prime numbers make these spirals? | Dirichlet’s theorem and pi approximations","channel":"3Blue1Brown","len":"22:20"}
+    ],
+    "principles/zeta": [
+      {"id":"KvculWl-jhE","lang":"fr","title":"L'Hypothèse de Riemann","channel":"ScienceEtonnante","len":"16:59"},
+      {"id":"sD0NjbwqlYw","lang":"en","title":"But what is the Riemann zeta function? Visualizing analytic continuation","channel":"3Blue1Brown","len":"20:28"}
+    ],
+    "principles/cantor": [
+      {"id":"xqSKawORrPo","lang":"fr","title":"La diagonale dévastatrice de Cantor | Infini 16","channel":"Science4All","len":"19:02"},
+      {"id":"SrU9YDoXE88","lang":"en","title":"How To Count Past Infinity","channel":"Vsauce","len":"23:46"}
+    ],
+    "principles/linear": [
+      {"id":"Dr9J1BIcVBw","lang":"fr","title":"Comment comprendre FACILEMENT les matrices","channel":"ParaMaths","len":"8:50"},
+      {"id":"kYB8IZa5AuE","lang":"en","title":"Linear transformations and matrices | Chapter 3, Essence of linear algebra","channel":"3Blue1Brown","len":"10:58"}
+    ],
+    "principles/tilings": [
+      {"id":"sQMg_EwiUzU","lang":"fr","title":"Les pavages du plan ou les maths du carrelage | Voyages au pays des maths | ARTE","channel":"ARTE","len":"10:02"},
+      {"id":"48sCx-wBs34","lang":"en","title":"The Infinite Pattern That Never Repeats","channel":"Veritasium","len":"21:11"}
+    ],
+    "principles/collatz": [
+      {"id":"BP2G28694z8","lang":"fr","title":"La conjecture de Syracuse - Deux (deux ?) minutes pour...","channel":"El Jj","len":"15:18"},
+      {"id":"094y1Z2wpJg","lang":"en","title":"The Simplest Math Problem No One Can Solve - Collatz Conjecture","channel":"Veritasium","len":"22:09"}
+    ],
+    "probability/galton": [
+      {"id":"cpCo6mtdAnE","lang":"fr","note":"Courte démonstration filmée","title":"Planche-de-Galton.mp4","channel":"Vincent Pantaloni","len":"0:54"},
+      {"id":"UCmPmkHqHXk","lang":"en","title":"The Galton Board","channel":"D!NG","len":"10:50"}
+    ],
+    "probability/lln": [
+      {"id":"poABWE2kNdo","lang":"fr","title":"La loi des grands nombres","channel":"Chat Sceptique","len":"5:56"},
+      {"id":"VpuN8vCQ--M","lang":"en","title":"Law of large numbers | Probability and Statistics | Khan Academy","channel":"Khan Academy","len":"8:59"}
+    ],
+    "probability/clt": [
+      {"id":"vWTKVMf5HQI","lang":"fr","title":"Le théorème central limite - best of des aventures d'Albert","channel":"Chat Sceptique","len":"5:47"},
+      {"id":"zeJD6dqJ5lo","lang":"en","title":"But what is the Central Limit Theorem?","channel":"3Blue1Brown","len":"31:14"}
+    ],
+    "probability/buffon": [
+      {"id":"PG3MGowF9CA","lang":"fr","title":"Guillaume Poly - Le problème de l'aiguille de Buffon","channel":"Centre Henri Lebesgue","len":"5:39"},
+      {"id":"sJVivjuMfWA","lang":"en","title":"Pi and Buffon's Matches - Numberphile","channel":"Numberphile","len":"6:28"}
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "analyse-complexe",
+  "title": "Analyse complexe",
+  "level": "master",
+  "minutes": 80,
+  "prerequisites": [
+    "series-entieres"
+  ],
+  "tags": [
+    "holomorphie",
+    "Cauchy",
+    "résidus",
+    "prolongement analytique"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Fonctions holomorphes",
+      "items": [
+        "Dérivabilité complexe, équations de Cauchy-Riemann",
+        "Séries entières et fonctions analytiques"
+      ]
+    },
+    {
+      "title": "2. Théorie de Cauchy",
+      "items": [
+        "Intégrales curvilignes, théorème de Cauchy pour un triangle (Goursat)",
+        "Formule intégrale de Cauchy, analyticité des fonctions holomorphes",
+        "Principe du maximum, théorème de Liouville, théorème fondamental de l’algèbre"
+      ]
+    },
+    {
+      "title": "3. Singularités et résidus",
+      "items": [
+        "Séries de Laurent, classification des singularités",
+        "Théorème des résidus, calculs d’intégrales réelles",
+        "Principe de l’argument, théorème de Rouché"
+      ]
+    },
+    {
+      "title": "4. Prolongement",
+      "items": [
+        "Zéros isolés, prolongement analytique",
+        "Fonction Gamma, prolongement de $\\zeta$ (lien avec la vue « Zêta de Riemann »)"
+      ]
+    }
+  ],
+  "references": [
+    "L. Ahlfors, Complex Analysis (McGraw-Hill)",
+    "H. Cartan, Théorie élémentaire des fonctions analytiques d’une ou plusieurs variables complexes (Hermann)"
+  ]
+}

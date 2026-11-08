@@ -1,0 +1,14 @@
+{
+  "id": "intro-constants",
+  "title": "Intro · Constantes",
+  "subtitle": "Trente secondes pour entrer dans le module : π d'Archimède, le nombre d'or, e et l'identité d'Euler.",
+  "level": "intro",
+  "module": "constants",
+  "minutes": 0.5,
+  "soundtrack": true,
+  "voiceVolume": 0.6,
+  "prerequisites": [],
+  "tags": ["intro", "pi", "nombre d'or", "e", "identité d'Euler", "décimales"],
+  "status": "ready",
+  "chapters": [{ "id": "intro", "title": "Constantes" }]
+}

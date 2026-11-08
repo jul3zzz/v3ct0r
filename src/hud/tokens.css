@@ -1,0 +1,49 @@
+/* V3CT0R — design tokens.
+   Strict monochrome: black, white, and white at reduced opacity. No hue, no shadow, no radius.
+   The only filled surface allowed is the inversion (white background, black text). */
+:root {
+  --bg: #000;
+  --fg: #fff;
+  --fg-80: rgb(255 255 255 / 0.8);
+  --fg-70: rgb(255 255 255 / 0.7);
+  --fg-60: rgb(255 255 255 / 0.6);
+  --fg-40: rgb(255 255 255 / 0.4);
+  --fg-20: rgb(255 255 255 / 0.2);
+  --fg-10: rgb(255 255 255 / 0.1);
+  --fg-05: rgb(255 255 255 / 0.05);
+  --veil: rgb(0 0 0 / 0.78);
+
+  --line: 1px solid var(--fg-20);
+  --line-mid: 1px solid var(--fg-40);
+  --line-strong: 1px solid var(--fg);
+  --line-dash: 1px dashed var(--fg-20);
+
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --font-display: 'Michroma', 'JetBrains Mono', sans-serif;
+  --font-kanji: 'VM Kanji', 'Yu Gothic', 'Hiragino Sans', 'Noto Sans CJK JP', sans-serif;
+
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 14px;
+  --fs-lg: 16px;
+  --fs-xl: 24px;
+  --fs-xxl: 48px;
+  --track-caps: 0.12em;
+
+  --u: 4px;
+  --rail: 236px;
+  --panel: 328px;
+  --bar: 36px;
+  --status: 28px;
+
+  --t-fast: 90ms;
+  --t: 220ms;
+  --t-slow: 600ms;
+  --ease: cubic-bezier(0.2, 0.7, 0, 1);
+
+  --z-hud: 5;
+  --z-ui: 10;
+  --z-overlay: 50;
+  --z-scan: 80;
+  --z-boot: 100;
+}

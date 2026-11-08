@@ -1,0 +1,51 @@
+{
+  "id": "nombres-analytique",
+  "title": "Théorie analytique des nombres : zêta et hypothèse de Riemann",
+  "level": "doctorat",
+  "minutes": 90,
+  "prerequisites": [
+    "analyse-complexe"
+  ],
+  "tags": [
+    "zêta",
+    "nombres premiers",
+    "hypothèse de Riemann"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Fonction zêta",
+      "items": [
+        "Produit eulérien, divergence de $\\sum 1/p$",
+        "Prolongement méromorphe, équation fonctionnelle (via la fonction thêta)"
+      ]
+    },
+    {
+      "title": "2. Zéros",
+      "items": [
+        "Zéros triviaux, bande critique",
+        "Absence de zéros sur $\\operatorname{Re}(s) = 1$"
+      ]
+    },
+    {
+      "title": "3. Théorème des nombres premiers",
+      "items": [
+        "Fonctions de Tchebychev, formule explicite (idée)",
+        "Preuve du théorème des nombres premiers (méthode taubérienne de Newman)"
+      ]
+    },
+    {
+      "title": "4. Hypothèse de Riemann",
+      "items": [
+        "Énoncé, conséquences sur le terme d’erreur de $\\pi(x)$",
+        "Vérifications numériques (lien avec la vue « Zêta de Riemann »)"
+      ]
+    }
+  ],
+  "references": [
+    "E. C. Titchmarsh, The Theory of the Riemann Zeta-Function (Oxford)",
+    "G. Tenenbaum, Introduction à la théorie analytique et probabiliste des nombres (Belin)",
+    "T. Apostol, Introduction to Analytic Number Theory (Springer)"
+  ]
+}

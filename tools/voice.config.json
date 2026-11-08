@@ -1,0 +1,32 @@
+{
+  "_doc": "Voix off des cours V3CT0R LEARN (tools/generate-voice.ts). La clé API n'est JAMAIS ici : elle va dans .env (ELEVENLABS_API_KEY). voice_id : copier l'identifiant d'une voix française de ta bibliothèque ElevenLabs (Voices → ⋯ → Copy voice ID).",
+  "voice_id": "Xb7hH8MSUJpSbSDYk0k2",
+  "model_id": "eleven_multilingual_v2",
+  "output_format": "mp3_44100_128",
+  "voice_settings": {
+    "stability": 0.5,
+    "similarity_boost": 0.75,
+    "style": 0,
+    "use_speaker_boost": true,
+    "speed": 1
+  },
+  "seed": 1729,
+  "apply_text_normalization": "auto",
+  "context_chars": 400,
+  "concurrency": 2,
+  "pricing": {
+    "_source": "elevenlabs.io/pricing et elevenlabs.io/docs/models, relevé le 2026-11-07 — à revérifier avant de payer",
+    "credits_per_char": {
+      "eleven_multilingual_v2": 1,
+      "eleven_v3": 1,
+      "eleven_v4": 1,
+      "eleven_flash_v2_5": 0.5
+    },
+    "plans": [
+      { "name": "Free", "usd_per_month": 0, "credits": 10000 },
+      { "name": "Starter", "usd_per_month": 6, "credits": 30000 },
+      { "name": "Creator", "usd_per_month": 22, "credits": 121000 },
+      { "name": "Pro", "usd_per_month": 99, "credits": 600000 }
+    ]
+  }
+}

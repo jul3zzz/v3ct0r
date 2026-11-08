@@ -1,0 +1,147 @@
+{
+  "eq": {
+    "subdiv": "\\sigma = (x_0, x_1, \\ldots, x_n), \\qquad a = x_0 < x_1 < \\cdots < x_n = b",
+    "pas": "\\delta(\\sigma) = \\max_{1 \\le i \\le n} \\,(x_i - x_{i-1})",
+    "esc": "\\varphi(x) = c_i \\quad \\text{pour tout } x \\in \\,]x_{i-1}, x_i[",
+    "Iesc": "I(\\varphi) = \\sum_{i=1}^{n} [[t:c_i\\,(x_i - x_{i-1})]]",
+    "split": "[[t:c_i\\,(x_i - x_{i-1})]] = c_i\\,(y - x_{i-1}) + c_i\\,(x_i - y)",
+    "Iminus": "I^-(f) = \\sup \\big\\{\\, I(\\varphi) \\;:\\; \\varphi \\in \\mathcal{E}([a,b]),\\ \\varphi \\le f \\,\\big\\}",
+    "Iplus": "I^+(f) = \\inf \\big\\{\\, I(\\psi) \\;:\\; \\psi \\in \\mathcal{E}([a,b]),\\ \\psi \\ge f \\,\\big\\}",
+    "order": "m\\,(b-a) \\;\\le\\; [[lo:I^-(f)]] \\;\\le\\; [[hi:I^+(f)]] \\;\\le\\; M\\,(b-a)",
+    "def": "[[lo:I^-(f)]] = [[hi:I^+(f)]] \\;=:\\; \\int_a^b f",
+    "crit": "\\forall \\varepsilon > 0,\\ \\exists\\, \\varphi, \\psi \\in \\mathcal{E}([a,b]),\\quad \\varphi \\le f \\le \\psi \\ \\text{ et } \\ I(\\psi) - I(\\varphi) \\le \\varepsilon",
+    "darboux": "s(f,\\sigma) = \\sum_{i=1}^n m_i\\,(x_i - x_{i-1}), \\qquad S(f,\\sigma) = \\sum_{i=1}^n M_i\\,(x_i - x_{i-1})",
+    "mi": "m_i = \\inf_{]x_{i-1}, x_i[} f, \\qquad M_i = \\sup_{]x_{i-1}, x_i[} f",
+    "x2": "s_n = \\frac{(n-1)(2n-1)}{6n^2} \\;\\le\\; \\int_0^1 x^2\\,dx \\;\\le\\; \\frac{(n+1)(2n+1)}{6n^2} = S_n",
+    "gap": "S_n - s_n = \\frac{1}{n} \\xrightarrow[n \\to \\infty]{} 0 \\qquad\\Longrightarrow\\qquad \\int_0^1 x^2\\,dx = \\frac13",
+    "dirichlet": "\\mathbf{1}_{\\mathbb{Q}}(x) = \\begin{cases} 1 & \\text{si } x \\in \\mathbb{Q} \\\\ 0 & \\text{sinon} \\end{cases}",
+    "dirI": "I^-(\\mathbf{1}_{\\mathbb{Q}}) = 0 \\;<\\; 1 = I^+(\\mathbf{1}_{\\mathbb{Q}})",
+    "heine": "\\forall \\varepsilon > 0,\\ \\exists \\delta > 0,\\ \\forall x, y \\in [a,b],\\quad |x - y| \\le \\delta \\ \\Longrightarrow\\ |f(x) - f(y)| \\le \\varepsilon",
+    "osc": "\\delta(\\sigma) \\le \\delta \\ \\Longrightarrow\\ M_i - m_i \\le \\frac{\\varepsilon}{b-a} \\ \\Longrightarrow\\ S(f,\\sigma) - s(f,\\sigma) \\le \\varepsilon",
+    "lin": "\\int_a^b (\\lambda f + \\mu g) = \\lambda \\int_a^b f + \\mu \\int_a^b g",
+    "chasles": "\\int_a^b f = \\int_a^c f + \\int_c^b f \\qquad (a < c < b)",
+    "absineq": "\\Big| \\int_a^b f \\Big| \\;\\le\\; \\int_a^b |f| \\;\\le\\; (b - a)\\,\\sup_{[a,b]} |f|",
+    "rsum": "S(f, \\sigma, \\xi) = \\sum_{i=1}^n f(\\xi_i)\\,(x_i - x_{i-1}), \\qquad \\xi_i \\in [x_{i-1}, x_i]",
+    "rerr": "\\Big| \\int_a^b f - S(f,\\sigma,\\xi) \\Big| \\le \\sum_{i=1}^n \\int_{x_{i-1}}^{x_i} \\big| f(t) - f(\\xi_i) \\big|\\,dt \\le \\varepsilon",
+    "regular": "\\frac{b-a}{n} \\sum_{k=0}^{n-1} f\\Big(a + k\\,\\frac{b-a}{n}\\Big) \\xrightarrow[n \\to \\infty]{} \\int_a^b f",
+    "ln2": "\\sum_{k=1}^{n} \\frac{1}{n+k} = \\frac1n \\sum_{k=1}^n \\frac{1}{1 + \\frac{k}{n}} \\xrightarrow[n \\to \\infty]{} \\int_0^1 \\frac{dx}{1+x} = \\ln 2",
+    "F": "F(x) = \\int_a^x f(t)\\,dt",
+    "lip": "|F(y) - F(x)| = \\Big| \\int_x^y f \\Big| \\le M\\,|y - x|",
+    "taux": "[[q:\\frac{F(x_0+h) - F(x_0)}{h}]] - f(x_0) = \\frac1h \\int_{x_0}^{x_0+h} \\big(f(t) - f(x_0)\\big)\\,dt",
+    "tauxb": "\\Big| [[q:\\frac{F(x_0+h) - F(x_0)}{h}]] - f(x_0) \\Big| \\le \\sup_{|t - x_0| \\le |h|} |f(t) - f(x_0)| \\xrightarrow[h \\to 0]{} 0",
+    "newton": "\\int_a^b f(t)\\,dt = G(b) - G(a)",
+    "refine": "\\sigma \\subset \\sigma' \\ \\Longrightarrow\\ s(f,\\sigma) \\le s(f,\\sigma') \\le S(f,\\sigma') \\le S(f,\\sigma)",
+    "cross": "s(f,\\sigma_1) \\le s(f, \\sigma_1 \\cup \\sigma_2) \\le S(f, \\sigma_1 \\cup \\sigma_2) \\le S(f,\\sigma_2)",
+    "moy": "m \\le \\frac{1}{b-a}\\int_a^b f \\le M \\quad\\Longrightarrow\\quad \\exists\\, c \\in [a,b],\\ \\int_a^b f = (b-a)\\,f(c)",
+    "liperr": "\\Big| \\int_a^b f - \\frac{b-a}{n}\\sum_{k=0}^{n-1} f(x_k) \\Big| \\le \\sum_{k=0}^{n-1}\\int_{x_k}^{x_{k+1}} K\\,(t - x_k)\\,dt = \\frac{K\\,(b-a)^2}{2n}",
+    "param": "G(x) = \\int_x^{x^2} e^{-t^2}\\,dt = F(x^2) - F(x) \\ \\Longrightarrow\\ G'(x) = 2x\\,e^{-x^4} - e^{-x^2}"
+  },
+  "statements": {
+    "def-subdiv": {
+      "kind": "definition",
+      "title": "Subdivision d'un segment",
+      "body": "Une **subdivision** de $[a,b]$ est une suite finie $\\sigma = (x_0, \\ldots, x_n)$ avec $a = x_0 < x_1 < \\cdots < x_n = b$. Son **pas** est $\\delta(\\sigma) = \\max_i (x_i - x_{i-1})$. On dit que $\\sigma'$ est **plus fine** que $\\sigma$ si tout point de $\\sigma$ est un point de $\\sigma'$."
+    },
+    "def-esc": {
+      "kind": "definition",
+      "title": "Fonction en escalier",
+      "body": "$\\varphi : [a,b] \\to \\mathbb{R}$ est **en escalier** s'il existe une subdivision $\\sigma = (x_0, \\ldots, x_n)$ et des réels $c_1, \\ldots, c_n$ tels que $\\varphi$ vaut $c_i$ sur chaque intervalle **ouvert** $]x_{i-1}, x_i[$. Une telle subdivision est dite **adaptée** à $\\varphi$. Les valeurs $\\varphi(x_i)$ sont quelconques. On note $\\mathcal{E}([a,b])$ l'ensemble de ces fonctions."
+    },
+    "lem-refine": {
+      "kind": "lemma",
+      "title": "Indépendance de la subdivision",
+      "body": "Si $\\sigma$ est adaptée à $\\varphi$, toute subdivision plus fine l'est aussi et donne la même somme $\\sum c_i (x_i - x_{i-1})$. Deux subdivisions adaptées donnent donc la même somme : celle de leur réunion."
+    },
+    "prop-esc": {
+      "kind": "proposition",
+      "title": "Intégrale des fonctions en escalier",
+      "body": "$\\mathcal{E}([a,b])$ est un espace vectoriel et $I(\\varphi) = \\sum_{i=1}^n c_i (x_i - x_{i-1})$ définit une forme linéaire sur cet espace, **croissante** : $\\varphi \\le \\psi \\Rightarrow I(\\varphi) \\le I(\\psi)$."
+    },
+    "def-riemann": {
+      "kind": "definition",
+      "title": "Intégrale de Riemann",
+      "body": "Soit $f : [a,b] \\to \\mathbb{R}$ **bornée**. On pose $I^-(f) = \\sup\\{ I(\\varphi) : \\varphi \\in \\mathcal{E},\\ \\varphi \\le f \\}$ et $I^+(f) = \\inf\\{ I(\\psi) : \\psi \\in \\mathcal{E},\\ \\psi \\ge f \\}$. On a toujours $I^-(f) \\le I^+(f)$. On dit que $f$ est **intégrable au sens de Riemann** si $I^-(f) = I^+(f)$ ; cette valeur commune est notée $\\int_a^b f$."
+    },
+    "thm-crit": {
+      "kind": "theorem",
+      "title": "Critère d'intégrabilité",
+      "body": "Une fonction bornée $f$ est intégrable si et seulement si, pour tout $\\varepsilon > 0$, il existe $\\varphi, \\psi$ en escalier telles que $\\varphi \\le f \\le \\psi$ et $I(\\psi) - I(\\varphi) \\le \\varepsilon$."
+    },
+    "pf-crit": {
+      "kind": "proof",
+      "title": "du critère",
+      "body": "($\\Rightarrow$) Par définition d'une borne supérieure et d'une borne inférieure, il existe $\\varphi \\le f$ avec $I(\\varphi) \\ge I^-(f) - \\frac{\\varepsilon}{2}$ et $\\psi \\ge f$ avec $I(\\psi) \\le I^+(f) + \\frac{\\varepsilon}{2}$. Comme $I^-(f) = I^+(f)$, on obtient $I(\\psi) - I(\\varphi) \\le \\varepsilon$.\n\n($\\Leftarrow$) Pour de telles $\\varphi, \\psi$ : $I(\\varphi) \\le I^-(f) \\le I^+(f) \\le I(\\psi)$, donc $0 \\le I^+(f) - I^-(f) \\le \\varepsilon$ pour tout $\\varepsilon > 0$."
+    },
+    "ex-x2": {
+      "kind": "example",
+      "title": "La parabole, rigoureusement",
+      "body": "Pour $f(x) = x^2$ sur $[0,1]$ et la subdivision régulière à $n$ pas : $s_n = \\frac{(n-1)(2n-1)}{6n^2}$ et $S_n = \\frac{(n+1)(2n+1)}{6n^2}$, donc $S_n - s_n = \\frac1n$. Le critère s'applique et $\\int_0^1 x^2\\,dx = \\frac13$."
+    },
+    "ex-dirichlet": {
+      "kind": "example",
+      "title": "La fonction de Dirichlet n'est pas intégrable",
+      "body": "Sur $[0,1]$, tout intervalle ouvert non vide contient des rationnels et des irrationnels. Une fonction en escalier $\\varphi \\le \\mathbf{1}_{\\mathbb{Q}}$ vérifie donc $c_i \\le 0$ pour tout $i$, d'où $I^-(\\mathbf{1}_{\\mathbb{Q}}) = 0$ ; de même $I^+(\\mathbf{1}_{\\mathbb{Q}}) = 1$."
+    },
+    "thm-cont": {
+      "kind": "theorem",
+      "title": "Les fonctions continues sont intégrables",
+      "body": "Toute fonction **continue** sur le segment $[a,b]$ est intégrable au sens de Riemann. Il en va de même des fonctions **monotones**, et des fonctions continues par morceaux."
+    },
+    "pf-cont": {
+      "kind": "proof",
+      "title": "pour une fonction continue",
+      "body": "$f$ est bornée (théorème des bornes atteintes) et **uniformément continue** (théorème de Heine). Soit $\\varepsilon > 0$ et $\\delta > 0$ tel que $|x - y| \\le \\delta \\Rightarrow |f(x) - f(y)| \\le \\frac{\\varepsilon}{b-a}$. Pour une subdivision de pas $\\le \\delta$, on a $M_i - m_i \\le \\frac{\\varepsilon}{b-a}$ sur chaque morceau, donc $S(f,\\sigma) - s(f,\\sigma) \\le \\varepsilon$, et le critère conclut."
+    },
+    "prop-prop": {
+      "kind": "proposition",
+      "title": "Propriétés de l'intégrale",
+      "body": "L'ensemble $\\mathcal{R}([a,b])$ des fonctions intégrables est un espace vectoriel et $f \\mapsto \\int_a^b f$ est une forme linéaire **croissante**. Relation de **Chasles** : pour $a < c < b$, $f$ est intégrable sur $[a,b]$ si et seulement si elle l'est sur $[a,c]$ et $[c,b]$, et $\\int_a^b f = \\int_a^c f + \\int_c^b f$. Enfin $|f|$ est intégrable et $\\big|\\int_a^b f\\big| \\le \\int_a^b |f|$."
+    },
+    "prop-pos": {
+      "kind": "proposition",
+      "title": "Continue, positive, d'intégrale nulle",
+      "body": "Si $f$ est **continue**, **positive** sur $[a,b]$ et $\\int_a^b f = 0$, alors $f$ est nulle. *Preuve.* Si $f(x_0) > 0$, par continuité $f \\ge \\frac{f(x_0)}{2}$ sur un segment $[\\alpha, \\beta]$ de longueur $\\ell > 0$ contenant $x_0$ ; la fonction en escalier $\\frac{f(x_0)}{2}\\mathbf{1}_{[\\alpha,\\beta]}$ minore $f$, donc $\\int_a^b f \\ge \\frac{\\ell\\,f(x_0)}{2} > 0$."
+    },
+    "thm-rsum": {
+      "kind": "theorem",
+      "title": "Convergence des sommes de Riemann",
+      "body": "Soit $f$ continue sur $[a,b]$. Pour tout $\\varepsilon > 0$, il existe $\\delta > 0$ tel que pour toute subdivision $\\sigma$ de pas $\\le \\delta$ et tout choix de points $\\xi_i \\in [x_{i-1}, x_i]$ : $$\\Big| \\int_a^b f - \\sum_{i=1}^n f(\\xi_i)(x_i - x_{i-1}) \\Big| \\le \\varepsilon.$$ Le résultat reste vrai pour toute fonction intégrable (théorème de Darboux)."
+    },
+    "thm-ftc": {
+      "kind": "theorem",
+      "title": "Théorème fondamental de l'analyse",
+      "body": "Soit $f$ intégrable sur $[a,b]$ et $F(x) = \\int_a^x f$. Alors $F$ est lipschitzienne. Si $f$ est continue en $x_0$, $F$ est dérivable en $x_0$ et $F'(x_0) = f(x_0)$. En particulier, si $f$ est continue sur $[a,b]$, $F$ est l'unique primitive de $f$ nulle en $a$, et pour toute primitive $G$ de $f$ : $\\int_a^b f = G(b) - G(a)$."
+    },
+    "lem-darboux": {
+      "kind": "lemma",
+      "title": "Raffinement des sommes de Darboux",
+      "body": "Si $\\sigma'$ est plus fine que $\\sigma$, alors $s(f,\\sigma) \\le s(f,\\sigma') \\le S(f,\\sigma') \\le S(f,\\sigma)$. Par conséquent, pour deux subdivisions quelconques $\\sigma_1, \\sigma_2$ : $s(f,\\sigma_1) \\le S(f,\\sigma_2)$."
+    },
+    "rem-segment": {
+      "kind": "remark",
+      "title": "Pourquoi un segment ?",
+      "body": "La fonction $x \\mapsto \\frac1x$ est continue sur $]0,1]$ mais n'y est ni bornée, ni uniformément continue : elle sort du cadre de cette séance. Son étude relève des intégrales impropres."
+    },
+    "thm-moy": {
+      "kind": "theorem",
+      "title": "Formule de la moyenne",
+      "body": "Si $f$ est continue sur $[a,b]$, il existe $c \\in [a,b]$ tel que $\\int_a^b f = (b-a)\\,f(c)$. *Preuve.* Avec $m = \\min f$ et $M = \\max f$, la croissance donne $m \\le \\frac{1}{b-a}\\int_a^b f \\le M$ ; le théorème des valeurs intermédiaires, appliqué entre un point où $f$ vaut $m$ et un point où elle vaut $M$, fournit $c$."
+    },
+    "prop-lip": {
+      "kind": "proposition",
+      "title": "Erreur de la méthode des rectangles",
+      "body": "Si $f$ est $K$-lipschitzienne sur $[a,b]$ et $x_k = a + k\\frac{b-a}{n}$, alors $$\\Big| \\int_a^b f - \\frac{b-a}{n}\\sum_{k=0}^{n-1} f(x_k) \\Big| \\le \\frac{K\\,(b-a)^2}{2n}.$$ *Preuve.* Sur $[x_k, x_{k+1}]$, $|f(t) - f(x_k)| \\le K (t - x_k)$ ; on intègre ($\\int_{x_k}^{x_{k+1}} K(t - x_k)\\,dt = \\frac{K h^2}{2}$ avec $h = \\frac{b-a}{n}$) et l'on somme les $n$ morceaux."
+    },
+    "ex-param": {
+      "kind": "example",
+      "title": "Une intégrale à bornes variables",
+      "body": "Soit $F$ une primitive de $t \\mapsto e^{-t^2}$ (elle existe, la fonction est continue, mais n'a pas d'expression élémentaire). Alors $G(x) = \\int_x^{x^2} e^{-t^2}\\,dt = F(x^2) - F(x)$ est dérivable et $G'(x) = 2x\\,e^{-x^4} - e^{-x^2}$."
+    },
+    "rem-limits": {
+      "kind": "remark",
+      "title": "Ce que cette intégrale ne sait pas faire",
+      "body": "La fonction de Dirichlet est limite simple d'une suite croissante de fonctions intégrables d'intégrale nulle, et pourtant elle n'est pas intégrable. Pour échanger limite et intégrale, il faut ici une convergence **uniforme**. Le cours *De Riemann à Lebesgue* lève ces obstacles."
+    }
+  },
+  "recap": ["Iesc", "def", "crit", "darboux", "osc", "rsum", "regular", "F", "newton"]
+}

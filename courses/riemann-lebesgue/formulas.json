@@ -1,0 +1,116 @@
+{
+  "eq": {
+    "dir": "\\mathbf{1}_{\\{r_1, \\ldots, r_n\\}} \\ \\uparrow\\ \\mathbf{1}_{\\mathbb{Q} \\cap [0,1]}, \\qquad \\int_0^1 \\mathbf{1}_{\\{r_1, \\ldots, r_n\\}} = 0 \\ \\text{ pour tout } n",
+    "fn": "f_n(x) = n^2\\,x\\,(1-x)^n \\xrightarrow[n \\to \\infty]{} 0, \\qquad \\int_0^1 f_n = \\frac{n^2}{(n+1)(n+2)} \\xrightarrow[n \\to \\infty]{} 1",
+    "xn": "g_n(x) = x^n \\xrightarrow[n \\to \\infty]{} 0 \\ \\text{ pour } x \\in [0,1[, \\qquad \\int_0^1 g_n = \\frac{1}{n+1} \\to 0",
+    "riesz": "\\big(\\mathcal{C}([0,1]),\\ \\|f\\|_1 = \\textstyle\\int_0^1 |f|\\big) \\ \\text{ n'est pas complet}",
+    "leb": "\\sum_{k} y_k\\;\\lambda\\big(\\{\\, y_k \\le f < y_{k+1} \\,\\}\\big)",
+    "cake": "\\int f\\,d\\lambda = \\int_0^{+\\infty} \\lambda\\big(\\{\\, f > t \\,\\}\\big)\\,dt \\qquad (f \\ge 0)",
+    "tribu": "\\Omega \\in \\mathcal{T}, \\qquad A \\in \\mathcal{T} \\Rightarrow A^c \\in \\mathcal{T}, \\qquad (A_n)_{n} \\subset \\mathcal{T} \\Rightarrow \\bigcup_n A_n \\in \\mathcal{T}",
+    "sigma": "\\mu\\Big(\\bigsqcup_{n \\ge 0} A_n\\Big) = \\sum_{n \\ge 0} \\mu(A_n)",
+    "lambda": "\\lambda\\big(\\,]a,b]\\,\\big) = b - a, \\qquad \\lambda(A + x) = \\lambda(A)",
+    "countable": "\\lambda\\big(\\{q_k : k \\ge 0\\}\\big) \\le \\sum_{k \\ge 0} \\lambda\\Big(\\Big]\\, q_k - \\frac{\\varepsilon}{2^{k+2}},\\ q_k + \\frac{\\varepsilon}{2^{k+2}} \\Big[\\Big) = \\sum_{k \\ge 0} \\frac{\\varepsilon}{2^{k+1}} = \\varepsilon",
+    "cantor": "K = \\bigcap_{n \\ge 0} K_n, \\qquad \\lambda(K) \\le \\lambda(K_n) = \\Big(\\frac23\\Big)^n \\xrightarrow[n \\to \\infty]{} 0",
+    "vitali": "[0,1] \\subset \\bigsqcup_{q \\in \\mathbb{Q} \\cap [-1,1]} (V + q) \\subset [-1, 2]",
+    "simple": "s = \\sum_{i=1}^{k} a_i\\,\\mathbf{1}_{A_i}, \\qquad \\int s\\,d\\mu = \\sum_{i=1}^{k} a_i\\,\\mu(A_i)",
+    "intdef": "\\int f\\,d\\mu = \\sup \\Big\\{ \\int s\\,d\\mu \\;:\\; s \\text{ étagée},\\ 0 \\le s \\le f \\Big\\} \\in [0, +\\infty]",
+    "dyad": "s_n = \\min\\Big(n,\\ 2^{-n} \\big\\lfloor 2^n f \\big\\rfloor\\Big) \\ \\uparrow\\ f",
+    "L1": "f \\in L^1 \\iff \\int |f|\\,d\\mu < +\\infty, \\qquad \\int f\\,d\\mu = \\int f^+ d\\mu - \\int f^- d\\mu",
+    "dirleb": "\\int_{[0,1]} \\mathbf{1}_{\\mathbb{Q}}\\,d\\lambda = \\lambda\\big(\\mathbb{Q} \\cap [0,1]\\big) = 0",
+    "mct": "0 \\le f_n \\uparrow f \\ \\Longrightarrow\\ \\int f_n\\,d\\mu \\ \\uparrow\\ \\int f\\,d\\mu",
+    "mctpf": "\\int f_n\\,d\\mu \\ \\ge\\ \\int_{\\{f_n \\ge c\\,s\\}} c\\,s\\,d\\mu \\ \\xrightarrow[n \\to \\infty]{}\\ c \\int s\\,d\\mu",
+    "fatou": "\\int \\liminf_{n} f_n\\,d\\mu \\ \\le\\ \\liminf_{n} \\int f_n\\,d\\mu \\qquad (f_n \\ge 0)",
+    "dct": "f_n \\to f \\ \\text{p.p.}, \\quad |f_n| \\le g \\in L^1 \\ \\Longrightarrow\\ \\int |f_n - f|\\,d\\mu \\to 0 \\ \\text{ et } \\ \\int f_n\\,d\\mu \\to \\int f\\,d\\mu",
+    "dctpf": "2g - |f_n - f| \\ge 0 \\ \\overset{\\text{Fatou}}{\\Longrightarrow}\\ \\int 2g\\,d\\mu \\le \\int 2g\\,d\\mu - \\limsup_{n} \\int |f_n - f|\\,d\\mu",
+    "nodom": "\\sup_n f_n(x) \\ \\ge\\ f_{\\lfloor 1/x \\rfloor}(x) \\ \\underset{x \\to 0}{\\sim}\\ \\frac{1}{e\\,x} \\ \\Longrightarrow\\ \\text{pas de domination intégrable}",
+    "expo": "0 \\le \\mathbf{1}_{[0,n]}(x)\\Big(1 - \\frac{x}{n}\\Big)^{n} \\le e^{-x}, \\qquad \\int_0^n \\Big(1 - \\frac{x}{n}\\Big)^{n} dx \\xrightarrow[n \\to \\infty]{} \\int_0^{+\\infty} e^{-x}\\,dx",
+    "critleb": "f \\text{ Riemann-intégrable sur } [a,b] \\iff \\lambda\\big(\\{\\,x : f \\text{ discontinue en } x\\,\\}\\big) = 0",
+    "sinc": "\\int_1^{+\\infty} \\frac{\\sin x}{x}\\,dx \\ \\text{ converge, mais } \\ \\int_1^{+\\infty} \\frac{|\\sin x|}{x}\\,dx = +\\infty",
+    "esp": "\\mathbb{E}[X] = \\int_\\Omega X\\,d\\mathbb{P}",
+    "l1cauchy": "\\|\\varphi_n - \\mathbf{1}_{[\\frac12, 1]}\\|_1 = \\frac{1}{2n}, \\qquad \\|\\varphi_n - \\varphi_m\\|_1 \\le \\frac{1}{2n} + \\frac{1}{2m}",
+    "mono": "A \\subset B \\Rightarrow \\mu(B) = \\mu(A) + \\mu(B \\setminus A) \\ge \\mu(A), \\qquad A_n \\uparrow A \\Rightarrow \\mu(A_n) \\uparrow \\mu(A)",
+    "disj": "A = \\bigsqcup_{n \\ge 0} (A_{n} \\setminus A_{n-1}) \\ \\Longrightarrow\\ \\mu(A) = \\lim_{N \\to \\infty} \\sum_{n=0}^{N} \\mu(A_n \\setminus A_{n-1}) = \\lim_{N \\to \\infty} \\mu(A_N)",
+    "markov": "\\mu\\big(\\{|f| > t\\}\\big) \\le \\frac{1}{t}\\int |f|\\,d\\mu \\ \\Longrightarrow\\ \\Big(\\int |f|\\,d\\mu = 0 \\iff f = 0 \\ \\text{p.p.}\\Big)",
+    "series": "\\sum_n \\int |f_n|\\,d\\mu < +\\infty \\ \\Longrightarrow\\ \\int \\sum_n f_n\\,d\\mu = \\sum_n \\int f_n\\,d\\mu",
+    "fubini": "\\int_{X \\times Y} f\\,d(\\mu \\otimes \\nu) = \\int_X \\Big( \\int_Y f(x,y)\\,d\\nu(y) \\Big)\\,d\\mu(x)",
+    "dirsum": "0 \\cdot \\lambda\\big([0,1] \\setminus \\mathbb{Q}\\big) + 1 \\cdot \\lambda\\big(\\mathbb{Q} \\cap [0,1]\\big) = 0"
+  },
+  "statements": {
+    "rem-defauts": {
+      "kind": "remark",
+      "title": "Trois défauts de l'intégrale de Riemann",
+      "body": "1. La classe des fonctions intégrables n'est pas stable par limite simple monotone : $\\mathbf{1}_{\\mathbb{Q}\\cap[0,1]}$ est limite croissante de fonctions intégrables d'intégrale nulle, mais n'est pas intégrable.\n2. Pour échanger limite et intégrale, la théorie ne fournit que la convergence **uniforme**, hypothèse beaucoup trop forte.\n3. L'espace des fonctions intégrables, muni de $\\|f\\|_1 = \\int |f|$, n'est **pas complet** : des suites de Cauchy n'y ont pas de limite."
+    },
+    "rem-idee": {
+      "kind": "remark",
+      "title": "L'idée de Lebesgue",
+      "body": "Riemann découpe l'**axe des abscisses** et regarde la hauteur du graphe sur chaque morceau. Lebesgue découpe l'**axe des ordonnées** : pour chaque tranche de valeurs $[y_k, y_{k+1}[$, il mesure l'ensemble $\\{y_k \\le f < y_{k+1}\\}$ des points où $f$ prend ces valeurs. Cet ensemble n'est plus un intervalle : il faut savoir mesurer des ensembles généraux."
+    },
+    "def-tribu": {
+      "kind": "definition",
+      "title": "Tribu",
+      "body": "Une **tribu** (ou σ-algèbre) sur un ensemble $\\Omega$ est une famille $\\mathcal{T}$ de parties de $\\Omega$ qui contient $\\Omega$, est stable par passage au complémentaire et par réunion **dénombrable**. La **tribu borélienne** $\\mathcal{B}(\\mathbb{R})$ est la plus petite tribu contenant les intervalles (ou, de façon équivalente, les ouverts)."
+    },
+    "def-mesure": {
+      "kind": "definition",
+      "title": "Mesure",
+      "body": "Une **mesure** sur $(\\Omega, \\mathcal{T})$ est une application $\\mu : \\mathcal{T} \\to [0, +\\infty]$ telle que $\\mu(\\varnothing) = 0$ et, pour toute suite $(A_n)$ d'éléments **deux à deux disjoints** de $\\mathcal{T}$, $\\mu\\big(\\bigcup_n A_n\\big) = \\sum_n \\mu(A_n)$ (**σ-additivité**). Conséquences : croissance, σ-sous-additivité, continuité le long des suites croissantes."
+    },
+    "thm-lebesgue": {
+      "kind": "theorem",
+      "title": "Mesure de Lebesgue",
+      "body": "Il existe une unique mesure $\\lambda$ sur $\\mathcal{B}(\\mathbb{R})$ telle que $\\lambda(]a,b]) = b - a$ pour tous $a < b$. Elle est invariante par translation. (Construction : mesure extérieure et théorème de Carathéodory ; unicité : lemme des classes monotones. Admis ici.)"
+    },
+    "prop-denombrable": {
+      "kind": "proposition",
+      "title": "Les ensembles dénombrables sont négligeables",
+      "body": "Toute partie dénombrable $\\{q_k : k \\ge 0\\}$ de $\\mathbb{R}$ est de mesure nulle. *Preuve.* Pour $\\varepsilon > 0$, on recouvre $q_k$ par un intervalle de longueur $\\frac{\\varepsilon}{2^{k+1}}$ ; par σ-sous-additivité, la mesure est au plus $\\sum_k \\frac{\\varepsilon}{2^{k+1}} = \\varepsilon$. En particulier $\\lambda(\\mathbb{Q}) = 0$."
+    },
+    "ex-cantor": {
+      "kind": "example",
+      "title": "L'ensemble de Cantor",
+      "body": "On part de $K_0 = [0,1]$ et l'on retire à chaque étape le tiers central ouvert de chaque segment : $K_n$ est réunion de $2^n$ segments de longueur $3^{-n}$. L'ensemble $K = \\bigcap_n K_n$ vérifie $\\lambda(K) \\le (2/3)^n$ pour tout $n$, donc $\\lambda(K) = 0$. Pourtant $K$ n'est **pas dénombrable** : ses points sont exactement les réels de $[0,1]$ qui admettent une écriture en base $3$ n'utilisant que les chiffres $0$ et $2$, et remplacer les $2$ par des $1$ (lecture en base $2$) définit une surjection de $K$ sur $[0,1]$."
+    },
+    "thm-vitali": {
+      "kind": "theorem",
+      "title": "On ne peut pas tout mesurer (Vitali)",
+      "body": "Il n'existe pas de mesure définie sur **toutes** les parties de $\\mathbb{R}$, invariante par translation, et qui donne à $[0,1]$ une mesure finie non nulle. *Idée de preuve.* On choisit (axiome du choix) un représentant dans $[0,1]$ de chaque classe pour la relation $x - y \\in \\mathbb{Q}$ : on obtient $V$. Les translatés $V + q$, $q \\in \\mathbb{Q} \\cap [-1,1]$, sont disjoints, et leur réunion contient $[0,1]$ et est contenue dans $[-1,2]$. Si $c$ est la mesure de $V$, la σ-additivité donne $1 \\le \\sum_q c \\le 3$ : impossible, que $c$ soit nul ou non."
+    },
+    "def-mesurable": {
+      "kind": "definition",
+      "title": "Fonction mesurable",
+      "body": "$f : (\\Omega, \\mathcal{T}) \\to \\mathbb{R}$ est **mesurable** si $f^{-1}(]a, +\\infty[) \\in \\mathcal{T}$ pour tout réel $a$ (de façon équivalente, si l'image réciproque de tout borélien est dans $\\mathcal{T}$). Les fonctions continues, les fonctions monotones, les limites simples de suites de fonctions mesurables sont mesurables."
+    },
+    "def-integrale": {
+      "kind": "definition",
+      "title": "Intégrale de Lebesgue",
+      "body": "Pour $s = \\sum_i a_i \\mathbf{1}_{A_i}$ **étagée** positive ($A_i \\in \\mathcal{T}$, en nombre fini) : $\\int s\\,d\\mu = \\sum_i a_i\\,\\mu(A_i)$, avec la convention $0 \\cdot \\infty = 0$. Pour $f \\ge 0$ mesurable : $\\int f\\,d\\mu = \\sup\\{\\int s\\,d\\mu : s \\text{ étagée},\\ 0 \\le s \\le f\\}$. Une fonction mesurable $f$ est **intégrable** si $\\int |f|\\,d\\mu < +\\infty$, et alors $\\int f = \\int f^+ - \\int f^-$."
+    },
+    "thm-mct": {
+      "kind": "theorem",
+      "title": "Convergence monotone (Beppo Levi)",
+      "body": "Si $(f_n)$ est une suite **croissante** de fonctions mesurables positives de limite $f$, alors $\\int f_n\\,d\\mu \\to \\int f\\,d\\mu$ (dans $[0, +\\infty]$).\n\n*Preuve.* La suite $\\int f_n$ croît et reste $\\le \\int f$. Soit $s$ étagée avec $0 \\le s \\le f$ et $c \\in \\,]0,1[$ : les ensembles $E_n = \\{f_n \\ge c\\,s\\}$ croissent vers $\\Omega$, donc $\\int f_n \\ge c \\int_{E_n} s \\to c \\int s$ par continuité de la mesure. On fait tendre $c$ vers $1$, puis on prend le sup sur $s$."
+    },
+    "lem-fatou": {
+      "kind": "lemma",
+      "title": "Lemme de Fatou",
+      "body": "Pour toute suite de fonctions mesurables positives : $\\int \\liminf_n f_n\\,d\\mu \\le \\liminf_n \\int f_n\\,d\\mu$. *Preuve.* $g_k = \\inf_{n \\ge k} f_n$ croît vers $\\liminf_n f_n$ et $\\int g_k \\le \\int f_n$ pour $n \\ge k$ ; on applique la convergence monotone."
+    },
+    "thm-dct": {
+      "kind": "theorem",
+      "title": "Convergence dominée",
+      "body": "Si $f_n \\to f$ presque partout et s'il existe $g$ **intégrable** telle que $|f_n| \\le g$ pour tout $n$, alors $f$ est intégrable, $\\int |f_n - f|\\,d\\mu \\to 0$ et $\\int f_n\\,d\\mu \\to \\int f\\,d\\mu$.\n\n*Preuve.* $2g - |f_n - f| \\ge 0$ ; le lemme de Fatou donne $\\int 2g \\le \\int 2g - \\limsup_n \\int |f_n - f|$, et $\\int 2g$ est fini."
+    },
+    "thm-critere": {
+      "kind": "theorem",
+      "title": "Critère de Lebesgue",
+      "body": "Une fonction **bornée** $f : [a,b] \\to \\mathbb{R}$ est intégrable au sens de Riemann si et seulement si l'ensemble de ses points de discontinuité est de mesure nulle. Elle est alors intégrable au sens de Lebesgue, et les deux intégrales coïncident. (Admis.)"
+    },
+    "rem-gains": {
+      "kind": "remark",
+      "title": "Ce que l'on gagne",
+      "body": "- Des théorèmes d'interversion limite/intégrale sous des hypothèses vérifiables (monotonie, domination).\n- L'espace $L^1$ (et les $L^p$) est **complet** (théorème de Riesz-Fischer).\n- Une même théorie pour les intégrales sur $\\mathbb{R}^n$ (Fubini), les séries ($\\mu$ = mesure de comptage) et les probabilités ($\\mathbb{E}[X] = \\int X\\,d\\mathbb{P}$).\n- Attention : une intégrale impropre **semi-convergente**, comme $\\int_1^{+\\infty} \\frac{\\sin x}{x}dx$, n'est pas une intégrale de Lebesgue."
+    }
+  },
+  "recap": ["fn", "leb", "sigma", "countable", "intdef", "mct", "fatou", "dct", "critleb"]
+}

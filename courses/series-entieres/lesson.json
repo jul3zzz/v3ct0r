@@ -1,0 +1,73 @@
+{
+  "id": "series-entieres",
+  "title": "Séries entières",
+  "subtitle": "Rayon, régularité, développements, exponentielle complexe",
+  "level": "prepa",
+  "format": "written",
+  "minutes": 25,
+  "prerequisites": [
+    "suites-series",
+    "riemann"
+  ],
+  "tags": [
+    "rayon de convergence",
+    "développement en série entière",
+    "exponentielle"
+  ],
+  "status": "ready",
+  "chapters": [
+    {
+      "id": "rayon",
+      "title": "Rayon de convergence"
+    },
+    {
+      "id": "regularite",
+      "title": "Régularité de la somme"
+    },
+    {
+      "id": "developpements",
+      "title": "Développements en série entière"
+    },
+    {
+      "id": "exponentielle",
+      "title": "L’exponentielle complexe"
+    }
+  ],
+  "plan": [
+    {
+      "title": "1. Rayon de convergence",
+      "items": [
+        "Lemme d’Abel, définition du rayon $R$",
+        "Règle de d’Alembert, comparaison",
+        "Convergence normale sur les disques fermés $|z|\\le r<R$"
+      ]
+    },
+    {
+      "title": "2. Régularité de la somme",
+      "items": [
+        "Continuité sur le disque ouvert",
+        "Dérivation et intégration terme à terme sur $]-R,R[$"
+      ]
+    },
+    {
+      "title": "3. Développements en série entière",
+      "items": [
+        "Fonctions développables, unicité, formule de Taylor",
+        "Développements usuels : $e^x$, $\\ln(1+x)$, $(1+x)^\\alpha$, $\\arctan$",
+        "Méthode de l’équation différentielle"
+      ]
+    },
+    {
+      "title": "4. Exponentielle complexe",
+      "items": [
+        "$\\exp(z) = \\sum z^n/n!$, propriété de morphisme",
+        "Lien avec la vue « Séries de Taylor » de l’explorateur"
+      ]
+    }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Analyse (Ellipses)",
+    "W. Rudin, Principles of Mathematical Analysis, chap. 8 (McGraw-Hill)",
+    "J.-M. Monier, Analyse MP (Dunod)"
+  ]
+}

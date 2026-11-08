@@ -1,0 +1,16 @@
+{
+  "id": "demo",
+  "title": "Démo · L'aire sous la parabole",
+  "subtitle": "Deux minutes pour voir le moteur de cours : formules, tracés, scènes de l'explorateur, pause exercice. Sans voix : sous-titres seuls.",
+  "level": "demo",
+  "minutes": 3,
+  "prerequisites": [],
+  "tags": ["démo", "aire", "sommes de Riemann", "Archimède"],
+  "status": "ready",
+  "voice": false,
+  "chapters": [
+    { "id": "aire", "title": "L'aire sous la parabole" },
+    { "id": "scene", "title": "Dans l'explorateur" },
+    { "id": "toi", "title": "À toi" }
+  ]
+}

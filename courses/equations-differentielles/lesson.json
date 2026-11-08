@@ -1,0 +1,72 @@
+{
+  "id": "equations-differentielles",
+  "title": "Équations différentielles linéaires",
+  "subtitle": "Premier ordre, systèmes, exponentielle de matrice, portraits de phase",
+  "level": "prepa",
+  "format": "written",
+  "minutes": 25,
+  "prerequisites": [
+    "reduction",
+    "riemann"
+  ],
+  "tags": [
+    "Cauchy-Lipschitz",
+    "systèmes différentiels",
+    "exponentielle de matrice"
+  ],
+  "status": "ready",
+  "chapters": [
+    {
+      "id": "premier-ordre",
+      "title": "Équations du premier ordre"
+    },
+    {
+      "id": "systemes",
+      "title": "Systèmes linéaires"
+    },
+    {
+      "id": "coefficients-constants",
+      "title": "Coefficients constants"
+    },
+    {
+      "id": "ouverture",
+      "title": "Ouverture : portraits de phase"
+    }
+  ],
+  "plan": [
+    {
+      "title": "1. Premier ordre",
+      "items": [
+        "$y' + a(t)y = b(t)$ : solutions, variation de la constante",
+        "Problème de Cauchy, unicité"
+      ]
+    },
+    {
+      "title": "2. Systèmes linéaires",
+      "items": [
+        "$X' = A(t)X + B(t)$ : théorème de Cauchy-Lipschitz linéaire",
+        "Structure affine de l’ensemble des solutions, wronskien"
+      ]
+    },
+    {
+      "title": "3. Coefficients constants",
+      "items": [
+        "Exponentielle de matrice, $X(t) = e^{tA}X_0$",
+        "Calcul via la réduction de $A$ (diagonalisable, trigonalisable)",
+        "Équations scalaires d’ordre 2 à coefficients constants"
+      ]
+    },
+    {
+      "title": "4. Ouverture",
+      "items": [
+        "Portraits de phase en dimension 2 selon les valeurs propres",
+        "Lien avec les attracteurs (non linéaires) de l’explorateur"
+      ]
+    }
+  ],
+  "references": [
+    "V. Arnold, Équations différentielles ordinaires (Mir)",
+    "J.-P. Demailly, Analyse numérique et équations différentielles (EDP Sciences)",
+    "X. Gourdon, Les maths en tête — Analyse (Ellipses)"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "distributions-edp",
+  "title": "Distributions et EDP",
+  "level": "doctorat",
+  "minutes": 90,
+  "prerequisites": [
+    "analyse-fonctionnelle",
+    "mesure-lebesgue"
+  ],
+  "tags": [
+    "distributions",
+    "Fourier",
+    "Sobolev",
+    "équations aux dérivées partielles"
+  ],
+  "status": "construction",
+  "chapters": [],
+  "plan": [
+    {
+      "title": "1. Distributions",
+      "items": [
+        "Fonctions test, distributions, ordre",
+        "Dérivation, multiplication, support, convolution"
+      ]
+    },
+    {
+      "title": "2. Transformation de Fourier",
+      "items": [
+        "Espace de Schwartz, distributions tempérées",
+        "Plancherel, solutions élémentaires"
+      ]
+    },
+    {
+      "title": "3. Espaces de Sobolev",
+      "items": [
+        "$H^s(\\mathbb{R}^n)$, injections de Sobolev, traces",
+        "Formulation variationnelle, théorème de Lax-Milgram"
+      ]
+    },
+    {
+      "title": "4. Trois équations modèles",
+      "items": [
+        "Laplace (Dirichlet), chaleur, ondes",
+        "Principe du maximum, énergie, vitesse finie de propagation"
+      ]
+    }
+  ],
+  "references": [
+    "L. Schwartz, Théorie des distributions (Hermann)",
+    "L. Hörmander, The Analysis of Linear Partial Differential Operators I (Springer)",
+    "H. Brezis, Analyse fonctionnelle : théorie et applications (Dunod)"
+  ]
+}
