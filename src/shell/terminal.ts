@@ -5,6 +5,8 @@ import { reducedMotion } from '../hud/fx';
 import { sfx } from '../core/audio';
 import { parseAnswer, type Exercise, type Study, type TaskApi } from '../core/study';
 import { NEEDED, type Progress } from '../core/progress';
+import { splitLabels } from './consigne';
+import { flashControl, spotlight, spotlightAlive } from './spotlight';
 
 export interface TermView {
   id: string; // "mod/viz"
@@ -14,6 +16,14 @@ export interface TermView {
 }
 
 const KIND: Record<Exercise['kind'], string> = { qcm: 'QCM', num: 'CALCUL', task: 'MANIPULATION' };
+
+/** what to do, in one line, for each kind of exercise */
+const TODO = (ex: Exercise): string =>
+  ex.kind === 'qcm'
+    ? 'clique la bonne réponse, ou tape sa lettre puis ⏎.'
+    : ex.kind === 'num'
+      ? `calcule, puis tape ta réponse et ⏎${ex.unit ? ` (en ${ex.unit})` : ''} — 0,25 ou 1/4 sont acceptés.`
+      : 'fais-le dans la vue. Les réglages à utiliser sont éclairés dans le panneau de droite (clique une étiquette pour y aller). Vérification automatique.';
 
 /** Terminal-style lesson + 3 auto-corrected exercises for the current view, docked over the left half of the
  *  viewport so the figure stays usable. Typed output, prompt input, hints, live-checked manipulations. */
@@ -27,6 +37,8 @@ export class StudyTerminal {
   private checkAcc = 0;
   private minimized = false;
   private scoreEl: HTMLElement | null = null;
+  /** the manipulation exercise whose controls are lit ("view:k"), '' when none */
+  private spotKey = '';
 
   constructor(
     private host: HTMLElement,
@@ -79,6 +91,8 @@ export class StudyTerminal {
     cancelAnimationFrame(this.typingRaf);
     this.typing = [];
     this.liveChecks = [];
+    this.spotKey = '';
+    spotlight(null);
     this.el?.remove();
     this.el = null;
     this.body = null;
@@ -171,7 +185,21 @@ export class StudyTerminal {
     const block = h('div', { class: 'ex' });
     const status = h('span', { class: 'st' });
     block.append(h('div', { class: 'ex-head' }, h('span', { text: `[EX ${k + 1}/3 · ${KIND[ex.kind]}]` }), status));
-    block.append(h('div', { class: 'ex-q', text: ex.q }));
+    // the instruction, in bold; the control labels it names are chips that lead to the control
+    const q = h('div', { class: 'ex-q' });
+    for (const s of splitLabels(ex.q, ex.kind === 'task' ? ex.uses : [])) {
+      if (!s.label) q.append(s.text);
+      else {
+        const label = s.label;
+        const chip = h('button', { type: 'button', class: 'ex-chip', title: 'Montrer ce réglage', text: label });
+        chip.addEventListener('click', () => {
+          sfx.click();
+          flashControl(label);
+        });
+        q.append(chip);
+      }
+    }
+    block.append(h('div', { class: 'ex-consigne' }, h('span', { class: 'ex-cl', text: 'CONSIGNE' }), q), h('div', { class: 'ex-do' }, h('b', { text: '→ À TOI : ' }), TODO(ex)));
     const fb = h('div', { class: 'ex-fb' });
     const mark = () => {
       const s = state();
@@ -273,6 +301,16 @@ export class StudyTerminal {
     this.checkAcc += dt;
     if (this.checkAcc < 0.25) return;
     this.checkAcc = 0;
+    // spotlight: the controls of the first manipulation still to do (relit if the panel was rebuilt)
+    const todo = this.liveChecks.find((c) => {
+      const e = this.progress.entry(this.view!.id).ex[c.k];
+      return !e.solved && !e.revealed;
+    });
+    const key = todo ? `${this.view!.id}:${todo.k}` : '';
+    if (key !== this.spotKey || (key && !spotlightAlive())) {
+      this.spotKey = key;
+      spotlight(todo ? todo.ex.uses : null);
+    }
     for (const c of this.liveChecks) {
       const e = this.progress.entry(this.view!.id).ex[c.k];
       if (e.solved || e.revealed) continue;

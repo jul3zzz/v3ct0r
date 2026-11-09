@@ -11,6 +11,7 @@ const COURSE_META = (id: string) => COURSES.get(id)?.meta;
 import { Soundtrack, soundCues, toWav } from './learn/soundtrack';
 import { music } from './core/music';
 import { cloud, cloudConfigured } from './core/cloud';
+import { welcome } from './shell/welcome';
 
 interface LearnState {
   course: string;
@@ -31,7 +32,7 @@ interface LearnState {
 
 declare global {
   interface Window {
-    __vm?: { views: () => string[]; go: (id: string) => boolean; ready: boolean; tours: () => string[]; tour: (id: string) => void; tourNext: () => void; tourState: () => string; unlockAll: () => void; progress: () => string; answers: () => (number | string)[]; missingLabels: () => string[]; learn: (id?: string, t?: number) => void; learnSeek: (t: number) => void; learnState: () => LearnState; learnSheet: () => void; learnColle: () => void; sfxWav: (id: string, mp3s?: Record<string, string>) => Promise<string>; atlas: (uni?: string) => void; atlasState: () => unknown; atlasApproach: (id: string) => boolean; atlasEnter: () => void; gameState: () => unknown; musicState: () => unknown; calc: (text?: string) => unknown; story: (chapter?: string) => unknown; account: () => unknown };
+    __vm?: { views: () => string[]; go: (id: string) => boolean; ready: boolean; tours: () => string[]; tour: (id: string) => void; tourNext: () => void; tourState: () => string; unlockAll: () => void; progress: () => string; answers: () => (number | string)[]; missingLabels: () => string[]; learn: (id?: string, t?: number) => void; learnSeek: (t: number) => void; learnState: () => LearnState; learnSheet: () => void; learnColle: () => void; sfxWav: (id: string, mp3s?: Record<string, string>) => Promise<string>; atlas: (uni?: string) => void; atlasState: () => unknown; atlasApproach: (id: string) => boolean; atlasEnter: () => void; gameState: () => unknown; musicState: () => unknown; calc: (text?: string) => unknown; story: (chapter?: string) => unknown; account: () => unknown; notes: (text?: string) => unknown };
   }
 }
 
@@ -72,6 +73,8 @@ async function main(): Promise<void> {
   await Promise.race([document.fonts?.ready, new Promise((r) => setTimeout(r, 400))]);
   await boot({ gpu: probe.gpu, maxTex: probe.maxTex, modules: MODULES.length, views, failure });
   if (!app) return;
+  // the way in: download offer (website), then the required account
+  await welcome({ download: () => app!.downloadApp(), size: () => app!.downloadSize() });
   app.start();
   window.__vm = {
     views: () => app!.allViews().map(([m, v]) => `${m.id}/${v.id}`),
@@ -105,6 +108,12 @@ async function main(): Promise<void> {
       const r = chapter ? app!.openChapter(chapter) : null;
       const s = app!.storyNow();
       return { opened: r, restored: s.restored, playable: s.playable, acts: s.acts, chapters: s.chapters, parts: s.parts, events: s.events.length };
+    },
+    // notes: open the notebook, optionally add a line, report what is kept
+    notes: (text?: string) => {
+      if (!app!.notes.isOpen) app!.notes.open();
+      if (text) app!.notes.add(text);
+      return { open: app!.notes.isOpen, count: app!.notes.count(), lines: document.querySelectorAll('.nbk-e').length };
     },
     // account: configured in this build, signed in, the COMPTE dialog opened
     account: () => {

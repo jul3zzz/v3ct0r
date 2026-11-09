@@ -29,12 +29,21 @@ export function exerciseCard(ex: CourseExercise, o: ExerciseCardOptions): HTMLEl
     status.textContent = st.solved || st.self === 'ok' ? '✓ RÉUSSI' : st.revealed ? '◆ CORRECTION LUE' : '◇ À FAIRE';
     root.classList.toggle('ok', st.solved || st.self === 'ok');
   };
+  // what to do, in one line: how this card is answered
+  const todo = ex.answer
+    ? ex.answer.kind === 'qcm'
+      ? 'lis l’énoncé, puis clique la bonne réponse.'
+      : 'cherche sur papier, puis tape le résultat et ⏎ (0,25 · 1/4 · pi/2 · sqrt(2) sont acceptés).'
+    : o.grading
+      ? `rédige ta solution (≈ ${duration(ex.minutes).toLowerCase()}), puis ouvre la correction étape par étape et coche ce que tu as obtenu.`
+      : `cherche sur papier (≈ ${duration(ex.minutes).toLowerCase()}). Bloqué : un INDICE à la fois. Puis VOIR LA CORRECTION, étape par étape, et dis si tu avais réussi.`;
   const root = h(
     'div',
     { class: 'lx-ex' },
     h('div', { class: 'lx-ex-head' }, h('span', { text: `${(o.levels ?? LEVEL)[ex.level] ?? ''} · ≈ ${duration(ex.minutes)}` }), status),
     h('div', { class: 'lx-ex-title', text: ex.title }),
-    rich(ex.statement, 'lx-ex-q rich'),
+    h('div', { class: 'lx-ex-consigne' }, h('span', { class: 'lx-ex-cl', text: 'CONSIGNE' }), rich(ex.statement, 'lx-ex-q rich')),
+    h('div', { class: 'lx-ex-do' }, h('b', { text: '→ À TOI : ' }), todo),
   );
   const fb = h('div', { class: 'lx-ex-fb', role: 'status' });
 

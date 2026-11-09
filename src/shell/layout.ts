@@ -21,12 +21,16 @@ export interface Layout {
   fps: HTMLElement;
   recTime: HTMLElement;
   btnPalette: HTMLButtonElement;
+  /** narrow window: opens the rail as a drawer (hud.css) */
+  btnRail: HTMLButtonElement;
   btnQuality: HTMLButtonElement;
   btnSound: HTMLButtonElement;
   btnMusic: HTMLButtonElement;
   btnCalc: HTMLButtonElement;
   btnAccount: HTMLButtonElement;
+  btnNotes: HTMLButtonElement;
   btnDownload: HTMLButtonElement;
+  sbDownload: HTMLButtonElement;
   btnScan: HTMLButtonElement;
   btnHelp: HTMLButtonElement;
   mods: Map<ModuleId, ModEls>;
@@ -71,6 +75,9 @@ export interface Layout {
   btnLearn: HTMLButtonElement;
 }
 
+/** below this width the rail is a drawer over the view (hud.css, same breakpoint) */
+export const NARROW = '(max-width: 1199px)';
+
 const tbBtn = (label: string, ico: string, title: string): HTMLButtonElement =>
   h('button', { type: 'button', class: 'tb-btn', title, 'aria-label': title }, icon(ico), label ? h('span', { text: label }) : null);
 
@@ -82,6 +89,8 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
   const tabExplore = h('button', { type: 'button', role: 'tab', class: 'tab', 'aria-selected': 'true', title: 'Explorateur : les 46 visualisations' }, h('span', { text: 'EXPLORER' }));
   const tabLearn = h('button', { type: 'button', role: 'tab', class: 'tab', 'aria-selected': 'false', title: 'Cours de la prépa au doctorat' }, h('span', { text: 'LEARN' }), h('span', { class: 'kanji', text: '学' }));
   const tabAtlas = h('button', { type: 'button', role: 'tab', class: 'tab', 'aria-selected': 'false', title: 'ATLAS : tout le logiciel en vaisseau spatial (ZQSD)' }, h('span', { text: 'ATLAS' }), h('span', { class: 'kanji', text: '空間' }));
+  tabLearn.dataset.act = 'tab-learn';
+  tabAtlas.dataset.act = 'tab-atlas';
   const tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': 'Sections' }, tabAtlas, tabExplore, tabLearn);
   const crumbs = h('div', { class: 'crumbs' });
   const hex = h('span', { class: 'hi', style: 'text-transform:none', text: '0x0000' });
@@ -89,21 +98,28 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
   const clock = h('span', { class: 'hi', text: '--:--:--' });
   const fps = h('span', { class: 'hi', text: '-- FPS' });
   const recTime = h('span', { text: 'REC 00:00' });
+  const btnRail = tbBtn('MODULES', 'menu', 'Modules et vues (fenêtre étroite)');
+  btnRail.classList.add('rail-toggle');
   const btnPalette = tbBtn('CTRL+K', 'cmd', 'Palette de commandes (Ctrl+K)');
   btnPalette.dataset.act = 'palette';
   const btnQuality = tbBtn('MED', 'quality', 'Qualité de rendu (Q)');
   const btnSound = tbBtn('SON', 'mute', 'Sons (M)');
   const btnMusic = tbBtn('MUSIQUE', 'sound', 'Musique de fond (clic droit : volume)');
   const btnCalc = tbBtn('CALC', 'calc', 'Calculatrice et raccourcis de caractères (=)');
+  const btnNotes = tbBtn('NOTES', 'note', 'Carnet de notes façon terminal (N)');
   const btnAccount = tbBtn('COMPTE', 'user', 'Compte : ta progression sur tous tes appareils');
   const btnDownload = tbBtn('TÉLÉCHARGER', 'download', 'Télécharger V3CT0R pour l’utiliser hors ligne (zip : index.html à ouvrir d’un double-clic)');
   btnDownload.classList.add('tb-dl');
+  btnMusic.dataset.act = 'music';
+  btnCalc.dataset.act = 'calc';
+  btnNotes.dataset.act = 'notes';
   const btnScan = tbBtn('SCAN', 'grid', 'Scanlines (L)');
   const btnHelp = tbBtn('AIDE', 'help', 'Raccourcis clavier (?)');
   const top = h(
     'header',
     { class: 'topbar' },
     brand,
+    btnRail,
     tabs,
     crumbs,
     h('div', { class: 'spacer' }),
@@ -113,6 +129,7 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
     btnSound,
     btnMusic,
     btnCalc,
+    btnNotes,
     btnAccount,
     btnDownload,
     btnScan,
@@ -199,15 +216,17 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
   const statusView = h('span');
   const statusGl = h('span');
   const statusSpark = new Sparkline(60, { min: 0, max: 40 }, 'spark-status');
+  const sbDownload = h('button', { type: 'button', class: 'sb-dl', title: 'Télécharger V3CT0R (version hors ligne)', 'aria-label': 'Télécharger V3CT0R', style: 'display:none' }, icon('download'), h('span', { text: 'TÉLÉCHARGER' }));
   const status = h(
     'footer',
     { class: 'statusbar' },
     statusSys,
     statusView,
-    h('span', { text: 'FRAME' }),
+    h('span', { class: 'sb-frame', text: 'FRAME' }),
     statusSpark.el,
     statusGl,
     h('span', { class: 'spacer' }),
+    sbDownload,
     barcode('SYS.STATUS', 80, 10),
     h('span', { text: 'CTRL+K COMMANDES · ? KEYMAP · H MASQUER' }),
   );
@@ -237,10 +256,12 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
     fps,
     recTime,
     btnPalette,
+    btnRail,
     btnQuality,
     btnSound,
     btnMusic,
     btnCalc,
+    btnNotes,
     btnAccount,
     btnDownload,
     btnScan,
@@ -275,6 +296,7 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
     statusView,
     statusGl,
     statusSpark,
+    sbDownload,
     cineC1,
     cineC2,
     cineBar,

@@ -1,5 +1,6 @@
 # Version téléchargeable : à chaque tag v* (ex. git tag v1.1.0 && git push --tags), construit
-# V3CT0R.zip (index.html à ouvrir d'un double-clic + voix + sources) et l'attache à une release.
+# V3CT0R.zip (index.html à ouvrir d'un double-clic + voix + sources) et l'attache à une release,
+# puis l'installeur Windows V3CT0R-Setup.exe (app de bureau, electron-builder.yml) sur la même release.
 name: Version téléchargeable
 
 on:
@@ -12,6 +13,9 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      # the desktop app is built by the job below: no Electron binary here
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,5 +29,24 @@ jobs:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
       - run: gh release create "$GITHUB_REF_NAME" ../V3CT0R.zip --title "V3CT0R $GITHUB_REF_NAME" --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  windows:
+    needs: release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run app:win
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+      - run: gh release upload "$GITHUB_REF_NAME" release/V3CT0R-Setup.exe --clobber
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}

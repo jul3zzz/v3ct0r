@@ -37,6 +37,14 @@ describe('progress merge between devices', () => {
     expect(m.colles.map((c: { at: number }) => c.at)).toEqual([1, 2, 3]);
   });
 
+  it('merges notes from two devices and keeps deletions', () => {
+    const local = { 'notes.v1': { notes: [{ at: 1, where: 'A', hash: '#/a', text: 'un' }, { at: 3, where: 'C', hash: '#/c', text: 'trois' }], deleted: ['3'] } };
+    const remote = { 'notes.v1': { notes: [{ at: 2, where: 'B', hash: '#/b', text: 'deux' }, { at: 3, where: 'C', hash: '#/c', text: 'trois' }], deleted: [] } };
+    const m = mergeSnapshots(local, remote) as any;
+    expect(m['notes.v1'].notes.map((n: { at: number }) => n.at)).toEqual([1, 2, 3]);
+    expect(m['notes.v1'].deleted).toEqual(['3']);
+  });
+
   it('is idempotent and symmetric on what matters', () => {
     const a = { 'games.v1': { x: { best: [10, 20, null], plays: 1 } }, 'story.v1': { read: ['a'] } };
     const b = { 'games.v1': { x: { best: [15, null, 5], plays: 4 } }, 'story.v1': { read: ['b'] } };

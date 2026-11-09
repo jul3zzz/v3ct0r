@@ -1,9 +1,11 @@
 /* V3CT0R ATLAS: full-bleed viewport, the ship's HUD is drawn on the overlay canvas */
 body.atlas #app { grid-template-columns: 0 minmax(0, 1fr) 0; }
 body.atlas #app > .rail, body.atlas #app > .panel { display: none; }
-body.atlas .vp-hud, body.atlas .tour, body.atlas .term { display: none; }
+body.atlas .vp-hud, body.atlas .tour:not(.cross), body.atlas .term { display: none; }
 body.atlas .viewport { background: #000; }
 .atlas-input { cursor: none; }
+/* Ctrl gauche held: the cursor is back, free, and does not steer */
+.atlas-input.free { cursor: default; }
 
 /* target card */
 .atlas-card {

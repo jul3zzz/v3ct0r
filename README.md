@@ -9,10 +9,16 @@ Fonctionne **hors ligne**, sans serveur : un fichier `index.html` (plus, pour la
 ## Lancer l'application
 
 - **En ligne** : le site GitHub Pages du dépôt ([jul3zzz.github.io/v3ct0r](https://jul3zzz.github.io/v3ct0r/)), mis à jour à chaque push sur
-  `main` (`.github/workflows/pages.yml`). Bouton **COMPTE** : créer un compte (e-mail + mot de passe) pour retrouver sa
-  progression sur tous ses appareils.
-- **Téléchargeable** : bouton **TÉLÉCHARGER** du site (le zip de la même version, servi à côté du site), ou `V3CT0R.zip`
-  dans les *Releases* du dépôt (une par tag `v*`, `.github/workflows/release.yml`).
+  `main` (`.github/workflows/pages.yml`). À l'arrivée, le site propose d'abord de **télécharger** la version hors ligne
+  (en cas de « non », une icône TÉLÉCHARGER reste dans la barre d'état), puis demande de **créer un compte** ou de se
+  connecter (e-mail + mot de passe) : la progression et les notes suivent le compte sur tous les appareils.
+- **App Windows** : sur Windows, le bouton **TÉLÉCHARGER** du site donne `V3CT0R-Setup.exe` (≈ 118 Mo, joint à chaque
+  release). Un double-clic l'installe sans droits administrateur : **V3CT0R apparaît sur le bureau** et dans le menu
+  Démarrer, s'ouvre dans sa propre fenêtre, hors ligne, et se désinstalle depuis les paramètres de Windows
+  (*Applications*). L'installeur n'est pas signé : au premier lancement, Windows peut afficher « Windows a protégé votre
+  ordinateur » → *Informations complémentaires* → *Exécuter quand même*.
+- **Téléchargeable (zip, tous systèmes)** : `V3CT0R.zip` (bouton TÉLÉCHARGER hors Windows, Ctrl+K « version zip », ou
+  les *Releases* du dépôt, une par tag `v*`, `.github/workflows/release.yml`).
 
 Version téléchargée :
 
@@ -20,16 +26,22 @@ Version téléchargée :
 2. Double-cliquer sur `index.html` (Chrome, Edge ou Firefox récents ; WebGL2 requis).
 3. L'application s'ouvre sur l'**ATLAS** : un vaisseau à piloter à travers tout le logiciel (voir ci-dessous).
    Onglets en haut à gauche : **ATLAS**, **EXPLORER** (les 46 vues, menus classiques), **LEARN** (les cours).
-4. À la première ouverture, l'application propose aussi le **tuto** (≈ 8 min, 9 étapes). Il se relance avec `T`.
+   Fenêtre de moins de 1200 px de large : la colonne des modules (ou des cours) se replie en tiroir, ouvert par
+   le bouton ≡ MODULES, pour laisser à la vue au moins 630 px.
+4. Un compte est demandé à la première ouverture (internet nécessaire cette fois-là) ; un appareil déjà connecté
+   s'ouvre ensuite sans internet. Puis l'application propose le **tuto** (≈ 13 min, 17 étapes), qui se relance avec `T`.
 
-Aucun réseau n'est utilisé (sauf la synchro du compte, si l'on se connecte) : polices, KaTeX, Three.js, les 10 000 décimales de chaque constante et le contenu des cours
+Aucun réseau n'est utilisé, sauf pour le compte (connexion à la première ouverture, puis synchro de la progression) : polices, KaTeX, Three.js, les 10 000 décimales de chaque constante et le contenu des cours
 sont embarqués dans le fichier. Sans les MP3, les cours se jouent avec sous-titres seuls.
 
-## Comptes et synchro de la progression (facultatif)
+## Comptes et synchro de la progression
 
-La progression (vues validées, cours, leçons-jeux, mode histoire) peut suivre un compte, via un projet **Supabase**
-gratuit. Sans configuration, ou hors ligne, rien ne change : tout reste dans le navigateur. Les réglages (son, qualité,
-musique) et la position du vaisseau restent propres à chaque appareil.
+La progression (vues validées, cours, leçons-jeux, mode histoire) et les notes suivent un compte, via un projet
+**Supabase** gratuit. Quand le build est configuré (étapes ci-dessous), un compte est **obligatoire** pour ouvrir
+l'application, en ligne comme en version téléchargée (`src/shell/welcome.ts`) : un appareil connecté une fois garde sa
+session et s'ouvre ensuite hors ligne ; si le serveur ne répond pas, l'écran d'accueil propose RÉESSAYER et, sur le
+site, de télécharger la version hors ligne. Sans configuration, pas de compte : tout reste dans le navigateur. Les
+réglages (son, qualité, musique) et la position du vaisseau restent propres à chaque appareil.
 
 1. Créer un projet sur [supabase.com](https://supabase.com) (offre gratuite).
 2. *SQL Editor* → coller `supabase/schema.sql` → *Run* : la table `progress`, protégée (chaque joueur ne lit et
@@ -63,7 +75,9 @@ Tout le logiciel en espace à parcourir, façon arcade, en fil de fer noir et bl
   classiques, `Ctrl+K` « atlas » pour sauter directement dans un système.
 - **Visée souris, comme un avion** : la souris oriente la caméra (le réticule central) ; le vaisseau vire pour
   rattraper ce point en s'inclinant dans le virage, et une croix montre où pointe son nez. Un clic capture la souris
-  pour tourner sans limite (Échap la libère). La cible est ce que tu vises.
+  pour tourner sans limite (Échap la libère). **Ctrl gauche maintenu** : souris libre (le curseur revient, le
+  vaisseau ne tourne plus : cliquer un onglet, un bouton) ; relâché, la souris dirige de nouveau (et se recapture si
+  elle l'était, sauf si tu as cliqué ailleurs entre-temps). La cible est ce que tu vises.
 - **Stations** : chaque leçon-jeu est une station orbitale dans le système de son module ; accoster lance la partie.
 - **Son** (bouton SON / `M`) : réacteur qui suit la vitesse, souffle du boost, bip de verrouillage, montée et boum de
   la vitesse lumière, plongée d'atterrissage.
@@ -331,7 +345,7 @@ qu'ils existent dans la vue.
 
 | Visite | Durée | Contenu |
 |---|---|---|
-| **Tuto · Prise en main** (`T`) | ≈ 8 min | 9 étapes interactives : navigation, changement de module, manipulation 3D, panneau, Σ, saisie d'une fonction, Ctrl+K, leçon et déblocages, raccourcis |
+| **Tuto · Prise en main** (`T`) | ≈ 13 min | 17 étapes interactives : navigation, changement de module, manipulation 3D, panneau, Σ, saisie d'une fonction, Ctrl+K, leçon et déblocages, calculatrice (`V3(27)` → 3), carnet de notes, onglet LEARN, cours écrit, leçons-jeux, onglet ATLAS, mode histoire, musique / compte / téléchargement, raccourcis. Il reste actif d'un onglet à l'autre (`crossMode`) |
 | **Du cercle à e^(iπ)** | ≈ 4 min | π d'Archimède → i → e^(iθ) → (1 + iπ/n)ⁿ → Fourier → e^z |
 | **La 4ᵉ dimension** | ≈ 4 min | Flatland → coupes du tesseract → projections → 120-cell → Hopf → hypervolume |
 | **Le chaos et l'infini** | ≈ 4 min | Lorenz → Koch → plongée ×10³⁰ → Julia → Collatz → TCL |
@@ -355,6 +369,7 @@ qu'ils existent dans la vue.
 | `Q` | Qualité LOW / MED / HIGH / **AUTO** (par défaut : la résolution s'adapte au FPS) |
 | `M` / `L` / `H` / `F` | Sons / scanlines / masquer l'interface / plein écran |
 | `=` | **CALC** : calculatrice et raccourcis de caractères (partout, aussi dans l'ATLAS et LEARN) |
+| `N` | **NOTES** : carnet façon terminal, gardé dans le navigateur et sur le compte (chaque note retient sa vue ; `/aide`, `/cherche`, `/ici`, `/efface n`, `/exporte` ; `Tab` convertit un raccourci de caractère) |
 | `J` / `X` | Mode histoire : livre de bord / compas d'Euclide |
 
 Souris : glisser = orbite ou déplacement, molette = zoom, clic droit = déplacement 3D, double-clic = recentrer.
@@ -401,6 +416,9 @@ npm run voice -- --dry-run   # voix off LEARN : estimation (rien n'est envoyé) 
 npm run voice:list # voix du compte ElevenLabs (★ = français) et crédits restants ; ne consomme rien
 npm run videos:check  # revérifie les 94 liens YouTube (réseau) ; -- --write met à jour titres et durées
 npm run package    # build + ../V3CT0R.zip (application + MP3 + source/, jamais .env)
+npm run app        # build + ouvre V3CT0R dans sa fenêtre d'app de bureau (Electron, electron/main.cjs)
+npm run app:win    # build + release/V3CT0R-Setup.exe (installeur Windows, electron-builder.yml)
+npm run icons      # build/icon.ico + icon.png + favicon depuis src/assets/logo/v3ct0r-icon*.svg
 npm run digits     # régénère src/data/digits.ts (BigInt, double vérification)
 npm run fonts      # retélécharge les sous-ensembles de polices (réseau, une seule fois)
 ```
@@ -423,7 +441,7 @@ src/
 ├─ hud/               tokens.css, hud.css, composants (ui.ts + registre des contrôles), effets, déco, logo
 ├─ shell/             boot, layout, viewport-hud, palette, overlays, challenge, tour (moteur), tours (contenu),
 │                     terminal (leçons et exercices)
-├─ assets/logo/       symbole maître (SVG)
+├─ assets/logo/       logo « orbite et vecteur » : icône d’app (v3ct0r-icon.svg, -small ≤ 24 px), symbole (SVG)
 ├─ data/digits.ts     10 000 décimales de π, e, φ, √2, ln 2, ζ(3), γ (scripts/gen-digits.mjs)
 ├─ modules/
 │  ├─ integrals/  4d/  fractals/  constants/  principles/  probability/
@@ -434,6 +452,8 @@ src/
                       player (horloge calée sur la voix, barre, pauses exercice), tree (arbre 3D), exercise,
                       colle, sheet (fiche PDF), progress, learn (contrôleur), learn.css
 courses/              un dossier par cours + curriculum.json + pronunciation.fr.json
+electron/             main.cjs : l’app de bureau (fenêtre, liens vers le navigateur) ; electron-builder.yml : installeur
+build/                icon.ico, icon.png (npm run icons)
 tools/                generate-voice.ts (ElevenLabs, cache, --dry-run), voice.config.json
 ```
 

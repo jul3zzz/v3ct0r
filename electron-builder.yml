@@ -1,0 +1,40 @@
+# Windows installer: npm run app:win → release/V3CT0R-Setup.exe
+# One click, no administrator rights: installs for the current user, puts V3CT0R on the desktop and in
+# the Start menu, then opens it. Uninstall from Windows settings (Applications).
+appId: io.github.jul3zzz.v3ct0r
+productName: V3CT0R
+copyright: © 2026 V3CT0R
+directories:
+  output: release
+  buildResources: build
+files:
+  - electron/**
+  - dist/**
+  - "!dist/**/*.zip"
+  - package.json
+  # three and katex are already bundled into dist/index.html by Vite
+  - "!node_modules/**"
+asar: true
+# the course voices are read by <audio>: kept as plain files next to the app
+asarUnpack:
+  - dist/courses/**
+electronLanguages:
+  - fr
+  - en-US
+compression: maximum
+win:
+  target:
+    - target: nsis
+      arch: x64
+  icon: build/icon.ico
+nsis:
+  oneClick: true
+  perMachine: false
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: V3CT0R
+  runAfterFinish: true
+  deleteAppDataOnUninstall: false
+  artifactName: V3CT0R-Setup.exe
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico

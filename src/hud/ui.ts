@@ -21,10 +21,15 @@ const defaultFmt = (step: number) => (v: number) => {
 
 /** Controls of the current view, addressable by label (used by guided tours and the tutorial).
  *  Reset by the app when the view changes. */
-const REGISTRY = { controls: new Map<string, Handle<any>>(), options: new Map<string, () => void>() };
+const REGISTRY = { controls: new Map<string, Handle<any>>(), options: new Map<string, () => void>(), optionEls: new Map<string, HTMLElement>() };
 export function resetUiRegistry(): void {
   REGISTRY.controls.clear();
   REGISTRY.options.clear();
+  REGISTRY.optionEls.clear();
+}
+/** the element showing a control, an option button or a readout, by its exact label (exercise spotlight) */
+export function uiElement(label: string): HTMLElement | undefined {
+  return REGISTRY.optionEls.get(label) ?? REGISTRY.controls.get(label)?.el ?? REGISTRY.controls.get(`ro:${label}`)?.el;
 }
 export function uiControl(label: string): Handle<any> | undefined {
   return REGISTRY.controls.get(label);
@@ -142,6 +147,8 @@ export class UI {
     });
     const el = h('div', { class: 'ctl' }, o.label ? h('div', { class: 'ctl-head' }, h('span', { class: 'ctl-label', text: o.label })) : null, seg);
     this.root.append(el);
+    // a single long word wider than its button (« IRRATIONALITÉ »): tighter letter-spacing, never cut
+    requestAnimationFrame(() => buttons.forEach((b) => b.scrollWidth > b.clientWidth + 1 && b.classList.add('tight')));
     const api: Handle<T> = {
       el,
       get: () => value,
@@ -153,6 +160,7 @@ export class UI {
     };
     if (o.label) REGISTRY.controls.set(o.label, api);
     for (const op of opts) REGISTRY.options.set(op.label, () => value !== op.id && api.set(op.id));
+    opts.forEach((op, i) => REGISTRY.optionEls.set(op.label, buttons[i]));
     return api;
   }
 

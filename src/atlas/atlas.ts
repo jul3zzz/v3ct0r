@@ -148,6 +148,12 @@ class AtlasRun implements VizInstance {
   private boosting = false;
   private keys = new Set<string>();
   private mouse = { dx: 0, dy: 0 };
+  /** Ctrl gauche held: the cursor is free (click a tab, a button) and does not steer the ship */
+  private freeMouse = false;
+  /** the mouse was captured when Ctrl gauche was pressed: capture it again on release */
+  private relock = false;
+  /** something was clicked while the mouse was free: stay free (the next click on the view captures) */
+  private freeClicked = false;
   private level: 'galaxy' | 'system' = 'galaxy';
   private uni: AtlasUniverse | null = null;
   private items: Item[] = [];
@@ -200,14 +206,23 @@ class AtlasRun implements VizInstance {
       .catch(() => undefined);
     ctx.listen(window, 'keydown', (e: KeyboardEvent) => this.onKey(e, true));
     ctx.listen(window, 'keyup', (e: KeyboardEvent) => this.onKey(e, false));
-    ctx.listen(window, 'blur', () => this.keys.clear());
+    ctx.listen(window, 'blur', () => {
+      this.keys.clear();
+      this.setFreeMouse(false);
+    });
+    // Ctrl gauche held: free mouse (physical key, any layout)
+    ctx.listen(window, 'keydown', (e: KeyboardEvent) => e.code === 'ControlLeft' && !e.repeat && this.atlas.active && this.setFreeMouse(true));
+    ctx.listen(window, 'keyup', (e: KeyboardEvent) => e.code === 'ControlLeft' && this.setFreeMouse(false));
+    ctx.listen(window, 'pointerdown', () => this.freeMouse && (this.freeClicked = true), { capture: true });
     ctx.listen(ctx.input, 'click', () => {
       this.audio.wake();
+      if (this.freeMouse) return;
       if (document.pointerLockElement !== ctx.input) void (ctx.input.requestPointerLock?.() as unknown as Promise<void> | undefined)?.catch?.(() => undefined);
     });
     // mouse aim, like a plane: moving the mouse turns the camera, the ship banks round to follow.
-    // Works over the view; a click captures the mouse for unlimited turns.
+    // Works over the view; a click captures the mouse for unlimited turns; Ctrl gauche frees it.
     ctx.listen(document, 'mousemove', (e: MouseEvent) => {
+      if (this.freeMouse) return;
       if (document.pointerLockElement !== ctx.input && e.target !== ctx.input) return;
       this.mouse.dx += e.movementX;
       this.mouse.dy += e.movementY;
@@ -240,14 +255,38 @@ class AtlasRun implements VizInstance {
     return `${this.labels.KeyW} ${this.labels.KeyA} ${this.labels.KeyS} ${this.labels.KeyD}`;
   }
 
+  /** Ctrl gauche: free cursor while held (capture again on release, unless something was clicked) */
+  private setFreeMouse(on: boolean): void {
+    if (on === this.freeMouse) return;
+    this.freeMouse = on;
+    this.mouse.dx = this.mouse.dy = 0;
+    const input = this.ctx.input;
+    input.classList.toggle('free', on);
+    if (on) {
+      this.freeClicked = false;
+      this.relock = document.pointerLockElement === input;
+      if (this.relock) document.exitPointerLock();
+      this.say('SOURIS LIBRE — RELÂCHE CTRL GAUCHE POUR PILOTER À LA SOURIS', 1.6);
+      return;
+    }
+    if (this.relock && !this.freeClicked && this.atlas.active && document.pointerLockElement !== input)
+      void (input.requestPointerLock?.() as unknown as Promise<void> | undefined)?.catch?.(() => undefined);
+    this.relock = false;
+  }
+
   private onKey(e: KeyboardEvent, down: boolean): void {
     if (!this.atlas.active) return;
     const tgt = e.target as HTMLElement | null;
     if (tgt && (tgt.tagName === 'INPUT' || tgt.tagName === 'TEXTAREA')) return;
-    if (down && this.atlas.host.blocked()) return;
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
     const c = e.code;
     const flight = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft', 'ShiftRight', 'Space'];
+    // a flight key released while a modifier is held (Ctrl gauche): still released, never stuck
+    if (!down && flight.includes(c)) {
+      this.keys.delete(c);
+      return;
+    }
+    if (down && this.atlas.host.blocked()) return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (flight.includes(c)) {
       if (down) {
         this.keys.add(c);
@@ -908,7 +947,7 @@ class AtlasRun implements VizInstance {
     g.font = font(10);
     g.fillStyle = white(0.45);
     const hint = this.uni?.id === 'story' ? `J JOURNAL${this.hasPart('compas') ? ' · X COMPAS' : ''} · ÉCHAP QUITTER` : this.level === 'system' ? 'ÉCHAP QUITTER LE SYSTÈME' : 'TAB MENUS CLASSIQUES';
-    g.fillText(`${this.keyset()} PILOTER · ${this.labels.KeyQ}/${this.labels.KeyE} MONTER/DESCENDRE · MAJ BOOST · SOURIS DIRIGER (CLIC : CAPTURER) · ⏎ ENTRER · ${hint}`, W / 2, H - 14);
+    g.fillText(`${this.keyset()} PILOTER · ${this.labels.KeyQ}/${this.labels.KeyE} MONTER/DESCENDRE · MAJ BOOST · SOURIS DIRIGER (CLIC : CAPTURER · CTRL GAUCHE : LIBRE) · ⏎ ENTRER · ${hint}`, W / 2, H - 14);
 
     // message
     if (this.msg && this.msg.until > this.clock) {

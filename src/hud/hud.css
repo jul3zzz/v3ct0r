@@ -237,8 +237,10 @@ body.chrome-off .vp-title { display: none; }
 
 .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; border: var(--line-mid); }
 .seg.cols { grid-auto-flow: row; grid-template-columns: repeat(var(--cols, 2), 1fr); }
-.seg button { padding: 6px 4px; border-right: var(--line); border-bottom: var(--line); margin-bottom: -1px; color: var(--fg-80); letter-spacing: 0.06em; font-size: var(--fs-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: background var(--t-fast), color var(--t-fast); }
+.seg button { padding: 6px 4px; border-right: var(--line); border-bottom: var(--line); margin-bottom: -1px; color: var(--fg-80); letter-spacing: 0.06em; font-size: var(--fs-xs); line-height: 1.3; overflow: hidden; overflow-wrap: normal; transition: background var(--t-fast), color var(--t-fast); }
 .seg button:last-child { border-right: 0; }
+/* a long label wraps at its spaces; a single word that is still too wide is set tighter (ui.ts) */
+.seg button.tight { letter-spacing: 0; }
 .seg.cols { border-right: 0; border-bottom: 0; }
 .seg.cols button, .seg.cols button:last-child { border-right: var(--line-mid); border-bottom: var(--line-mid); margin-bottom: 0; }
 .seg button:hover { color: var(--fg); background: var(--fg-05); }
@@ -300,6 +302,8 @@ body.chrome-off .vp-title { display: none; }
 .statusbar .spacer { flex: 1; }
 .statusbar canvas { width: 90px; height: 14px; }
 .statusbar .barcode { height: 12px; }
+/* narrow window: the decoration goes first, the shortcuts hint stays */
+@media (max-width: 1199px) { .statusbar .barcode, .statusbar .sb-frame, .statusbar .spark-status { display: none; } }
 
 /* ── overlays ─────────────────────────────────────────────────────────── */
 .overlay { position: fixed; inset: 0; z-index: var(--z-overlay); background: var(--veil); display: flex; align-items: flex-start; justify-content: center; padding-top: 12vh; animation: fade-in var(--t) var(--ease); }
@@ -406,7 +410,23 @@ body.scan .scanlines { display: block; animation: scan-flicker 4s steps(1) infin
 .ex-head { display: flex; justify-content: space-between; color: var(--fg); letter-spacing: 0.08em; }
 .ex-head .st { color: var(--fg-70); }
 .ex.ok .ex-head .st { color: var(--fg); }
-.ex-q { margin: 6px 0; color: var(--fg-80); white-space: pre-wrap; }
+/* the instruction: bold, framed by a white bar; « À TOI » says how to answer */
+.ex-consigne { margin: 8px 0 4px; padding: 3px 0 3px 10px; border-left: 2px solid var(--fg); }
+.ex-cl { display: block; font-size: 10px; letter-spacing: var(--track-caps); color: var(--fg-60); }
+.ex-q { margin: 2px 0 0; color: var(--fg); font-weight: 500; font-size: 13px; line-height: 1.6; white-space: pre-wrap; }
+.ex-do { margin: 0 0 8px; color: var(--fg-70); font-size: var(--fs-xs); line-height: 1.55; }
+.ex-do b { color: var(--fg); font-weight: 500; letter-spacing: 0.06em; }
+.ex-chip { display: inline; padding: 0 4px; margin: 0 1px; border: 1px solid var(--fg); color: var(--fg); font: inherit; font-weight: 500; line-height: inherit; cursor: pointer; }
+.ex-chip:hover { background: var(--fg); color: var(--bg); }
+/* exercise spotlight (spotlight.ts): the controls to use are lit, the rest of the panel dims (still usable) */
+.ex-dim { opacity: 0.3; transition: opacity var(--t) var(--ease); }
+.ex-dim:hover { opacity: 0.75; }
+.ex-litwrap .seg button:not(.ex-lit) { opacity: 0.4; }
+.ex-lit { position: relative; z-index: 1; outline: 1px solid var(--fg); outline-offset: 2px; box-shadow: 0 0 14px 2px rgb(255 255 255 / 0.32); animation: ex-glow 1.6s ease-in-out infinite; }
+@keyframes ex-glow { 50% { box-shadow: 0 0 4px 1px rgb(255 255 255 / 0.14); } }
+.ex-flash { animation: ex-flash 0.4s steps(2) 3 !important; }
+@keyframes ex-flash { 50% { background: var(--fg); color: var(--bg); box-shadow: 0 0 22px 6px rgb(255 255 255 / 0.5); } }
+@media (prefers-reduced-motion: reduce) { .ex-lit, .ex-flash { animation: none !important; } }
 .ex-choices { display: flex; flex-direction: column; gap: 4px; margin: 4px 0 6px; }
 .ex-choices button { text-align: left; padding: 3px 8px; border: var(--line); color: var(--fg-80); }
 .ex-choices button:hover:not([disabled]) { border-color: var(--fg); color: var(--fg); }
@@ -455,5 +475,16 @@ body.touring .vp-hint { display: none; }
    TÉLÉCHARGER keeps its label longest; the breadcrumb shrinks instead of pushing buttons out */
 .topbar .crumbs { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 1640px) { .topbar .meta > :not(.rec-dot) { display: none; } }
-@media (max-width: 1400px) { .topbar .tb-btn:not(.tb-dl) > span { display: none; } }
+@media (max-width: 1400px) { .topbar .tb-btn:not(.tb-dl):not(.rail-toggle) > span { display: none; } }
 @media (max-width: 1000px) { .topbar .tb-btn > span { display: none; } .topbar .crumbs { display: none; } }
+
+/* narrow window (< 1200 px): the rail (modules, or LEARN courses) becomes a drawer over the view, opened by
+   the MODULES button, so that the view keeps at least ~630 px (the 2D views are drawn for that). */
+.topbar .rail-toggle { display: none; }
+@media (max-width: 1199px) {
+  #app { grid-template-columns: 0 minmax(0, 1fr) var(--panel); }
+  #app > .rail { grid-area: vp; justify-self: start; width: var(--rail); z-index: 30; background: var(--bg); transform: translateX(-100%); visibility: hidden; transition: transform var(--t) var(--ease), visibility var(--t); }
+  body.rail-open #app > .rail { transform: none; visibility: visible; }
+  .topbar .rail-toggle { display: inline-flex; }
+  body.atlas .topbar .rail-toggle { display: none; }
+}

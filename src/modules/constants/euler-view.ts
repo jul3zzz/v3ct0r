@@ -38,8 +38,10 @@ export const eulerView: VizDef = {
         const g = ctx.g;
         const W = ctx.width;
         const H = ctx.height;
-        const size = Math.min(W - 420, H - 190);
-        fr.set(60 + (W - 420 - size) / 2, 110 + (H - 190 - size) / 2, size, size);
+        // a narrow viewport (small window): the circle takes the whole width, never a negative size
+        const side = W > 760 ? 420 : 40;
+        const size = Math.max(60, Math.min(W - side, H - 190));
+        fr.set(side === 420 ? 60 + (W - 420 - size) / 2 : (W - size) / 2, 110 + Math.max(0, H - 190 - size) / 2, size, size);
         fr.axes(g, { xName: 'RE', yName: 'IM' });
         g.strokeStyle = INK.f40;
         g.beginPath();

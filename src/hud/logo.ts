@@ -1,15 +1,25 @@
 import { svgEl } from './dom';
 import { reducedMotion } from './fx';
 
-/** V3CT0R symbol — "V-vecteur": the V of V3CT0R drawn as two vectors leaving the same origin, the right
- *  one carrying the arrowhead, framed by HUD corner brackets. 256 grid, arms at ±30° from vertical, stroke 24.
- *  Master file: src/assets/logo/v3ct0r-symbol.svg (built from the logo-design skill workflow). */
-export const LOGO_BRACKETS = 'M16 16 H80 V32 H32 V80 H16 Z M240 16 H176 V32 H224 V80 H240 Z M16 240 H80 V224 H32 V176 H16 Z M240 240 H176 V224 H224 V176 H240 Z';
-export const LOGO_V = '44.9,68 72.6,68 128,164 170.8,89.8 152.6,79.3 204.2,56 209.8,112.3 191.6,101.8 128,212';
+/** V3CT0R symbol — "orbite et vecteur": a planet and its tilted orbit, crossed by a vector (the ATLAS and
+ *  the V of V3CT0R). 256 grid; a cut-out gap keeps the vector apart from what it crosses. Two drawings:
+ *  regular, and thicker for 24 px and below. Masters (with the black tile of the app icon):
+ *  src/assets/logo/v3ct0r-icon.svg and v3ct0r-icon-small.svg (npm run icons builds the icons from them). */
+const LOGO = {
+  big: { cy: 128, rx: 108, ry: 56, ring: 12, r: 36, line: [44, 212, 182, 74], cut: 30, w: 14, head: '218,38 200.8,90 166,55.2', headCut: 9 },
+  small: { cy: 134, rx: 112, ry: 66, ring: 22, r: 40, line: [36, 226, 170, 92], cut: 50, w: 28, head: '228,26 205,102 152,49', headCut: 12 },
+};
+let maskId = 0;
 
 export function logoSymbol(size = 20, className = 'sym'): SVGSVGElement {
+  const g = size <= 24 ? LOGO.small : LOGO.big;
+  const [x1, y1, x2, y2] = g.line;
+  const id = `v3-cut-${++maskId}`;
   return svgEl(
-    `<svg class="${className}" viewBox="0 0 256 256" width="${size}" height="${size}" aria-hidden="true"><path class="br" fill="currentColor" d="${LOGO_BRACKETS}"/><polygon class="v" fill="currentColor" points="${LOGO_V}"/></svg>`,
+    `<svg class="${className}" viewBox="0 0 256 256" width="${size}" height="${size}" aria-hidden="true">` +
+      `<mask id="${id}"><rect width="256" height="256" fill="#fff"/><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#000" stroke-width="${g.cut}"/><polygon points="${g.head}" fill="#000" stroke="#000" stroke-width="${g.headCut}"/></mask>` +
+      `<g class="orb" mask="url(#${id})"><ellipse cx="128" cy="${g.cy}" rx="${g.rx}" ry="${g.ry}" transform="rotate(-20 128 ${g.cy})" fill="none" stroke="currentColor" stroke-width="${g.ring}"/><circle cx="128" cy="${g.cy}" r="${g.r}" fill="currentColor"/></g>` +
+      `<g class="v"><line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="currentColor" stroke-width="${g.w}"/><polygon points="${g.head}" fill="currentColor"/></g></svg>`,
   );
 }
 

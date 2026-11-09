@@ -20,6 +20,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # the site needs no Electron binary (the desktop app is built by release.yml)
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

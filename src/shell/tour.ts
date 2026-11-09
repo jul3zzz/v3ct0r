@@ -2,6 +2,7 @@ import { h, setText } from '../hud/dom';
 import { icon } from '../hud/deco';
 import { typewriter } from '../hud/fx';
 import { sfx } from '../core/audio';
+import { NARROW } from './layout';
 
 /** What a tour step can do to the app. */
 export interface TourApi {
@@ -19,6 +20,10 @@ export interface TourApi {
   touchedSince(t: number): boolean;
   /** the lesson terminal is open */
   termOpen(): boolean;
+  /** where the app is: section, ATLAS system, last calculator line, notes kept, written course read */
+  app(): { mode: 'explore' | 'learn' | 'atlas'; uni: string | null; calc: { src: string; out: string } | null; notes: number; course: string | null };
+  /** close the side panels and the lesson terminal (each tutorial step starts clean) */
+  tidy(): void;
 }
 
 export interface TourStep {
@@ -38,6 +43,8 @@ export interface Tour {
   title: string;
   kind: 'tuto' | 'parcours';
   summary: string;
+  /** stays on when the app switches section (EXPLORER, LEARN, ATLAS): the tutorial visits them all */
+  crossMode?: boolean;
   steps: TourStep[];
 }
 
@@ -136,7 +143,8 @@ export class TourPlayer {
     const pause = btn('PAUSE', 'pause', () => this.togglePause());
     const el = h(
       'div',
-      { class: 'tour frame solid', role: 'dialog', 'aria-label': 'Visite guidée' },
+      // `cross`: the tutorial stays visible in LEARN and the ATLAS (they hide the other tours)
+      { class: `tour frame solid${this.tour?.crossMode ? ' cross' : ''}`, role: 'dialog', 'aria-label': 'Visite guidée' },
       head,
       title,
       text,
@@ -207,6 +215,8 @@ export class TourPlayer {
     if (Math.floor(this.elapsed * 2) !== Math.floor((this.elapsed - dt) * 2)) this.paintHead();
     // highlight
     const target = step.highlight ? (document.querySelector(step.highlight) as HTMLElement | null) : null;
+    // narrow window: what the step points at is in the rail drawer → open it
+    if (target?.closest('#app > .rail') && matchMedia(NARROW).matches && !document.body.classList.contains('rail-open')) document.body.classList.add('rail-open');
     if (target && target.offsetParent !== null) {
       const b = target.getBoundingClientRect();
       this.hl.style.display = 'block';

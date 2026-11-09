@@ -123,6 +123,17 @@ export class Cloud {
     }
   }
 
+  /** the account server answers (a network error or a 5xx, e.g. a paused project: no) */
+  async ping(): Promise<boolean> {
+    if (!cloudConfigured) return false;
+    try {
+      const r = await fetch(`${URL_}/auth/v1/health`, { headers: { apikey: ANON } });
+      return r.status > 0 && r.status < 500;
+    } catch {
+      return false;
+    }
+  }
+
   /** create an account; 'confirm' when the project asks to confirm the email first */
   async signUp(email: string, password: string): Promise<'ok' | 'confirm'> {
     const b = (await this.call('/auth/v1/signup', { method: 'POST', auth: false, body: JSON.stringify({ email, password }) })) as Record<string, unknown>;

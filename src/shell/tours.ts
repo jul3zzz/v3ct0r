@@ -1,16 +1,21 @@
 import type { Tour } from './tour';
 
-/** Tutorial (≈ 8 min) and guided stories (≈ 4 min each). Option labels must match the views’ controls. */
+// tutorial: what a step saw when it started (a task counts only what the user did after)
+let calcBefore: { src: string; out: string } | null = null;
+let notesBefore = 0;
+
+/** Tutorial (≈ 13 min, every section) and guided stories (≈ 4 min each). Option labels must match the views’ controls. */
 export const TOURS: Tour[] = [
   {
     id: 'tuto',
     title: 'PRISE EN MAIN',
     kind: 'tuto',
-    summary: 'Tout ce qu’il faut savoir pour utiliser l’application, en faisant. Moins de 10 minutes.',
+    crossMode: true,
+    summary: 'Tout ce qu’il faut savoir, en faisant : l’explorateur, la calculatrice, les notes, LEARN, l’ATLAS et le mode histoire.',
     steps: [
       {
         title: 'BIENVENUE',
-        text: 'V3CT0R réunit 46 visualisations en 6 modules. À gauche : les modules et leurs vues. Au centre : la vue, qu’on manipule à la souris. À droite : ses paramètres. Échap pour quitter ce tuto à tout moment.',
+        text: 'V3CT0R réunit 46 visualisations en 6 modules. À gauche : les modules et leurs vues. Au centre : la vue, qu’on manipule à la souris. À droite : ses paramètres. Ce tuto passe ensuite par la calculatrice, les notes, LEARN, l’ATLAS et le mode histoire ; QUITTER l’arrête à tout moment.',
         highlight: '.rail',
         seconds: 40,
       },
@@ -75,8 +80,82 @@ export const TOURS: Tour[] = [
         seconds: 55,
       },
       {
+        title: 'LA CALCULATRICE',
+        text: '= ouvre la calculatrice, partout dans l’application : intégrales, sommes, dérivées, factorielles… Chaque caractère spécial a un raccourci au clavier : V3 devient ∛, pi devient π, <= devient ≤. La liste complète est dans la calculatrice et dans Ctrl+K « raccourcis de caractères ».',
+        do: (api) => {
+          api.tidy();
+          calcBefore = api.app().calc;
+        },
+        task: 'appuie sur =, tape V3(27) puis Entrée.',
+        highlight: '[data-act="calc"]',
+        wait: (api) => {
+          const c = api.app().calc;
+          return !!c && c !== calcBefore && c.src.includes('∛') && c.out.trim() === '3';
+        },
+        seconds: 50,
+      },
+      {
+        title: 'LE CARNET DE NOTES',
+        text: 'N ouvre le carnet : un terminal où chaque ligne tapée est gardée, avec la vue où tu l’as écrite. Les notes restent dans ce navigateur et suivent ton compte. /aide liste les commandes : /cherche, /ici, /efface, /exporte.',
+        do: (api) => {
+          api.tidy();
+          notesBefore = api.app().notes;
+        },
+        task: 'appuie sur N, écris une note, puis Entrée.',
+        highlight: '[data-act="notes"]',
+        wait: (api) => api.app().notes > notesBefore,
+        seconds: 45,
+      },
+      {
+        title: 'LEARN : LES COURS',
+        text: 'L’onglet LEARN réunit les cours, de la prépa au doctorat : des vidéos animées et commentées, et des cours écrits avec leurs exercices.',
+        do: (api) => api.tidy(),
+        task: 'clique sur l’onglet LEARN, en haut.',
+        highlight: '[data-act="tab-learn"]',
+        wait: (api) => api.app().mode === 'learn',
+        seconds: 35,
+      },
+      {
+        title: 'UN COURS ÉCRIT',
+        text: 'Les cours écrits se lisent chapitre par chapitre : définitions, théorèmes et preuves. Leurs exercices ont trois niveaux, simple (≈ 10 min), moyen (≈ 30 min) et complexe (1 h et plus), avec indices et corrigé pas à pas.',
+        task: 'appuie sur Ctrl+K, tape « suites et séries », puis Entrée.',
+        highlight: '[data-act="palette"]',
+        wait: (api) => api.app().course === 'suites-series',
+        seconds: 50,
+      },
+      {
+        title: 'LES LEÇONS-JEUX',
+        text: 'LEARN propose aussi des leçons-jeux : une idée mathématique à pratiquer en 3 niveaux (le duel ε-δ, l’aiguille de Buffon…), un briefing parlé au départ et le théorème exact à la fin. Elles sont dans l’arbre des cours et dans Ctrl+K (« jeu »).',
+        seconds: 30,
+      },
+      {
+        title: 'L’ATLAS',
+        text: 'L’ATLAS est l’écran d’accueil : tout le logiciel en vaisseau spatial. Chaque système est un module, chaque planète une vue ou un cours. Z Q S D pour piloter, A et E pour monter et descendre, Maj pour accélérer, Entrée pour entrer dans la planète visée. La souris dirige le vaisseau ; maintiens Ctrl gauche pour la libérer et cliquer ailleurs.',
+        do: (api) => api.tidy(),
+        task: 'clique sur l’onglet ATLAS, en haut.',
+        highlight: '[data-act="tab-atlas"]',
+        wait: (api) => api.app().mode === 'atlas',
+        seconds: 40,
+      },
+      {
+        title: 'LE MODE HISTOIRE',
+        text: 'La Grande Entropie est le mode histoire : une chronologie des mathématiques en 7 actes, de Babylone (vers −1800) à 2003, dessinée en spirale dans l’espace (l’acte I est jouable). Chaque balise restaurée ouvre un récit daté et un jeu d’époque. Une fois dedans, J ouvre le journal de bord, la frise et le hangar.',
+        task: 'appuie sur Ctrl+K, tape « grande entropie », puis Entrée.',
+        highlight: '[data-act="palette"]',
+        wait: (api) => api.app().uni === 'story',
+        seconds: 45,
+      },
+      {
+        title: 'MUSIQUE, COMPTE, TÉLÉCHARGER',
+        text: 'En haut à droite : SON (M) et MUSIQUE de fond (clic droit : volume), CALC, NOTES, ton COMPTE (progression et notes sur tous tes appareils) et, sur le site, TÉLÉCHARGER : un zip à dézipper, puis index.html s’ouvre sans internet.',
+        highlight: '[data-act="music"]',
+        seconds: 35,
+      },
+      {
         title: 'ALLER PLUS LOIN',
-        text: 'P exporte la vue en PNG, R enregistre une vidéo, Q règle la qualité (AUTO s’adapte seule). D lance un défi, G les parcours guidés, C le mode cinématique (débloqué à 10 vues validées). ? affiche tous les raccourcis. Bonne exploration !',
+        text: 'Retour à l’explorateur. P exporte la vue en PNG, R enregistre une vidéo, Q règle la qualité (AUTO s’adapte seule). D lance un défi, G les parcours guidés, C le mode cinématique (débloqué à 10 vues validées). ? affiche tous les raccourcis, T relance ce tuto. Bonne exploration !',
+        view: 'fractals/mandelbrot',
+        do: (api) => api.tidy(),
         highlight: '.rail-foot',
         seconds: 40,
       },

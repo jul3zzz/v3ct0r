@@ -31,8 +31,10 @@ import { ACTS, CHAPTERS, chapterById } from '../story/data';
 import { chapterDialog, journalDialog, type StoryHooks } from '../story/ui';
 import { CAMERA } from '../gfx/panzoom';
 import { CalcPanel } from '../shell/calc';
+import { NotesPanel } from '../shell/notes';
 import { cloud } from './cloud';
 import { accountDialog, reloadAfterSync } from '../shell/account';
+import { DL_KEY, INSTALLER_URL, downloadKind, type DownloadKind } from '../shell/welcome-steps';
 
 /** pseudo-module hosting LEARN's own views (course tree, empty stage) */
 const LEARN_MOD = { id: 'learn', code: 'L', title: 'LEARN', kanji: '学', tagline: 'Cours', vizs: [], challenges: [] } as unknown as ModuleDef;
@@ -50,7 +52,9 @@ export const ATLAS_KEYS: KeyDoc[] = [
   { label: 'Chercher (et y aller)', keys: ['Ctrl', 'K'] },
   { label: 'Sons on/off', keys: ['M'] },
   { label: 'Calculatrice et raccourcis de caractères', keys: ['='] },
+  { label: 'Carnet de notes', keys: ['N'] },
   { label: 'Histoire : journal, frise, hangar', keys: ['J'] },
+  { label: 'ATLAS : souris libre (maintenu)', keys: ['Ctrl gauche'] },
   { label: 'Histoire : compas d’Euclide (une fois obtenu)', keys: ['X'] },
 ];
 
@@ -66,6 +70,7 @@ export const LEARN_KEYS: KeyDoc[] = [
   { label: 'Fermer l’exercice / retour à l’arbre', keys: ['Échap'] },
   { label: 'Sons on/off', keys: ['M'] },
   { label: 'Calculatrice et raccourcis de caractères', keys: ['='] },
+  { label: 'Carnet de notes', keys: ['N'] },
 ];
 
 interface Current {
@@ -105,6 +110,7 @@ export const KEYS: KeyDoc[] = [
   { label: 'Leçon + exercices', keys: ['E'] },
   { label: 'Parcours guidés', keys: ['G'] },
   { label: 'Calculatrice et raccourcis de caractères', keys: ['='] },
+  { label: 'Carnet de notes', keys: ['N'] },
   { label: 'Fermer / quitter', keys: ['Échap'] },
 ];
 
@@ -122,6 +128,7 @@ export class App {
   readonly learn: Learn;
   readonly atlas: Atlas;
   readonly calc: CalcPanel;
+  readonly notes: NotesPanel;
   readonly story = new StoryProgress();
   /** story parts and restored beacons already announced */
   private storySeen = { parts: 0, restored: 0, acts: 0 };
@@ -154,6 +161,7 @@ export class App {
     this.sigma = new SigmaSheet(layout.viewport);
     this.palette = new Palette(() => this.commands());
     this.calc = new CalcPanel(document.body, (open) => layout.btnCalc.classList.toggle('on', open));
+    this.notes = new NotesPanel(() => ({ where: document.title.replace(/\s+—\s+V3CT0R.*$/, '') || 'V3CT0R', hash: location.hash }), (open) => layout.btnNotes.classList.toggle('on', open));
     this.tour = new TourPlayer(layout.viewport, {
       go: (id) => void this.goId(id),
       view: () => (this.cur ? `${this.cur.mod.id}/${this.cur.viz.id}` : ''),
@@ -166,6 +174,20 @@ export class App {
       pressed: (label) => Array.from(document.querySelectorAll('.panel .seg button[aria-pressed="true"]')).some((b) => b.textContent === label),
       touchedSince: (t) => this.lastTouch > t,
       termOpen: () => this.term.isOpen,
+      app: () => ({
+        mode: this.atlas.active ? 'atlas' : this.learn.active ? 'learn' : 'explore',
+        uni: this.atlas.info()?.uni ?? null,
+        calc: this.calc.debug().last,
+        notes: this.notes.count(),
+        course: this.learn.active ? (this.learn.reading?.course.meta.id ?? null) : null,
+      }),
+      tidy: () => {
+        this.term.close(false);
+        this.sigma.close();
+        if (this.calc.isOpen) this.calc.close();
+        if (this.notes.isOpen) this.notes.close();
+        if (this.palette.isOpen) this.palette.toggle();
+      },
     }, () => undefined);
     this.progress = new Progress(modules);
     const taskApi: TaskApi = {
@@ -280,6 +302,8 @@ export class App {
       journal: () => this.openJournal(),
     });
     layout.overlay.addEventListener('pointerdown', () => (this.lastTouch = performance.now()));
+    // narrow window: a press in the view closes the rail drawer
+    layout.viewport.addEventListener('pointerdown', () => this.toggleRail(false));
     void host;
     this.wire();
     this.applySettings();
@@ -427,7 +451,14 @@ export class App {
     }
   }
 
+  /** narrow window: the rail (modules, or LEARN courses) as a drawer over the view */
+  toggleRail(open = !document.body.classList.contains('rail-open')): void {
+    document.body.classList.toggle('rail-open', open);
+    this.L.btnRail.classList.toggle('on', open);
+  }
+
   go(mod: ModuleDef, viz: VizDef, fx = true): void {
+    this.toggleRail(false);
     if (this.learn.active || this.atlas.active) this.setMode('explore', false);
     if (!this.progress.unlocked(mod.id, viz.id)) {
       this.lockedNotice(mod, viz);
@@ -465,11 +496,13 @@ export class App {
     this.L.tabLearn.setAttribute('aria-selected', String(mode === 'learn'));
     this.L.tabExplore.setAttribute('aria-selected', String(mode === 'explore'));
     this.L.tabAtlas.setAttribute('aria-selected', String(mode === 'atlas'));
+    this.toggleRail(false);
+    this.L.btnRail.replaceChildren(icon('menu'), h('span', { text: mode === 'learn' ? 'COURS' : 'MODULES' }));
     if (cur === 'learn') this.learn.leave();
     if (cur === 'atlas') this.atlas.leave();
     if (mode !== 'explore') {
       if (this.cine) this.toggleCinematic();
-      this.tour.stop();
+      if (!this.tour.current?.crossMode) this.tour.stop();
       this.term.close(false);
       this.sigma.close();
       this.paused = false;
@@ -1118,6 +1151,8 @@ export class App {
     }
     if (this.cine) this.toggleCinematic();
     this.dialog?.close();
+    // every tour starts in the explorer (the first-run prompt shows over the ATLAS)
+    if (this.atlas.active || this.learn.active) this.setMode('explore');
     this.tour.start(t);
   }
 
@@ -1169,6 +1204,18 @@ export class App {
     this.openDialog(accountDialog());
   }
 
+  /** size of the zip, for the way in (« 6,4 Mo »); the installer is on GitHub (no size: cross-origin) */
+  async downloadSize(): Promise<string | null> {
+    if (!location.hostname.endsWith('github.io') || downloadKind(navigator.userAgent) === 'installer') return null;
+    try {
+      const r = await fetch(this.downloadUrl(), { method: 'HEAD' });
+      const n = Number(r.headers.get('content-length') ?? 0);
+      return r.ok && n > 0 ? `${(n / 1e6).toFixed(1).replace('.', ',')} Mo` : null;
+    } catch {
+      return null;
+    }
+  }
+
   /** where the offline version is: next to the site on GitHub Pages, else the latest release */
   private downloadUrl(): string {
     return location.hostname.endsWith('github.io') ? 'V3CT0R.zip' : 'https://github.com/jul3zzz/v3ct0r/releases/latest/download/V3CT0R.zip';
@@ -1179,7 +1226,14 @@ export class App {
     const b = this.L.btnDownload;
     const online = location.protocol === 'https:' || location.protocol === 'http:';
     b.style.display = online ? '' : 'none';
-    if (!online || !location.hostname.endsWith('github.io')) return;
+    // « non » to the offer of the way in: a download icon stays in the status bar
+    this.L.sbDownload.style.display = online && store.get<string | null>(DL_KEY, null) === 'no' ? '' : 'none';
+    if (!online) return;
+    if (downloadKind(navigator.userAgent) === 'installer') {
+      b.title = b.ariaLabel = 'Télécharger V3CT0R pour Windows : l’installeur met l’app sur le bureau, hors ligne (V3CT0R-Setup.exe)';
+      return;
+    }
+    if (!location.hostname.endsWith('github.io')) return;
     void fetch(this.downloadUrl(), { method: 'HEAD' })
       .then((r) => {
         const n = Number(r.headers.get('content-length') ?? 0);
@@ -1188,14 +1242,16 @@ export class App {
       .catch(() => undefined);
   }
 
-  downloadApp(): void {
+  /** Windows: the installer (V3CT0R on the desktop and in the Start menu); elsewhere, or on request, the zip */
+  downloadApp(kind: DownloadKind = downloadKind(navigator.userAgent)): void {
     const a = document.createElement('a');
-    a.href = this.downloadUrl();
-    a.download = 'V3CT0R.zip';
+    a.href = kind === 'installer' ? INSTALLER_URL : this.downloadUrl();
+    a.download = kind === 'installer' ? 'V3CT0R-Setup.exe' : 'V3CT0R.zip';
     document.body.append(a);
     a.click();
     a.remove();
-    toast('TÉLÉCHARGEMENT DE V3CT0R.ZIP — DÉZIPPER PUIS OUVRIR INDEX.HTML (HORS LIGNE)', 4200);
+    if (kind === 'installer') toast('TÉLÉCHARGEMENT DE V3CT0R-SETUP.EXE — OUVRE-LE : V3CT0R S’INSTALLE ET APPARAÎT SUR TON BUREAU. SI WINDOWS AVERTIT : INFORMATIONS COMPLÉMENTAIRES → EXÉCUTER QUAND MÊME', 7000);
+    else toast('TÉLÉCHARGEMENT DE V3CT0R.ZIP — DÉZIPPER PUIS OUVRIR INDEX.HTML (HORS LIGNE)', 4200);
   }
 
   private paintAccount(): void {
@@ -1239,8 +1295,12 @@ export class App {
     act('sound', 'Sons on/off', () => this.toggleSound(), 'audio');
     act('scan', 'Scanlines on/off', () => this.toggleScan(), 'crt');
     act('keymap', 'Raccourcis clavier', () => this.openKeymap(), 'aide help');
-    if (location.protocol.startsWith('http')) act('download', 'Télécharger V3CT0R (version hors ligne)', () => this.downloadApp(), 'télécharger zip hors ligne installer local offline');
+    if (location.protocol.startsWith('http')) {
+      act('download', downloadKind(navigator.userAgent) === 'installer' ? 'Installer V3CT0R sur Windows (app de bureau)' : 'Télécharger V3CT0R (version hors ligne)', () => this.downloadApp(), 'télécharger installer installeur app bureau windows exe hors ligne offline');
+      act('download-zip', 'Télécharger la version zip (tous systèmes, sans installation)', () => this.downloadApp('zip'), 'télécharger zip index.html mac linux portable hors ligne');
+    }
     act('account', 'Compte : connexion et synchro de la progression', () => this.openAccount(), 'compte connexion inscription créer email mot de passe synchroniser cloud');
+    act('notes', 'Notes : carnet façon terminal', () => this.notes.open(), 'notes carnet noter écrire terminal mémo');
     act('calc', 'Calculatrice', () => this.calc.open(), 'calcul calculer intégrale somme dérivée racine factorielle');
     act('story', 'Histoire : entrer dans la Grande Entropie', () => this.openAtlas('story'), 'mode histoire récit chronologie babylone euclide archimède entropie vaisseau');
     act('story-book', 'Histoire : journal, frise, hangar', () => (this.openAtlas(), this.openJournal()), 'mode histoire journal de bord frise chronologique pièces');
@@ -1348,8 +1408,11 @@ export class App {
       this.cycleMusicVolume();
     });
     on(L.btnCalc, () => this.calc.toggle());
+    on(L.btnNotes, () => this.notes.toggle());
     on(L.btnAccount, () => this.openAccount());
     on(L.btnDownload, () => this.downloadApp());
+    on(L.btnRail, () => this.toggleRail());
+    on(L.sbDownload, () => this.downloadApp());
     on(L.btnScan, () => this.toggleScan());
     on(L.btnHelp, () => this.openKeymap());
     on(L.btnChallenge, () => this.openChallenge());
@@ -1378,9 +1441,19 @@ export class App {
         return;
       }
       if (isText || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (key === 'Escape' && document.body.classList.contains('rail-open') && !this.dialog?.isOpen && !this.palette.isOpen) {
+        this.toggleRail(false);
+        return;
+      }
       if (key === '=' && !this.palette.isOpen && !this.dialog?.isOpen) {
         e.preventDefault();
         this.calc.toggle();
+        return;
+      }
+      // N: the notebook (a game in LEARN reads its own keys first)
+      if (key.toLowerCase() === 'n' && !this.palette.isOpen && !this.dialog?.isOpen && !(this.learn.active && this.learn.game)) {
+        e.preventDefault();
+        this.notes.toggle();
         return;
       }
       if (this.atlas.active) {

@@ -4,7 +4,7 @@
 // OR-ed, sets of ids are united, per-exercise results keep the better one, dated lists are united.
 
 /** localStorage keys (without the `vector-math.` prefix) that follow the account */
-export const SYNCED = ['progress.v1', 'learn.v1', 'games.v1', 'story.v1'] as const;
+export const SYNCED = ['progress.v1', 'learn.v1', 'games.v1', 'story.v1', 'notes.v1'] as const;
 
 type Json = null | boolean | number | string | Json[] | { [k: string]: Json };
 

@@ -1,0 +1,26 @@
+/* NOTES (classes nbk-*: « .nt » is taken by the video links): terminal notebook docked on the left. Monochrome, 1px lines. */
+.nbk {
+  position: fixed; z-index: 40; left: 0; top: var(--bar); bottom: var(--status); width: min(480px, 100vw);
+  display: flex; flex-direction: column; background: var(--bg); border-right: var(--line-mid);
+  font-family: var(--font-mono); color: var(--fg-80); animation: fade-in var(--t) var(--ease);
+}
+.nbk-head { display: flex; align-items: center; gap: 6px; height: 34px; padding: 0 8px 0 12px; border-bottom: var(--line); flex: none; }
+.nbk-head .spacer { flex: 1; }
+.nbk-title { font-size: var(--fs-xs); letter-spacing: var(--track-caps); color: var(--fg-70); }
+.nbk-btn { color: var(--fg-70); padding: 2px 7px; border: var(--line); line-height: 16px; }
+.nbk-btn:hover { color: var(--bg); background: var(--fg); }
+.nbk-log { flex: 1; overflow-y: auto; padding: 10px 12px; font-size: var(--fs-sm); line-height: 1.6; scrollbar-width: thin; scrollbar-color: var(--fg-20) transparent; user-select: text; }
+.nbk-e { padding: 5px 0 7px; border-bottom: var(--line-dash); }
+.nbk-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: var(--fs-xs); color: var(--fg-40); }
+.nbk-k { color: var(--fg-70); }
+.nbk-tag { color: var(--fg-60); text-align: left; }
+.nbk-tag:hover { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+.nbk-text { color: var(--fg); white-space: pre-wrap; word-break: break-word; padding-left: 2ch; }
+.nbk-text::before { content: '› '; margin-left: -2ch; color: var(--fg-40); }
+.nbk-sys { color: var(--fg-60); font-size: var(--fs-xs); white-space: pre-wrap; overflow-wrap: anywhere; padding: 2px 0; }
+.nbk-line { display: flex; align-items: center; gap: 8px; margin: 0 12px; border: var(--line-mid); padding: 0 8px; flex: none; }
+.nbk-line:focus-within { border-color: var(--fg); }
+.nbk-prompt { color: var(--fg-60); font-size: var(--fs-sm); white-space: nowrap; }
+.nbk-in { flex: 1; min-width: 0; background: transparent; border: 0; outline: 0; color: var(--fg); font: inherit; font-size: var(--fs-md); height: 34px; caret-color: var(--fg); }
+.nbk-in::placeholder { color: var(--fg-20); }
+.nbk-hint { color: var(--fg-40); font-size: 10px; letter-spacing: 0.04em; padding: 6px 12px 10px; flex: none; }

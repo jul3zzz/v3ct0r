@@ -33,7 +33,9 @@ const browser = await chromium.launch({
 const page = await browser.newPage({ viewport: { width: 1600, height: 900 }, deviceScaleFactor: 1, acceptDownloads: true });
 // the first-run tutorial prompt would capture the keyboard: mark it as already seen;
 // free mode so that every view is reachable (locks are tested on a separate page below)
+// e2e: no way in (download offer, required account) before the app
 await page.addInitScript(() => {
+  localStorage.setItem('vector-math.e2e', 'true');
   localStorage.setItem('vector-math.intro.seen', 'true');
   localStorage.setItem('vector-math.progress.v1', JSON.stringify({ free: true, views: {} }));
 });
@@ -82,6 +84,18 @@ for (const id of views) {
   const vids = await page.evaluate(() => ({ links: [...document.querySelectorAll('.panel-vids a.vid')].map((a) => a.getAttribute('href') ?? ''), iframes: document.querySelectorAll('iframe').length }));
   if (vids.links.length < 1 || vids.links.length > 3 || vids.iframes || vids.links.some((u) => !/^https:\/\/www\.youtube\.com\/watch\?v=[\w-]{11}$/.test(u))) errors.push(`[${id}] vidéos ${JSON.stringify(vids)}`);
   videoLinks += vids.links.length;
+  // layout: the rail, the view and the panel are what is drawn at their centre (nothing fixed or
+  // absolute covering them — a CSS class shared by two components once covered the rail)
+  const covered = await page.evaluate(() =>
+    ['#app > .rail', '.viewport', '#app > .panel'].flatMap((sel) => {
+      const box = document.querySelector(sel);
+      const r = box?.getBoundingClientRect();
+      if (!box || !r || r.width < 40 || getComputedStyle(box).visibility === 'hidden') return [];
+      const t = document.elementFromPoint(r.x + r.width / 2, r.y + r.height * 0.6);
+      return t && box.contains(t) ? [] : [`${sel} couvert par ${t ? `${t.tagName.toLowerCase()}.${[...t.classList].join('.')}` : '—'}`];
+    }),
+  );
+  if (covered.length) errors.push(`[${id}] ${covered.join(' · ')}`);
   if (shots) await page.screenshot({ path: join(shots, `${id.replace('/', '__')}.png`) });
   const m = /(\d+) FPS/.exec(fps);
   timings.push(`${id.padEnd(34)} ${m ? m[1].padStart(3) : '  ?'} fps ${errors.length > before ? '✕' : '✓'}`);
@@ -105,6 +119,20 @@ await page.waitForTimeout(700);
 const atMouse = await page.evaluate(() => window.__vm.atlasState());
 const mouseOk = !!atMouse && Math.abs(atMouse.yaw - at1.yaw) > 0.2;
 if (!mouseOk) errors.push(`[atlas] la souris ne dirige pas le vaisseau (yaw ${at1?.yaw} → ${atMouse?.yaw})`);
+// Ctrl gauche held: the cursor is free and does not steer; released: it steers again
+await page.waitForTimeout(900);
+await page.keyboard.down('ControlLeft');
+await page.waitForTimeout(150);
+const freeOn = await page.evaluate(() => !!document.querySelector('.atlas-input.free'));
+const yawFree0 = (await page.evaluate(() => window.__vm.atlasState())).yaw;
+await page.mouse.move(vpBox[0] - 200, vpBox[1], { steps: 12 });
+await page.waitForTimeout(500);
+const yawFree1 = (await page.evaluate(() => window.__vm.atlasState())).yaw;
+await page.keyboard.up('ControlLeft');
+await page.waitForTimeout(150);
+const freeOff = await page.evaluate(() => !document.querySelector('.atlas-input.free'));
+const ctrlOk = freeOn && freeOff && Math.abs(yawFree1 - yawFree0) < 0.05;
+if (!ctrlOk) errors.push(`[atlas] Ctrl gauche : libre ${freeOn} · relâché ${freeOff} · yaw ${yawFree0} → ${yawFree1}`);
 await page.evaluate(() => window.__vm.atlas('integrals'));
 await page.waitForTimeout(2300);
 const at2 = await page.evaluate(() => window.__vm.atlasState());
@@ -114,7 +142,7 @@ await page.waitForTimeout(1900);
 const atLanded = await page.evaluate(() => ({ hash: location.hash, atlas: document.body.classList.contains('atlas') }));
 const atlasOk = at0?.level === 'galaxy' && at1 && at1.pos[2] < at0.pos[2] - 5 && at2?.level === 'system' && at2.uni === 'integrals' && at2.items === 6 && atNear && atLanded.hash === '#/integrals/ftc' && !atLanded.atlas;
 if (!atlasOk) errors.push(`[atlas] ${JSON.stringify({ at0, at1, at2, atNear, atLanded })}`);
-const atlasReport = (`ATLAS souris ${mouseOk ? '✓' : '✕'} · vol ${at1 ? (at0.pos[2] - at1.pos[2]).toFixed(0) : '?'} u · vitesse lumière → ${at2?.uni} (${at2?.items} corps) · atterrissage ${atLanded.hash} ${atlasOk ? '✓' : '✕'}`);
+const atlasReport = (`ATLAS souris ${mouseOk ? '✓' : '✕'} · CTRL GAUCHE souris libre ${ctrlOk ? '✓' : '✕'} · vol ${at1 ? (at0.pos[2] - at1.pos[2]).toFixed(0) : '?'} u · vitesse lumière → ${at2?.uni} (${at2?.items} corps) · atterrissage ${atLanded.hash} ${atlasOk ? '✓' : '✕'}`);
 
 // shell interactions
 current = 'shell';
@@ -224,6 +252,29 @@ const cineOff = await page.evaluate(() => !document.body.classList.contains('cin
 if (!cineOn || !cineOff) errors.push(`[features] cinematic toggle failed (on=${cineOn}, off=${cineOff})`);
 features.push(`CINÉ ${cineOn && cineOff ? 'ok' : 'KO'}`);
 
+// exercises: the instruction in bold with « À TOI », the controls of the manipulation lit in the panel
+current = 'spotlight';
+await page.evaluate(() => window.__vm.go('4d/polytopes'));
+await page.waitForTimeout(600);
+await page.keyboard.press('e');
+await page.waitForTimeout(1200);
+const spot = await page.evaluate(() => ({
+  consignes: document.querySelectorAll('.term .ex-consigne').length,
+  todo: document.querySelectorAll('.term .ex-do').length,
+  chips: [...document.querySelectorAll('.term .ex-chip')].map((c) => c.textContent),
+  lit: [...document.querySelectorAll('.panel .ex-lit')].map((e) => e.textContent?.trim().slice(0, 20)),
+  dim: document.querySelectorAll('.panel .ex-dim').length,
+}));
+await page.locator('.term .ex-chip').first().click();
+await page.waitForTimeout(300);
+const flashed = await page.evaluate(() => document.querySelectorAll('.panel .ex-flash').length);
+await page.keyboard.press('Escape');
+await page.waitForTimeout(300);
+const litAfter = await page.evaluate(() => document.querySelectorAll('.ex-lit, .ex-dim').length);
+const spotOk = spot.consignes === 3 && spot.todo === 3 && spot.chips.length >= 2 && spot.lit.length === 3 && spot.dim > 0 && flashed === 1 && litAfter === 0;
+if (!spotOk) errors.push(`[spotlight] ${JSON.stringify({ ...spot, flashed, litAfter })}`);
+features.push(`EXERCICES consigne + À TOI ×${spot.consignes} · réglages éclairés ${spot.lit.length} (${spot.lit.join(', ')}) · étiquettes ${spot.chips.length} ${spotOk ? '✓' : '✕'}`);
+
 // tutorial played with real user actions: each validated step must auto-advance
 current = 'tuto';
 const state = () => page.evaluate(() => window.__vm.tourState());
@@ -263,9 +314,52 @@ await page.keyboard.press('Enter');
 tutoSteps.push(await waitStep(7));
 await page.keyboard.press('e'); // open the lesson terminal
 tutoSteps.push(await waitStep(8));
+// calculator: V3 is typed as ∛, ∛(27) = 3
+await page.waitForTimeout(150);
+await page.keyboard.press('=');
+await page.waitForTimeout(200);
+await page.keyboard.type('V3(27)');
+await page.keyboard.press('Enter');
+tutoSteps.push(await waitStep(9));
+// notebook: a line typed is kept
+await page.waitForTimeout(150);
+await page.keyboard.press('n');
+await page.waitForTimeout(200);
+await page.keyboard.type('note du tuto smoke');
+await page.keyboard.press('Enter');
+tutoSteps.push(await waitStep(10));
+const noteKept = await page.evaluate(() => (localStorage.getItem('vector-math.notes.v1') ?? '').includes('note du tuto smoke'));
+if (!noteKept) errors.push('[tuto] the note typed in the notebook is not stored');
+features.push(`NOTES ${noteKept ? 'gardée' : 'KO'}`);
+// LEARN tab (the tutorial stays on), then a written course from Ctrl+K
+const tourShown = () => page.evaluate(() => { const t = document.querySelector('.tour'); return !!t && getComputedStyle(t).display !== 'none' && t.getBoundingClientRect().width > 0; });
+await page.locator('[data-act="tab-learn"]').click();
+tutoSteps.push(await waitStep(11));
+if (!(await tourShown())) errors.push('[tuto] the tutorial card is hidden in LEARN');
+await page.keyboard.press('Control+k');
+await page.waitForTimeout(200);
+await page.keyboard.type('suites et séries');
+await page.waitForTimeout(150);
+await page.keyboard.press('Enter');
+tutoSteps.push(await waitStep(12, 8000));
+await page.evaluate(() => window.__vm.tourNext()); // games: text only
+tutoSteps.push(await waitStep(13));
+// ATLAS tab, then the story mode from Ctrl+K
+await page.locator('[data-act="tab-atlas"]').click();
+tutoSteps.push(await waitStep(14, 8000));
+if (!(await tourShown())) errors.push('[tuto] the tutorial card is hidden in the ATLAS');
+await page.keyboard.press('Control+k');
+await page.waitForTimeout(200);
+await page.keyboard.type('grande entropie');
+await page.waitForTimeout(150);
+await page.keyboard.press('Enter');
+tutoSteps.push(await waitStep(15, 20000));
+await page.evaluate(() => window.__vm.tourNext()); // top bar: text only
+tutoSteps.push(await waitStep(16));
+const tutoLastView = await page.evaluate(() => (document.body.classList.contains('atlas') || document.body.classList.contains('learn') ? 'other' : 'explore'));
+if (tutoLastView !== 'explore') errors.push('[tuto] the last step does not bring back the explorer');
 await page.evaluate(() => window.__vm.tourNext());
 await page.waitForTimeout(200);
-await page.keyboard.press('Escape'); // close the terminal
 const tutoEnd = await state();
 const tutoOk = tutoSteps.every(Boolean) && tutoEnd === 'off';
 if (!tutoOk) errors.push(`[tuto] steps validated: ${tutoSteps.map((b) => (b ? '✓' : '✕')).join('')} · end=${tutoEnd}`);
@@ -560,7 +654,10 @@ features.push(`VIDÉOS ${videoLinks} liens YouTube sur ${views.length} vues`);
 // progression on a fresh profile: locks, lesson terminal, exercises, unlock
 current = 'progression';
 const lp = await browser.newPage({ viewport: { width: 1600, height: 900 } });
-await lp.addInitScript(() => localStorage.setItem('vector-math.intro.seen', 'true'));
+await lp.addInitScript(() => {
+  localStorage.setItem('vector-math.e2e', 'true');
+  localStorage.setItem('vector-math.intro.seen', 'true');
+});
 lp.on('pageerror', (e) => errors.push(`[progression] pageerror: ${e.message}`));
 lp.on('console', (m) => m.type() === 'error' && errors.push(`[progression] console.error: ${m.text()}`));
 await lp.goto(url);
@@ -647,9 +744,43 @@ if (openCourse !== 'riemann') errors.push(`[progression] open LEARN course refus
 features.push(`LEARN VERROUS ${!lockedCourse && openCourse === 'riemann' ? 'ok' : 'KO'}`);
 await lp.close();
 
+// narrow window (the desktop app's minimum, 960 × 600): the rail is a drawer, the view keeps its room
+current = 'narrow';
+{
+  const np = await browser.newPage({ viewport: { width: 960, height: 600 } });
+  await np.addInitScript(() => {
+    localStorage.setItem('vector-math.e2e', 'true');
+    localStorage.setItem('vector-math.intro.seen', 'true');
+    localStorage.setItem('vector-math.progress.v1', JSON.stringify({ free: true, views: {} }));
+  });
+  np.on('pageerror', (e) => errors.push(`[narrow] pageerror: ${e.message}`));
+  np.on('console', (m) => m.type() === 'error' && errors.push(`[narrow] console.error: ${m.text()}`));
+  await np.goto(url);
+  await np.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+  await np.evaluate(() => window.__vm.go('constants/euler'));
+  await np.waitForTimeout(800);
+  const vpW = await np.evaluate(() => document.querySelector('.viewport').getBoundingClientRect().width);
+  const hidden = await np.evaluate(() => getComputedStyle(document.querySelector('#app > .rail')).visibility === 'hidden');
+  await np.locator('.rail-toggle').click();
+  await np.waitForTimeout(400);
+  const drawer = await np.evaluate(() => {
+    const r = document.querySelector('#app > .rail').getBoundingClientRect();
+    const t = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+    return document.querySelector('#app > .rail').contains(t);
+  });
+  await np.keyboard.press('Escape');
+  await np.waitForTimeout(400);
+  const closed = await np.evaluate(() => !document.body.classList.contains('rail-open'));
+  const narrowOk = vpW >= 600 && hidden && drawer && closed;
+  if (!narrowOk) errors.push(`[narrow] vue ${vpW} px · rail replié ${hidden} · tiroir ${drawer} · fermé ${closed}`);
+  features.push(`FENÊTRE 960 vue ${Math.round(vpW)} px · tiroir MODULES ${narrowOk ? 'ok' : 'KO'}`);
+  await np.close();
+}
+
 // first-run prompt on a fresh profile
 current = 'first-run';
 const fresh = await browser.newPage({ viewport: { width: 1400, height: 850 } });
+await fresh.addInitScript(() => localStorage.setItem('vector-math.e2e', 'true'));
 fresh.on('pageerror', (e) => errors.push(`[first-run] pageerror: ${e.message}`));
 await fresh.goto(url);
 await fresh.waitForTimeout(300);
