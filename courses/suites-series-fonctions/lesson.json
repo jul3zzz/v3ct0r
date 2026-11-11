@@ -1,0 +1,42 @@
+{
+  "id": "suites-series-fonctions",
+  "title": "Suites et séries de fonctions",
+  "subtitle": "Convergence simple, uniforme, normale ; continuité, double limite, intégration et dérivation des limites",
+  "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "MPI"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 19,
+  "prerequisites": ["suites-series"],
+  "tags": ["convergence uniforme", "convergence normale", "double limite", "dérivation terme à terme", "Weierstrass"],
+  "status": "ready",
+  "chapters": [
+    { "id": "modes-convergence", "title": "Convergence simple, convergence uniforme" },
+    { "id": "regularite-limite", "title": "Régularité de la limite" },
+    { "id": "series-fonctions", "title": "Séries de fonctions" },
+    { "id": "approximation", "title": "Approximation uniforme" }
+  ],
+  "plan": [
+    {
+      "title": "1. Convergence simple, convergence uniforme",
+      "items": ["Définitions, norme $\\|\\cdot\\|_\\infty$, méthodes pour prouver ou infirmer la convergence uniforme"]
+    },
+    {
+      "title": "2. Régularité de la limite",
+      "items": ["Continuité, double limite, intégration sur un segment, dérivation"]
+    },
+    {
+      "title": "3. Séries de fonctions",
+      "items": ["Convergence normale, régularité de la somme, la fonction $\\zeta$"]
+    },
+    {
+      "title": "4. Approximation uniforme (MP, MPI)",
+      "items": ["Fonctions en escalier, théorème de Weierstrass"]
+    }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Analyse (Ellipses)",
+    "J.-M. Monier, Analyse MP (Dunod)",
+    "W. Rudin, Principles of Mathematical Analysis, chap. 7 (McGraw-Hill)"
+  ]
+}

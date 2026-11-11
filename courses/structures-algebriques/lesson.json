@@ -1,0 +1,38 @@
+{
+  "id": "structures-algebriques",
+  "title": "Structures algébriques usuelles",
+  "subtitle": "Fiche : lois de composition, groupes, sous-groupes, morphismes, anneaux et corps",
+  "level": "prepa",
+  "filieres": ["MPSI", "MP2I"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 16,
+  "prerequisites": ["raisonnement-ensembles"],
+  "tags": ["groupe", "sous-groupe", "morphisme", "noyau", "anneau", "corps"],
+  "status": "ready",
+  "chapters": [
+    { "id": "groupes", "title": "Lois de composition et groupes" },
+    { "id": "anneaux-corps", "title": "Anneaux et corps" }
+  ],
+  "plan": [
+    {
+      "title": "1. Lois de composition et groupes",
+      "items": [
+        "Associativité, élément neutre, inverses, parties stables",
+        "Groupes usuels, sous-groupes, morphismes, noyau et image"
+      ]
+    },
+    {
+      "title": "2. Anneaux et corps",
+      "items": [
+        "Calcul dans un anneau, binôme pour des éléments qui commutent",
+        "Groupe des inversibles, anneaux intègres, corps, sous-anneaux et morphismes"
+      ]
+    }
+  ],
+  "references": [
+    "F. Liret, D. Martinais, Algèbre 1re année (Dunod)",
+    "D. Perrin, Cours d'algèbre (Ellipses)",
+    "C. Deschamps, A. Warusfel et al., Mathématiques tout-en-un MPSI (Dunod)"
+  ]
+}

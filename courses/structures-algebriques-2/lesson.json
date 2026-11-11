@@ -1,0 +1,26 @@
+{
+  "id": "structures-algebriques-2",
+  "title": "Groupes, anneaux et ℤ/nℤ",
+  "subtitle": "Fiche (MP, MPI) : sous-groupe engendré, groupes monogènes, ordre, idéaux, anneaux ℤ/nℤ, indicatrice d'Euler, théorème chinois, algèbres",
+  "level": "prepa",
+  "filieres": ["MP", "MPI"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 16,
+  "prerequisites": ["structures-algebriques", "arithmetique"],
+  "tags": ["groupe monogène", "ordre", "idéal", "Z/nZ", "indicatrice d'Euler", "théorème chinois"],
+  "status": "ready",
+  "chapters": [
+    { "id": "groupes-2", "title": "Compléments sur les groupes" },
+    { "id": "anneaux-zn", "title": "Idéaux et anneaux ℤ/nℤ" }
+  ],
+  "plan": [
+    { "title": "1. Compléments sur les groupes", "items": ["Sous-groupe engendré, groupes monogènes et cycliques, ordre d'un élément"] },
+    { "title": "2. Idéaux et anneaux ℤ/nℤ", "items": ["Idéaux de $\\mathbb{Z}$ et de $\\mathbb{K}[X]$, anneaux $\\mathbb{Z}/n\\mathbb{Z}$, inversibles, indicatrice d'Euler", "Lemme chinois, théorème d'Euler, algèbres"] }
+  ],
+  "references": [
+    "D. Perrin, Cours d'algèbre (Ellipses)",
+    "M. Demazure, Cours d'algèbre : primalité, divisibilité, codes (Cassini)",
+    "X. Gourdon, Les maths en tête — Algèbre (Ellipses)"
+  ]
+}

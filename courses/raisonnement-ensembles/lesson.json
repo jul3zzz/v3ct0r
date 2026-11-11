@@ -1,0 +1,39 @@
+{
+  "id": "raisonnement-ensembles",
+  "title": "Raisonnement et vocabulaire ensembliste",
+  "subtitle": "Fiche : quantificateurs, modes de raisonnement, récurrence, ensembles, applications, relations",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 17,
+  "prerequisites": [],
+  "tags": ["logique", "récurrence", "ensembles", "injection", "surjection", "relation d'équivalence"],
+  "status": "ready",
+  "chapters": [
+    { "id": "logique", "title": "Logique et raisonnements" },
+    { "id": "ensembles-applications", "title": "Ensembles, applications, relations" }
+  ],
+  "plan": [
+    {
+      "title": "1. Logique et raisonnements",
+      "items": [
+        "Quantificateurs et négation, implication et contraposée",
+        "Absurde, disjonction des cas, analyse-synthèse, récurrence simple, double et forte"
+      ]
+    },
+    {
+      "title": "2. Ensembles, applications, relations",
+      "items": [
+        "Opérations sur les parties, produit cartésien, $\\mathcal{P}(E)$, partitions",
+        "Images directe et réciproque, injections, surjections, bijections",
+        "Relations d'équivalence et d'ordre"
+      ]
+    }
+  ],
+  "references": [
+    "C. Deschamps, A. Warusfel et al., Mathématiques tout-en-un MPSI (Dunod)",
+    "F. Liret, D. Martinais, Algèbre 1re année (Dunod)",
+    "D. J. Velleman, How to Prove It: A Structured Approach (Cambridge University Press)"
+  ]
+}

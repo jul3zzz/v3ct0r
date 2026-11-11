@@ -1,0 +1,38 @@
+{
+  "id": "denombrement",
+  "title": "Dénombrement",
+  "subtitle": "Fiche : cardinal d'un ensemble fini, opérations sur les cardinaux, listes, arrangements, combinaisons",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 14,
+  "prerequisites": ["raisonnement-ensembles"],
+  "tags": ["cardinal", "listes", "permutations", "combinaisons", "coefficients binomiaux"],
+  "status": "ready",
+  "chapters": [
+    { "id": "cardinal", "title": "Cardinal d'un ensemble fini" },
+    { "id": "listes-combinaisons", "title": "Listes et combinaisons" }
+  ],
+  "plan": [
+    {
+      "title": "1. Cardinal d'un ensemble fini",
+      "items": [
+        "Cardinal d'une partie, applications entre ensembles de même cardinal",
+        "Réunion, complémentaire, produit cartésien, applications, parties"
+      ]
+    },
+    {
+      "title": "2. Listes et combinaisons",
+      "items": [
+        "Listes, listes d'éléments distincts, permutations",
+        "Combinaisons, preuves combinatoires de Pascal et du binôme"
+      ]
+    }
+  ],
+  "references": [
+    "R. L. Graham, D. E. Knuth, O. Patashnik, Concrete Mathematics (Addison-Wesley)",
+    "C. Deschamps, A. Warusfel et al., Mathématiques tout-en-un MPSI (Dunod)",
+    "F. Liret, D. Martinais, Algèbre 1re année (Dunod)"
+  ]
+}

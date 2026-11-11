@@ -1,0 +1,30 @@
+{
+  "id": "integrales-generalisees",
+  "title": "Intégrales généralisées",
+  "subtitle": "Intégrer sur un intervalle quelconque : convergence, fonctions intégrables, comparaison, changement de variable",
+  "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "PT", "MPI"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 18,
+  "prerequisites": ["riemann"],
+  "tags": ["intégrale généralisée", "fonction intégrable", "intégrales de Riemann", "comparaison", "fonction Gamma"],
+  "status": "ready",
+  "chapters": [
+    { "id": "definition-ig", "title": "Intégrales généralisées" },
+    { "id": "positives-ig", "title": "Fonctions positives et comparaison" },
+    { "id": "integrables", "title": "Fonctions intégrables" },
+    { "id": "calcul-ig", "title": "Calculer une intégrale généralisée" }
+  ],
+  "plan": [
+    { "title": "1. Intégrales généralisées", "items": ["Fonctions continues par morceaux, convergence sur $[a, +\\infty[$ puis sur un intervalle quelconque", "Intégrales de Riemann $\\int \\frac{dt}{t^\\alpha}$"] },
+    { "title": "2. Fonctions positives et comparaison", "items": ["Critère de majoration, comparaison par $\\le$, $O$, $\\sim$"] },
+    { "title": "3. Fonctions intégrables", "items": ["Convergence absolue, domination, semi-convergence"] },
+    { "title": "4. Calculer une intégrale généralisée", "items": ["Changement de variable, intégration par parties, relations de comparaison (MP, MPI), fonction $\\Gamma$"] }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Analyse (Ellipses)",
+    "J.-M. Monier, Analyse MP (Dunod)",
+    "F. Liret, D. Martinais, Analyse 2e année (Dunod)"
+  ]
+}

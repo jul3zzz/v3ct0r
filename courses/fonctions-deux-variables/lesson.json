@@ -1,0 +1,45 @@
+{
+  "id": "fonctions-deux-variables",
+  "title": "Fonctions de deux variables",
+  "subtitle": "Fiche : ouverts de ℝ², dérivées partielles, gradient, plan tangent, règle de la chaîne, points critiques",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 17,
+  "prerequisites": ["limites-continuite"],
+  "tags": ["dérivées partielles", "gradient", "plan tangent", "règle de la chaîne", "point critique"],
+  "status": "ready",
+  "chapters": [
+    { "id": "ouverts-continuite", "title": "Ouverts et continuité" },
+    { "id": "derivees-partielles", "title": "Dérivées partielles et gradient" },
+    { "id": "chaine-extremums", "title": "Règle de la chaîne et extremums" }
+  ],
+  "plan": [
+    {
+      "title": "1. Ouverts et continuité",
+      "items": [
+        "Boules et ouverts de $\\mathbb{R}^2$, fonctions continues, surfaces $z = f(x, y)$"
+      ]
+    },
+    {
+      "title": "2. Dérivées partielles et gradient",
+      "items": [
+        "Dérivées partielles, fonctions de classe $C^1$, développement limité à l'ordre 1",
+        "Gradient, plan tangent, dérivée selon un vecteur"
+      ]
+    },
+    {
+      "title": "3. Règle de la chaîne et extremums",
+      "items": [
+        "Dérivée de $t \\mapsto f(x(t), y(t))$, changements de variables, lignes de niveau",
+        "Extremums locaux et points critiques"
+      ]
+    }
+  ],
+  "references": [
+    "J.-M. Monier, Analyse MPSI (Dunod)",
+    "J. Stewart, Calculus: Early Transcendentals, chap. 14 (Cengage)",
+    "C. Deschamps, A. Warusfel et al., Mathématiques tout-en-un MPSI (Dunod)"
+  ]
+}

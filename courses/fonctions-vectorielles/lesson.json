@@ -1,0 +1,26 @@
+{
+  "id": "fonctions-vectorielles",
+  "title": "Fonctions vectorielles et courbes paramétrées",
+  "subtitle": "Fiche : dériver et intégrer une fonction à valeurs vectorielles, formules de Taylor ; courbes paramétrées, longueur, courbure (PT)",
+  "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "PT", "MPI"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 14,
+  "prerequisites": ["limites-continuite"],
+  "tags": ["fonction vectorielle", "vecteur dérivé", "Taylor", "courbe paramétrée", "abscisse curviligne", "courbure"],
+  "status": "ready",
+  "chapters": [
+    { "id": "derivation-vectorielle", "title": "Dériver et intégrer une fonction vectorielle" },
+    { "id": "courbes-parametrees", "title": "Courbes paramétrées (PT)" }
+  ],
+  "plan": [
+    { "title": "1. Dériver et intégrer une fonction vectorielle", "items": ["Dérivée, opérations bilinéaires, intégrale sur un segment, formules de Taylor"] },
+    { "title": "2. Courbes paramétrées (PT)", "items": ["Tangente, points réguliers et stationnaires, longueur, abscisse curviligne, repère de Frenet, courbure"] }
+  ],
+  "references": [
+    "J.-M. Monier, Analyse MP (Dunod)",
+    "M. P. do Carmo, Differential Geometry of Curves and Surfaces, chap. 1 (Prentice-Hall)",
+    "M. Berger, B. Gostiaux, Géométrie différentielle : variétés, courbes et surfaces (PUF)"
+  ]
+}

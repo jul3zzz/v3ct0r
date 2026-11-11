@@ -1,0 +1,26 @@
+{
+  "id": "courbes-surfaces",
+  "title": "Courbes implicites, coniques et surfaces",
+  "subtitle": "Fiche (PT) : courbes du plan définies par une équation, coniques, surfaces paramétrées et cartésiennes, plans tangents",
+  "level": "prepa",
+  "filieres": ["PT"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 11,
+  "prerequisites": ["fonctions-vectorielles"],
+  "tags": ["courbe implicite", "coniques", "excentricité", "surface paramétrée", "plan tangent", "surface de révolution"],
+  "status": "ready",
+  "chapters": [
+    { "id": "courbes-implicites", "title": "Courbes implicites et coniques" },
+    { "id": "surfaces", "title": "Surfaces" }
+  ],
+  "plan": [
+    { "title": "1. Courbes implicites et coniques", "items": ["Courbes $f(x, y) = 0$, tangente et gradient", "Coniques : foyer, directrice, excentricité, équations réduites, réduction d'une équation du second degré"] },
+    { "title": "2. Surfaces", "items": ["Surfaces paramétrées et cartésiennes, plan tangent", "Surfaces réglées et de révolution, courbes de l'espace par deux équations"] }
+  ],
+  "references": [
+    "M. Audin, Géométrie (EDP Sciences)",
+    "M. P. do Carmo, Differential Geometry of Curves and Surfaces, chap. 2 (Prentice-Hall)",
+    "M. Berger, Géométrie (Nathan)"
+  ]
+}

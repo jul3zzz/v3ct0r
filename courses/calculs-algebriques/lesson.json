@@ -1,0 +1,46 @@
+{
+  "id": "calculs-algebriques",
+  "title": "Calculs algébriques et trigonométrie",
+  "subtitle": "Fiche : sommes et produits, binôme de Newton, inégalités, partie entière, formules de trigonométrie",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 20,
+  "prerequisites": [],
+  "tags": ["sommes", "binôme", "télescopage", "inégalités", "partie entière", "trigonométrie"],
+  "status": "ready",
+  "chapters": [
+    { "id": "sommes", "title": "Sommes, produits, binôme" },
+    { "id": "inegalites", "title": "Inégalités et partie entière" },
+    { "id": "trigonometrie", "title": "Trigonométrie" }
+  ],
+  "plan": [
+    {
+      "title": "1. Sommes, produits, binôme",
+      "items": [
+        "Notations $\\sum$ et $\\prod$, changements d'indice, télescopage, sommes usuelles",
+        "Coefficients binomiaux, formule du binôme, sommes doubles"
+      ]
+    },
+    {
+      "title": "2. Inégalités et partie entière",
+      "items": [
+        "Valeur absolue, inégalité triangulaire, majorants, maximum",
+        "Partie entière $\\lfloor x \\rfloor$"
+      ]
+    },
+    {
+      "title": "3. Trigonométrie",
+      "items": [
+        "Cercle trigonométrique, formules d'addition et de duplication, tangente",
+        "Équations trigonométriques, $|\\sin x| \\le |x|$"
+      ]
+    }
+  ],
+  "references": [
+    "C. Deschamps, A. Warusfel et al., Mathématiques tout-en-un MPSI (Dunod)",
+    "R. L. Graham, D. E. Knuth, O. Patashnik, Concrete Mathematics (Addison-Wesley)",
+    "J.-M. Monier, Analyse MPSI (Dunod)"
+  ]
+}

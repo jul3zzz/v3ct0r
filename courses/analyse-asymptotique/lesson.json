@@ -1,0 +1,53 @@
+{
+  "id": "analyse-asymptotique",
+  "title": "Analyse asymptotique",
+  "subtitle": "Relations de comparaison, développements limités, formule de Taylor-Young, études locales et asymptotes",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 25,
+  "prerequisites": ["limites-continuite"],
+  "tags": ["équivalents", "petit o", "développements limités", "Taylor-Young", "asymptote", "extremum"],
+  "status": "ready",
+  "chapters": [
+    { "id": "comparaison", "title": "Relations de comparaison" },
+    { "id": "developpements", "title": "Développements limités" },
+    { "id": "calcul-dl", "title": "Calculer un développement limité" },
+    { "id": "applications", "title": "Études locales et asymptotiques" }
+  ],
+  "plan": [
+    {
+      "title": "1. Relations de comparaison",
+      "items": [
+        "$O$, $o$, $\\sim$ pour les fonctions et les suites, règles de calcul",
+        "Équivalent par encadrement, propriétés conservées, croissances comparées"
+      ]
+    },
+    {
+      "title": "2. Développements limités",
+      "items": [
+        "Définition, unicité, troncature, parité, lien avec la dérivabilité",
+        "Primitivation, formule de Taylor-Young"
+      ]
+    },
+    {
+      "title": "3. Calculer un développement limité",
+      "items": [
+        "Développements usuels en $0$, somme, produit, quotient, composée"
+      ]
+    },
+    {
+      "title": "4. Études locales et asymptotiques",
+      "items": [
+        "Limites et équivalents, position par rapport à la tangente, asymptotes",
+        "Extremums : conditions à l'ordre 2, suites définies implicitement"
+      ]
+    }
+  ],
+  "references": [
+    "J.-M. Monier, Analyse MPSI (Dunod)",
+    "X. Gourdon, Les maths en tête — Analyse (Ellipses)",
+    "N. G. de Bruijn, Asymptotic Methods in Analysis (Dover)"
+  ]
+}

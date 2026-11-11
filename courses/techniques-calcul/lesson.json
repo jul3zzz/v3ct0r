@@ -1,0 +1,46 @@
+{
+  "id": "techniques-calcul",
+  "title": "Fonctions usuelles, dérivées et primitives",
+  "subtitle": "Fiche : techniques fondamentales de calcul différentiel et intégral (fonctions usuelles, réciproques, hyperboliques, intégration par parties, changement de variable)",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 18,
+  "prerequisites": ["calculs-algebriques"],
+  "tags": ["fonctions usuelles", "Arctan", "fonctions hyperboliques", "primitives", "intégration par parties", "changement de variable"],
+  "status": "ready",
+  "chapters": [
+    { "id": "fonctions-usuelles", "title": "Fonctions usuelles" },
+    { "id": "derivation-pratique", "title": "Dérivées et étude de fonctions" },
+    { "id": "primitives", "title": "Primitives et calcul d'intégrales" }
+  ],
+  "plan": [
+    {
+      "title": "1. Fonctions usuelles",
+      "items": [
+        "Exponentielle, logarithme, puissances, croissances comparées",
+        "Arcsin, Arccos, Arctan ; ch, sh, th"
+      ]
+    },
+    {
+      "title": "2. Dérivées et étude de fonctions",
+      "items": [
+        "Tableau des dérivées, plan d'étude d'une fonction",
+        "Dérivée d'une fonction à valeurs complexes, de $e^{\\varphi}$"
+      ]
+    },
+    {
+      "title": "3. Primitives et calcul d'intégrales",
+      "items": [
+        "Primitives sur un intervalle, lien avec l'intégrale",
+        "Intégration par parties, changement de variable, primitives usuelles"
+      ]
+    }
+  ],
+  "references": [
+    "J.-M. Monier, Analyse MPSI (Dunod)",
+    "C. Deschamps, A. Warusfel et al., Mathématiques tout-en-un MPSI (Dunod)",
+    "M. Spivak, Calculus (Publish or Perish)"
+  ]
+}

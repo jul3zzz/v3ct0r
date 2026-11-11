@@ -1,0 +1,38 @@
+{
+  "id": "arithmetique",
+  "title": "Arithmétique dans ℤ",
+  "subtitle": "Fiche : division euclidienne, PGCD, Bézout, Gauss, nombres premiers, congruences, petit théorème de Fermat",
+  "level": "prepa",
+  "filieres": ["MPSI", "MP2I"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 22,
+  "prerequisites": ["raisonnement-ensembles"],
+  "tags": ["divisibilité", "PGCD", "Bézout", "Gauss", "nombres premiers", "congruences", "Fermat"],
+  "status": "ready",
+  "chapters": [
+    { "id": "divisibilite", "title": "Divisibilité, PGCD, Bézout" },
+    { "id": "premiers-congruences", "title": "Nombres premiers et congruences" }
+  ],
+  "plan": [
+    {
+      "title": "1. Divisibilité, PGCD, Bézout",
+      "items": [
+        "Division euclidienne, PGCD et algorithme d'Euclide",
+        "Relation et théorème de Bézout, lemme de Gauss, PPCM"
+      ]
+    },
+    {
+      "title": "2. Nombres premiers et congruences",
+      "items": [
+        "Infinité des nombres premiers, décomposition, valuations $p$-adiques",
+        "Congruences, inverse modulo $n$, petit théorème de Fermat"
+      ]
+    }
+  ],
+  "references": [
+    "G. H. Hardy, E. M. Wright, An Introduction to the Theory of Numbers (Oxford University Press)",
+    "M. Demazure, Cours d'algèbre : primalité, divisibilité, codes (Cassini)",
+    "F. Liret, D. Martinais, Algèbre 1re année (Dunod)"
+  ]
+}

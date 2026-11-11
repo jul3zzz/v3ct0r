@@ -1,0 +1,53 @@
+{
+  "id": "geometrie-plan-espace",
+  "title": "Géométrie du plan et de l'espace",
+  "subtitle": "Fiche (PTSI) : repérages, produit scalaire, produit mixte, produit vectoriel, droites, cercles, plans, distances",
+  "level": "prepa",
+  "filieres": ["PTSI"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 16,
+  "prerequisites": [
+    "calculs-algebriques"
+  ],
+  "tags": [
+    "produit scalaire",
+    "produit vectoriel",
+    "produit mixte",
+    "droites",
+    "plans",
+    "distances"
+  ],
+  "status": "ready",
+  "chapters": [
+    {
+      "id": "plan",
+      "title": "Géométrie du plan"
+    },
+    {
+      "id": "espace",
+      "title": "Géométrie de l'espace"
+    }
+  ],
+  "plan": [
+    {
+      "title": "1. Géométrie du plan",
+      "items": [
+        "Coordonnées cartésiennes et polaires, produit scalaire, produit mixte",
+        "Droites (paramétrage, équation, vecteur normal), distance d'un point à une droite, cercles"
+      ]
+    },
+    {
+      "title": "2. Géométrie de l'espace",
+      "items": [
+        "Coordonnées cylindriques, produit vectoriel, produit mixte",
+        "Plans et droites, distances d'un point à un plan et à une droite"
+      ]
+    }
+  ],
+  "references": [
+    "M. Audin, Géométrie (EDP Sciences)",
+    "M. Berger, Géométrie (Nathan)",
+    "J. Stewart, Calculus: Early Transcendentals, chap. 12 (Cengage)"
+  ]
+}
