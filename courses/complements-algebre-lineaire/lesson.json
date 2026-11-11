@@ -1,0 +1,26 @@
+{
+  "id": "complements-algebre-lineaire",
+  "title": "Compléments d'algèbre linéaire",
+  "subtitle": "Fiche : produits et sommes directes d'espaces, matrices par blocs, sous-espaces stables, trace, hyperplans, polynômes d'endomorphismes",
+  "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "PT", "MPI"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 15,
+  "prerequisites": ["algebre-lineaire"],
+  "tags": ["somme directe", "matrices par blocs", "sous-espace stable", "trace", "polynôme d'endomorphisme"],
+  "status": "ready",
+  "chapters": [
+    { "id": "sommes-blocs", "title": "Sommes directes et matrices par blocs" },
+    { "id": "stables-trace", "title": "Sous-espaces stables, trace, polynômes d'endomorphismes" }
+  ],
+  "plan": [
+    { "title": "1. Sommes directes et matrices par blocs", "items": ["Produit d'espaces, somme directe de plusieurs sous-espaces, bases adaptées, calcul par blocs"] },
+    { "title": "2. Sous-espaces stables, trace, polynômes d'endomorphismes", "items": ["Endomorphisme induit, trace et similitude, hyperplans, polynômes annulateurs"] }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Algèbre (Ellipses)",
+    "J.-M. Monier, Algèbre MP (Dunod)",
+    "F. Liret, D. Martinais, Algèbre et géométrie 2e année (Dunod)"
+  ]
+}

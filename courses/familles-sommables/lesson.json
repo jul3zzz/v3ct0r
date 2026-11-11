@@ -1,0 +1,38 @@
+{
+  "id": "familles-sommables",
+  "title": "Familles sommables",
+  "subtitle": "Fiche : sommer « en vrac » une famille infinie, sommation par paquets, Fubini, produit de familles",
+  "level": "prepa",
+  "filieres": ["MPSI", "MP2I", "MP", "PC", "PSI", "MPI"],
+  "depth": "fiche",
+  "format": "written",
+  "minutes": 12,
+  "prerequisites": ["suites-series"],
+  "tags": ["familles sommables", "sommation par paquets", "Fubini", "séries doubles", "produit de Cauchy"],
+  "status": "ready",
+  "chapters": [
+    { "id": "positives", "title": "Familles de réels positifs" },
+    { "id": "complexes-sommables", "title": "Familles sommables de complexes" }
+  ],
+  "plan": [
+    {
+      "title": "1. Familles de réels positifs",
+      "items": [
+        "Somme dans $[0, +\\infty]$, sommabilité, lien avec les séries",
+        "Sommation par paquets, Fubini positif"
+      ]
+    },
+    {
+      "title": "2. Familles sommables de complexes",
+      "items": [
+        "Définition par $\\sum |u_i| < +\\infty$, domination, linéarité",
+        "Sommation par paquets, Fubini, produit de familles, produit de Cauchy"
+      ]
+    }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Analyse (Ellipses)",
+    "J.-M. Monier, Analyse MP (Dunod)",
+    "W. Rudin, Principles of Mathematical Analysis, chap. 3 (McGraw-Hill)"
+  ]
+}

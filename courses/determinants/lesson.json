@@ -1,0 +1,53 @@
+{
+  "id": "determinants",
+  "title": "Groupe symétrique et déterminants",
+  "subtitle": "Permutations et signature, formes n-linéaires alternées, propriétés et calcul du déterminant, comatrice",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 24,
+  "prerequisites": ["algebre-lineaire"],
+  "tags": ["permutations", "signature", "déterminant", "cofacteurs", "comatrice", "Vandermonde"],
+  "status": "ready",
+  "chapters": [
+    { "id": "groupe-symetrique", "title": "Le groupe symétrique" },
+    { "id": "formes-multilineaires", "title": "Formes n-linéaires alternées" },
+    { "id": "proprietes-det", "title": "Propriétés du déterminant" },
+    { "id": "calcul-det", "title": "Calculer un déterminant" }
+  ],
+  "plan": [
+    {
+      "title": "1. Le groupe symétrique (MPSI, MP2I)",
+      "items": [
+        "Permutations, cycles, transpositions, décomposition en cycles disjoints",
+        "Signature : l'unique morphisme $\\varepsilon : \\mathcal{S}_n \\to \\{-1, 1\\}$ valant $-1$ sur les transpositions"
+      ]
+    },
+    {
+      "title": "2. Formes n-linéaires alternées",
+      "items": [
+        "Antisymétrie, déterminant dans une base, aire et volume orientés",
+        "Caractérisation du déterminant d'une matrice (PCSI, PTSI)"
+      ]
+    },
+    {
+      "title": "3. Propriétés du déterminant",
+      "items": [
+        "Produit, transposée, inversibilité, déterminant d'un endomorphisme"
+      ]
+    },
+    {
+      "title": "4. Calculer un déterminant",
+      "items": [
+        "Opérations élémentaires, matrices triangulaires, développement selon une ligne",
+        "Vandermonde et comatrice (MPSI, MP2I)"
+      ]
+    }
+  ],
+  "references": [
+    "F. Liret, D. Martinais, Algèbre 1re année (Dunod)",
+    "J.-M. Monier, Algèbre MPSI (Dunod)",
+    "S. Axler, Linear Algebra Done Right, 4e éd., chap. 9 (Springer)"
+  ]
+}

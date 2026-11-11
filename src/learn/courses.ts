@@ -5,6 +5,7 @@ import type { Alignment, Clip, CourseExercise, FormulasFile, LessonMeta, ParsedS
 import { parseScript } from './script';
 import { parseWritten, type Written } from './written';
 import { parseExercises } from './exmd';
+import { parseRefs, refKey, setRefLabeler, type Ref } from './refs';
 import { Speaker, type SpeechDict } from './speak';
 import { buildClips, buildTimeline, type Timeline } from './clips';
 import dict from '../../courses/pronunciation.fr.json';
@@ -142,6 +143,71 @@ export function validate(c: Course, script: ParsedScript): string[] {
   return err;
 }
 
+// ── cross-references [[course#anchor]] ───────────────────────────────────
+
+export interface RefTarget {
+  kind: 'course' | 'chapter' | 'statement';
+  course: string;
+  anchor?: string;
+  title: string;
+}
+
+/** chapters of a course: those of the text (written) or of lesson.json */
+const chaptersOf = (c: Course): { id: string; title: string }[] => c.written?.chapters ?? c.meta.chapters;
+
+/** what a reference points to, or null when the course or the anchor does not exist */
+export function resolveRef(r: Ref): RefTarget | null {
+  const c = COURSES.get(r.course);
+  if (!c) return null;
+  if (!r.anchor) return { kind: 'course', course: r.course, title: c.meta.title };
+  const st = c.formulas.statements[r.anchor];
+  if (st) return { kind: 'statement', course: r.course, anchor: r.anchor, title: st.title };
+  const ch = chaptersOf(c).find((x) => x.id === r.anchor);
+  return ch ? { kind: 'chapter', course: r.course, anchor: r.anchor, title: ch.title } : null;
+}
+
+setRefLabeler((r) => resolveRef(r)?.title ?? null);
+
+/** every text of a course that may hold references, with where it sits (chapter, statement or the course itself) */
+export function courseTexts(c: Course): { src: string; chapter?: string; statement?: string; where: string }[] {
+  const out: { src: string; chapter?: string; statement?: string; where: string }[] = [];
+  const stCh = statementChapters(c);
+  for (const ch of c.written?.chapters ?? []) for (const b of ch.blocks) if (b.t === 'p') out.push({ src: b.src, chapter: ch.id, where: `text.md:${b.line}` });
+  for (const [sid, s] of Object.entries(c.formulas.statements)) out.push({ src: s.body, statement: sid, chapter: stCh.get(sid), where: sid });
+  for (const ex of c.exercises) for (const t of [ex.statement, ...ex.hints, ...ex.solution.map((x) => x.text)]) out.push({ src: t, where: ex.id });
+  for (const sec of c.meta.plan ?? []) for (const it of sec.items) out.push({ src: it, where: 'plan' });
+  return out;
+}
+
+/** references that point nowhere (reported by validateWritten and the tests) */
+export function refErrors(c: Course): string[] {
+  const out: string[] = [];
+  for (const t of courseTexts(c)) for (const r of parseRefs(t.src)) if (!resolveRef(r)) out.push(`${t.where} : renvoi [[${refKey(r)}]] introuvable`);
+  return out;
+}
+
+const stChCache = new Map<string, Map<string, string>>();
+
+/** the chapter of each statement: where its box sits (written) or is shown (video) */
+export function statementChapters(c: Course): Map<string, string> {
+  const id = c.meta.id;
+  const hit = stChCache.get(id);
+  if (hit) return hit;
+  const out = new Map<string, string>();
+  if (c.written) {
+    for (const ch of c.written.chapters) for (const b of ch.blocks) if (b.t === 'box' && !out.has(b.name)) out.set(b.name, ch.id);
+  } else if (c.hasScript) {
+    const tl = compileCourse(id)?.timeline;
+    for (const e of tl?.events ?? []) {
+      if (e.m.kind !== 'box' || out.has(e.m.name)) continue;
+      const ch = [...(tl?.chapters ?? [])].reverse().find((x) => x.t <= e.t + 1e-6);
+      if (ch) out.set(e.m.name, ch.id);
+    }
+  }
+  stChCache.set(id, out);
+  return out;
+}
+
 export function trackOf(id: string): Track | undefined {
   return TRACKS.find((t) => t.courses.includes(id));
 }
@@ -162,5 +228,6 @@ export function validateWritten(c: Course): string[] {
         used.add(b.name);
       }
   for (const k of Object.keys(c.formulas.statements)) if (!used.has(k)) err.push(`énoncé « ${k} » jamais placé dans text.md`);
+  err.push(...refErrors(c));
   return err;
 }

@@ -1,0 +1,62 @@
+{
+  "id": "limites-continuite",
+  "title": "Limites, continuité, dérivabilité",
+  "subtitle": "Fonctions d'une variable réelle : valeurs intermédiaires, bornes atteintes, Rolle, accroissements finis, convexité",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 46,
+  "prerequisites": ["suites-series"],
+  "tags": ["limite", "continuité", "valeurs intermédiaires", "Rolle", "accroissements finis", "convexité"],
+  "status": "ready",
+  "chapters": [
+    { "id": "limites", "title": "Limite d'une fonction" },
+    { "id": "continuite", "title": "Continuité" },
+    { "id": "derivabilite", "title": "Dérivabilité" },
+    { "id": "accroissements", "title": "Rolle et accroissements finis" },
+    { "id": "convexite", "title": "Convexité" }
+  ],
+  "plan": [
+    {
+      "title": "1. Limite d'une fonction",
+      "items": [
+        "Définitions avec $\\varepsilon$ et $\\eta$, limites à gauche et à droite",
+        "Caractérisation séquentielle, opérations, encadrement, limite monotone"
+      ]
+    },
+    {
+      "title": "2. Continuité",
+      "items": [
+        "Continuité en un point, prolongement par continuité",
+        "Valeurs intermédiaires, bornes atteintes, bijection continue"
+      ]
+    },
+    {
+      "title": "3. Dérivabilité",
+      "items": [
+        "Taux d'accroissement, développement limité à l'ordre 1, opérations",
+        "Extremum local et point critique, classe $C^k$, formule de Leibniz"
+      ]
+    },
+    {
+      "title": "4. Rolle et accroissements finis",
+      "items": [
+        "Théorème de Rolle, égalité et inégalité des accroissements finis",
+        "Monotonie et signe de la dérivée, limite de la dérivée"
+      ]
+    },
+    {
+      "title": "5. Convexité",
+      "items": [
+        "Définition, inégalité de Jensen (MPSI, MP2I), croissance des pentes",
+        "Convexité et dérivées, inégalités de convexité"
+      ]
+    }
+  ],
+  "references": [
+    "J.-M. Monier, Analyse MPSI (Dunod)",
+    "F. Liret, D. Martinais, Analyse 1re année (Dunod)",
+    "W. Rudin, Principles of Mathematical Analysis, chap. 4 et 5 (McGraw-Hill)"
+  ]
+}

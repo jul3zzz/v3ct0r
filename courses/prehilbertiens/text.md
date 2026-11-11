@@ -134,7 +134,7 @@ Les rotations du plan commutent entre elles ($R_\alpha R_\beta = R_{\alpha + \be
 ## Le théorème spectral {#spectral}
 
 ::: théorème Théorème spectral {#thm-spectral}
-Tout endomorphisme symétrique d'un espace euclidien se diagonalise dans une base **orthonormée**. Matriciellement : pour toute matrice symétrique réelle $A$, il existe $P \in O(n)$ et $D$ diagonale réelle telles que
+Tout endomorphisme symétrique d'un espace euclidien se [[reduction#def-diag|diagonalise]] dans une base **orthonormée**. Matriciellement : pour toute matrice symétrique réelle $A$, il existe $P \in O(n)$ et $D$ diagonale réelle telles que
 $$A = P D P^{\top} = P D P^{-1}.$$
 Ses valeurs propres sont réelles et ses sous-espaces propres sont deux à deux orthogonaux.
 :::

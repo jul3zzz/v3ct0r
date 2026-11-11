@@ -1,0 +1,62 @@
+{
+  "id": "polynomes",
+  "title": "Polynômes",
+  "subtitle": "Division euclidienne, racines et multiplicités, Viète, Taylor, factorisation sur ℂ et ℝ, Lagrange, fractions rationnelles",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 35,
+  "prerequisites": ["nombres-complexes"],
+  "tags": ["polynômes", "racines", "Viète", "Taylor", "d'Alembert-Gauss", "Lagrange", "éléments simples"],
+  "status": "ready",
+  "chapters": [
+    { "id": "anneau", "title": "L'anneau K[X]" },
+    { "id": "racines", "title": "Racines et relations coefficients-racines" },
+    { "id": "derivation", "title": "Dérivation, Taylor et multiplicité" },
+    { "id": "factorisation", "title": "Factorisation et arithmétique" },
+    { "id": "interpolation", "title": "Interpolation et fractions rationnelles" }
+  ],
+  "plan": [
+    {
+      "title": "1. L'anneau K[X]",
+      "items": [
+        "Degré, coefficient dominant, intégrité de $\\mathbb{K}[X]$",
+        "Divisibilité, division euclidienne"
+      ]
+    },
+    {
+      "title": "2. Racines et relations coefficients-racines",
+      "items": [
+        "Racine et divisibilité par $X - a$, nombre de racines, méthode de Horner",
+        "Multiplicité, polynômes scindés, formules de Viète"
+      ]
+    },
+    {
+      "title": "3. Dérivation, Taylor et multiplicité",
+      "items": [
+        "Dérivée formelle, formule de Leibniz, formule de Taylor",
+        "Multiplicité et dérivées successives"
+      ]
+    },
+    {
+      "title": "4. Factorisation et arithmétique",
+      "items": [
+        "Théorème de d'Alembert-Gauss, irréductibles de $\\mathbb{C}[X]$ et $\\mathbb{R}[X]$",
+        "PGCD, Bézout, Gauss (MPSI, MP2I)"
+      ]
+    },
+    {
+      "title": "5. Interpolation et fractions rationnelles",
+      "items": [
+        "Interpolation de Lagrange (MPSI, MP2I)",
+        "Pôles, décomposition en éléments simples, $P'/P$"
+      ]
+    }
+  ],
+  "references": [
+    "F. Liret, D. Martinais, Algèbre 1re année (Dunod)",
+    "X. Gourdon, Les maths en tête — Algèbre (Ellipses)",
+    "C. Deschamps, A. Warusfel et al., Mathématiques tout-en-un MPSI (Dunod)"
+  ]
+}

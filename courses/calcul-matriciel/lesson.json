@@ -1,0 +1,54 @@
+{
+  "id": "calcul-matriciel",
+  "title": "Calcul matriciel et systèmes linéaires",
+  "subtitle": "Produit matriciel, opérations élémentaires, pivot de Gauss, anneau des matrices carrées, inverses",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 30,
+  "prerequisites": ["calculs-algebriques"],
+  "tags": ["matrices", "produit matriciel", "pivot de Gauss", "systèmes linéaires", "matrice inversible", "binôme"],
+  "status": "ready",
+  "chapters": [
+    { "id": "operations", "title": "Opérations sur les matrices" },
+    { "id": "systemes", "title": "Systèmes linéaires et pivot de Gauss" },
+    { "id": "carrees", "title": "L'anneau des matrices carrées" },
+    { "id": "inverses", "title": "Matrices inversibles" }
+  ],
+  "plan": [
+    {
+      "title": "1. Opérations sur les matrices",
+      "items": [
+        "Combinaisons linéaires, matrices élémentaires $E_{ij}$, produit matriciel",
+        "Transposée, interprétation de $AX$ par les colonnes"
+      ]
+    },
+    {
+      "title": "2. Systèmes linéaires et pivot de Gauss",
+      "items": [
+        "Opérations élémentaires et produits par des matrices",
+        "Écriture $AX = B$, structure des solutions, algorithme du pivot"
+      ]
+    },
+    {
+      "title": "3. L'anneau des matrices carrées",
+      "items": [
+        "Non-commutativité, diviseurs de zéro, nilpotents",
+        "Matrices diagonales, triangulaires, symétriques, formule du binôme"
+      ]
+    },
+    {
+      "title": "4. Matrices inversibles",
+      "items": [
+        "Groupe linéaire $\\mathrm{GL}_n(\\mathbb{K})$, inverse d'un produit, d'une transposée",
+        "Caractérisations par les systèmes, inversion par Gauss-Jordan, matrices triangulaires"
+      ]
+    }
+  ],
+  "references": [
+    "F. Liret, D. Martinais, Algèbre 1re année (Dunod)",
+    "J.-M. Monier, Algèbre MPSI (Dunod)",
+    "G. Strang, Introduction to Linear Algebra (Wellesley-Cambridge Press)"
+  ]
+}

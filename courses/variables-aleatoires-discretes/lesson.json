@@ -1,0 +1,30 @@
+{
+  "id": "variables-aleatoires-discretes",
+  "title": "Variables aléatoires discrètes",
+  "subtitle": "Ensembles dénombrables, espaces probabilisés, lois géométrique et de Poisson, espérance, variance, fonctions génératrices",
+  "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "PT", "MPI"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 22,
+  "prerequisites": ["probabilites-finies"],
+  "tags": ["dénombrable", "tribu", "loi géométrique", "loi de Poisson", "espérance", "fonction génératrice"],
+  "status": "ready",
+  "chapters": [
+    { "id": "espaces-probabilises", "title": "Ensembles dénombrables et espaces probabilisés" },
+    { "id": "lois-discretes", "title": "Variables discrètes et lois usuelles" },
+    { "id": "esperance-discrete", "title": "Espérance et variance" },
+    { "id": "generatrices", "title": "Fonctions génératrices et inégalités" }
+  ],
+  "plan": [
+    { "title": "1. Ensembles dénombrables et espaces probabilisés", "items": ["Dénombrabilité, tribus, probabilités, continuité monotone, conditionnement"] },
+    { "title": "2. Variables discrètes et lois usuelles", "items": ["Lois géométrique et de Poisson, absence de mémoire, approximation de la binomiale"] },
+    { "title": "3. Espérance et variance", "items": ["Espérance par sommabilité, formule de transfert, variances usuelles"] },
+    { "title": "4. Fonctions génératrices et inégalités", "items": ["$G_X(t) = E(t^X)$, moments, sommes indépendantes, loi faible des grands nombres"] }
+  ],
+  "references": [
+    "J.-F. Delmas, Introduction au calcul des probabilités et à la statistique (Les Presses de l'ENSTA)",
+    "W. Feller, An Introduction to Probability Theory and Its Applications, vol. 1 (Wiley)",
+    "G. Grimmett, D. Stirzaker, Probability and Random Processes (Oxford University Press)"
+  ]
+}

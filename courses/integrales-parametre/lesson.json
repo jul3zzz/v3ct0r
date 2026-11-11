@@ -1,0 +1,30 @@
+{
+  "id": "integrales-parametre",
+  "title": "Convergence dominée et intégrales à paramètre",
+  "subtitle": "Passer à la limite sous l'intégrale, intégrer terme à terme, continuité et dérivation d'une intégrale à paramètre",
+  "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "PT", "MPI"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 14,
+  "prerequisites": ["integrales-generalisees"],
+  "tags": ["convergence dominée", "intégration terme à terme", "intégrale à paramètre", "domination", "fonction Gamma", "intégrale de Gauss"],
+  "status": "ready",
+  "chapters": [
+    { "id": "convergence-dominee", "title": "Convergence dominée" },
+    { "id": "terme-a-terme", "title": "Intégration terme à terme" },
+    { "id": "continuite-param", "title": "Continuité d'une intégrale à paramètre" },
+    { "id": "derivation-param", "title": "Dérivation d'une intégrale à paramètre" }
+  ],
+  "plan": [
+    { "title": "1. Convergence dominée (MP, PC, PSI, MPI)", "items": ["Le théorème, le rôle de la domination, exemples"] },
+    { "title": "2. Intégration terme à terme", "items": ["Le théorème sous l'hypothèse $\\sum \\int |f_n| < +\\infty$, exemples"] },
+    { "title": "3. Continuité d'une intégrale à paramètre", "items": ["Domination, domination locale"] },
+    { "title": "4. Dérivation d'une intégrale à paramètre", "items": ["Formule de Leibniz, classe $C^k$, la fonction $\\Gamma$, la gaussienne"] }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Analyse (Ellipses)",
+    "J.-M. Monier, Analyse MP (Dunod)",
+    "W. Rudin, Real and Complex Analysis, chap. 1 (McGraw-Hill)"
+  ]
+}

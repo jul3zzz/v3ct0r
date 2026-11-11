@@ -1,0 +1,55 @@
+{
+  "id": "nombres-complexes",
+  "title": "Nombres complexes",
+  "subtitle": "Forme algébrique, module, exponentielle, équations, racines n-ièmes et géométrie du plan",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 37,
+  "prerequisites": ["calculs-algebriques"],
+  "tags": ["complexes", "module", "argument", "exponentielle", "racines de l'unité", "similitudes"],
+  "status": "ready",
+  "chapters": [
+    { "id": "forme-algebrique", "title": "Forme algébrique, conjugué, module" },
+    { "id": "exponentielle", "title": "Module 1, exponentielle et trigonométrie" },
+    { "id": "equations", "title": "Équations algébriques et racines n-ièmes" },
+    { "id": "geometrie", "title": "Exponentielle complexe et géométrie" }
+  ],
+  "plan": [
+    {
+      "title": "1. Forme algébrique, conjugué, module",
+      "items": [
+        "Parties réelle et imaginaire, calcul dans $\\mathbb{C}$, binôme et somme géométrique",
+        "Conjugaison, module, $|z|^2 = z\\overline{z}$, inégalité triangulaire et cas d'égalité"
+      ]
+    },
+    {
+      "title": "2. Module 1, exponentielle et trigonométrie",
+      "items": [
+        "Le cercle $\\mathbb{U}$ et $e^{it}$, formules d'Euler et de Moivre",
+        "Angle moitié, linéarisation, forme trigonométrique et arguments",
+        "Transformation de $a\\cos t + b\\sin t$"
+      ]
+    },
+    {
+      "title": "3. Équations algébriques et racines n-ièmes",
+      "items": [
+        "Factorisation par $z - a$, racines carrées, équations du second degré",
+        "Racines $n$-ièmes de l'unité et d'un complexe non nul"
+      ]
+    },
+    {
+      "title": "4. Exponentielle complexe et géométrie",
+      "items": [
+        "$e^z = e^{\\operatorname{Re} z} e^{i \\operatorname{Im} z}$, résolution de $e^z = a$",
+        "Alignement, orthogonalité, applications $z \\mapsto az + b$"
+      ]
+    }
+  ],
+  "references": [
+    "C. Deschamps, A. Warusfel et al., Mathématiques tout-en-un MPSI (Dunod)",
+    "F. Liret, D. Martinais, Algèbre 1re année (Dunod)",
+    "T. Needham, Visual Complex Analysis (Oxford University Press)"
+  ]
+}

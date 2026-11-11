@@ -113,7 +113,7 @@ for (const c of COURSES.values()) {
     if (m.format === 'written') {
       it('text.md parses; chapters and statements match lesson.json and formulas.json', () => {
         expect(validateWritten(c)).toEqual([]);
-        expect(c.written!.chapters.length).toBeGreaterThanOrEqual(3);
+        expect(c.written!.chapters.length).toBeGreaterThanOrEqual(m.depth === 'fiche' ? 2 : 3);
         // titles are plain text (rail, panel, Ctrl+K): Unicode symbols, no LaTeX
         for (const [k, st] of Object.entries(c.formulas.statements)) expect(st.title, k).not.toMatch(/[$\\]/);
         for (const ex of c.exercises) expect(ex.title, ex.id).not.toMatch(/[$\\]/);
@@ -128,9 +128,11 @@ for (const c of COURSES.values()) {
       });
       it('exercises by length: simple ≈ 10 min, moyen ≈ 30 min, complexe 1 h and more', () => {
         expect(new Set(c.exercises.map((e) => e.id)).size).toBe(c.exercises.length);
+        // a complete course: 2 simple, 2 moyen, 1 complexe at least; a fiche: one of each
+        const fiche = m.depth === 'fiche';
         for (const lv of WRITTEN_LEVELS) {
           const list = c.exercises.filter((e) => e.level === lv.level);
-          expect(list.length, lv.label).toBeGreaterThanOrEqual(lv.level === 3 ? 1 : 2);
+          expect(list.length, lv.label).toBeGreaterThanOrEqual(lv.level === 3 || fiche ? 1 : 2);
           for (const ex of list) {
             expect(ex.minutes, ex.id).toBeGreaterThanOrEqual(lv.min);
             expect(ex.minutes, ex.id).toBeLessThanOrEqual(lv.max);

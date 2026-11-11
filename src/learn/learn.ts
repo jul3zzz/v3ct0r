@@ -7,7 +7,7 @@ import { sfx } from '../core/audio';
 import { toast, type Dialog } from '../shell/overlays';
 import type { Command } from '../shell/palette';
 import type { VizDef } from '../core/types';
-import { COURSES, TRACKS, compileCourse, isReady, validateWritten, type Course } from './courses';
+import { COURSES, TRACKS, compileCourse, isReady, resolveRef, validateWritten, type Course } from './courses';
 import { Reader } from './reader';
 import { readingMinutes, WRITTEN_LEVELS } from './written';
 import { LearnProgress } from './progress';
@@ -17,8 +17,11 @@ import { renderTokens, rich, plain } from './rich';
 import { exerciseCard } from './exercise';
 import { printSheet } from './sheet';
 import { colleDialog } from './colle';
-import { treeViz, type TreeNode } from './tree';
-import { LEVEL_LABEL, STATEMENT_LABEL, type LessonMeta } from './types';
+import { graphViz } from './graph-view';
+import { DEFAULT_FILTER, buildGraph, chapterNode, courseNode, nodeVisible, searchGraph, statementNode, courseVisible, type GNode, type Graph, type GraphFilter } from './graph';
+import { layoutGraph, type Layout } from './layout';
+import { FILIERES, FILIERES_1, FILIERES_2, LEVEL_LABEL, STATEMENT_LABEL, courseYear, filiereYear, type Filiere, type LessonMeta, type Level } from './types';
+import { store } from '../core/settings';
 import { MODULES } from '../modules/registry';
 import { music } from '../core/music';
 import { GAMES, gameById } from '../games/registry';
@@ -49,6 +52,26 @@ const moduleOf = (m: LessonMeta) => MODULES.find((x) => x.id === m.module);
 /** "≈ 45 MIN", or "30 S" for an intro */
 const length = (m: LessonMeta): string => (m.minutes < 1 ? `${Math.round(m.minutes * 60)} S` : `≈ ${m.minutes} MIN`);
 
+/** construction: plan only · locked: prerequisites missing · open · done */
+export type CourseState = 'construction' | 'locked' | 'open' | 'done';
+
+const FILTER_KEY = 'learn.filter';
+const SHOWN_LEVELS: [Level, string][] = [['prepa', 'PRÉPA'], ['master', 'MASTER'], ['doctorat', 'DOCTORAT']];
+
+/** the saved filter, checked field by field (an old or damaged value falls back to the default) */
+function loadFilter(): GraphFilter {
+  const f = store.get<Partial<GraphFilter>>(FILTER_KEY, {});
+  return {
+    filiere: f.filiere && (f.filiere === 'ALL' || FILIERES.includes(f.filiere)) ? f.filiere : DEFAULT_FILTER.filiere,
+    levels: Array.isArray(f.levels) ? f.levels.filter((l) => SHOWN_LEVELS.some(([x]) => x === l)) : [...DEFAULT_FILTER.levels],
+    chapters: typeof f.chapters === 'boolean' ? f.chapters : DEFAULT_FILTER.chapters,
+    statements: typeof f.statements === 'boolean' ? f.statements : DEFAULT_FILTER.statements,
+  };
+}
+
+/** short tag of a graph node: COURS, CHAP, THÉO, DÉFI… */
+const nodeTag = (n: GNode): string => (n.kind === 'course' ? 'COURS' : n.kind === 'chapter' ? 'CHAP' : STATEMENT_LABEL[n.stKind ?? 'remark'].slice(0, 4));
+
 export class Learn {
   readonly progress = new LearnProgress();
   private player: Player | null = null;
@@ -60,22 +83,129 @@ export class Learn {
   private lastCue = -1;
   private lastChapter = '';
   private userScrolledAt = 0;
-  private tree: VizDef;
+  private graphView: VizDef;
+  // the home graph: built once, filtered and lit from the progress
+  private g: Graph | null = null;
+  private lay: Layout | null = null;
+  private filter: GraphFilter = loadFilter();
+  private vis = new Uint8Array(0);
+  private bright = new Float32Array(0);
+  private gver = 0;
+  /** node selected in the graph (-1: none) */
+  private focus = -1;
+  private flight: number | null = null;
+  private query = '';
+  private listEl: HTMLElement | null = null;
   active = false;
 
   constructor(private host: LearnHost) {
     if (!COURSES.has(this.selected)) this.selected = [...COURSES.keys()][0] ?? '';
-    this.tree = treeViz({
-      nodes: () => this.nodes(),
-      selected: () => this.selected,
-      select: (id) => this.select(id),
-      open: (id) => this.open(id),
+    this.graphView = graphViz({
+      graph: () => this.graph(),
+      layout: () => this.layout(),
+      visible: () => this.vis,
+      brightness: () => this.bright,
+      courseState: (c) => this.status(c),
+      version: () => this.gver,
+      selected: () => this.focus,
+      select: (i) => this.pickNode(i),
+      open: (i) => this.openNode(i),
+      takeFlight: () => {
+        const f = this.flight;
+        this.flight = null;
+        return f;
+      },
     });
+    // [[course#anchor]] links, wherever a course text is shown (reader, panel, exercises)
+    document.addEventListener('click', (e) => {
+      const a = (e.target as Element | null)?.closest?.('a.xref') as HTMLElement | null;
+      if (!a) return;
+      e.preventDefault();
+      if (this.active && a.dataset.ref) this.followRef(a.dataset.ref);
+    });
+  }
+
+  // ── the graph ────────────────────────────────────────────────────────
+
+  graph(): Graph {
+    return (this.g ??= buildGraph());
+  }
+
+  private layout(): Layout {
+    return (this.lay ??= layoutGraph(this.graph()));
+  }
+
+  /** visibility (filters) and brightness (progress) of every node */
+  private recompute(): void {
+    const g = this.graph();
+    const B: Record<CourseState, number> = { construction: 0.4, locked: 0.6, open: 0.85, done: 1 };
+    const states = new Map<string, CourseState>();
+    this.vis = new Uint8Array(g.nodes.length);
+    this.bright = new Float32Array(g.nodes.length);
+    g.nodes.forEach((n, i) => {
+      this.vis[i] = nodeVisible(n, this.filter) ? 1 : 0;
+      let s = states.get(n.course);
+      if (!s) states.set(n.course, (s = this.status(n.course)));
+      this.bright[i] = B[s];
+    });
+    this.gver++;
+  }
+
+  /** select a node of the graph (its card goes to the panel); `fly`: the camera goes to it */
+  private pickNode(i: number, fly = false): void {
+    const n = this.graph().nodes[i];
+    if (!n) return;
+    this.focus = i;
+    this.selected = n.course;
+    this.gver++;
+    if (fly) this.flight = i;
+    sfx.tick();
+    if (!this.player && !this.reader && !this.game) {
+      this.markSelected();
+      this.paintDetails();
+    }
+  }
+
+  /** open a node: the course, the chapter, or the statement in its course */
+  private openNode(i: number): void {
+    const n = this.graph().nodes[i];
+    if (!n) return;
+    const c = COURSES.get(n.course);
+    if (!c) return;
+    const st = this.status(n.course);
+    if (n.kind === 'course' || st === 'construction' || st === 'locked') return this.open(n.course);
+    if (c.written) return this.openAt(n.course, n.kind === 'chapter' ? n.anchor! : `st:${n.anchor}`);
+    // a video course: the start of the chapter, or the moment the statement is shown
+    const tl = compileCourse(n.course)?.timeline;
+    const t = n.kind === 'chapter' ? tl?.chapters.find((x) => x.id === n.anchor)?.t : tl?.events.find((e) => e.m.kind === 'box' && e.m.name === n.anchor)?.t;
+    this.open(n.course, t !== undefined ? t + 0.01 : undefined);
+  }
+
+  /** a [[course#anchor]] link was clicked */
+  followRef(key: string): void {
+    const [course, anchor] = key.split('#');
+    const tg = resolveRef({ course, ...(anchor ? { anchor } : {}) });
+    if (!tg) return;
+    sfx.click();
+    const st = this.status(course);
+    const c = COURSES.get(course)!;
+    // a statement not drawn in the graph (a proof) still opens in its course
+    if (tg.kind === 'statement' && c.written && (st === 'open' || st === 'done')) return this.openAt(course, `st:${anchor}`);
+    const g = this.graph();
+    const i = g.index.get(tg.kind === 'course' ? courseNode(course) : tg.kind === 'chapter' ? chapterNode(course, anchor) : statementNode(course, anchor)) ?? g.index.get(courseNode(course));
+    if (i === undefined) return this.open(course);
+    if (st === 'construction' || st === 'locked') {
+      // nothing to read yet: show it in the graph
+      this.home();
+      this.pickNode(i, true);
+      return;
+    }
+    this.openNode(i);
   }
 
   // ── status ───────────────────────────────────────────────────────────
 
-  status(id: string): TreeNode['state'] {
+  status(id: string): CourseState {
     const c = COURSES.get(id);
     if (!c || !isReady(c)) return 'construction';
     if (this.progress.course(id).done) return 'done';
@@ -91,17 +221,6 @@ export class Learn {
     return c.meta.prerequisites
       .map((p) => COURSES.get(p))
       .filter((p): p is Course => !!p && isReady(p) && !this.progress.course(p.meta.id).done);
-  }
-
-  private nodes(): TreeNode[] {
-    const out: TreeNode[] = [];
-    for (const tr of TRACKS)
-      for (const id of tr.courses) {
-        const c = COURSES.get(id);
-        if (!c) continue;
-        out.push({ id, title: c.meta.title, short: SHORT(c.meta.title), level: c.meta.level, state: this.status(id), prerequisites: c.meta.prerequisites });
-      }
-    return out;
   }
 
   // ── navigation ───────────────────────────────────────────────────────
@@ -171,19 +290,26 @@ export class Learn {
     this.player = null;
     this.closeReader();
     this.host.setHash('#/learn');
-    this.host.mountViz(this.tree);
-    this.host.setCrumbs(['LEARN', 'ARBRE DES COURS']);
+    this.recompute();
+    const g = this.graph();
+    // the graph keeps the node last selected (a chapter, a statement) when it belongs to the selected course
+    if (this.focus < 0 || g.nodes[this.focus]?.course !== this.selected) this.focus = g.index.get(courseNode(this.selected)) ?? -1;
+    this.host.mountViz(this.graphView);
+    this.host.setCrumbs(['LEARN', 'GRAPHE DES COURS']);
     document.title = 'LEARN — V3CT0R';
     this.paintHomeRail();
     this.paintDetails();
   }
 
+  /** select a course (rail, Ctrl+K): the graph flies to it */
   select(id: string): void {
     if (!COURSES.has(id)) return;
+    const i = this.graph().index.get(courseNode(id));
+    if (i !== undefined) return this.pickNode(i, true);
     this.selected = id;
     sfx.tick();
-    if (!this.player) {
-      this.paintHomeRail();
+    if (!this.player && !this.reader) {
+      this.markSelected();
       this.paintDetails();
     }
   }
@@ -254,6 +380,9 @@ export class Learn {
     const c = COURSES.get(id);
     if (!c?.written) return this.open(id);
     if (this.status(id) !== 'open' && this.status(id) !== 'done') return this.open(id);
+    const r = this.reader;
+    // already reading that course: just scroll
+    if (r && r.course.meta.id === id) return at === 'exercises' ? r.scrollToExercises() : at.startsWith('st:') ? r.scrollToStatement(at.slice(3)) : r.scrollToChapter(at);
     this.openReader(c, at);
   }
 
@@ -473,7 +602,8 @@ export class Learn {
     }
     if (!p) {
       if (k === 'Enter') {
-        this.open(this.selected);
+        if (this.focus >= 0) this.openNode(this.focus);
+        else this.open(this.selected);
         return true;
       }
       return false;
@@ -535,9 +665,115 @@ export class Learn {
     const ready = [...COURSES.values()].filter((c) => isReady(c) && !isIntro(c));
     const done = ready.filter((c) => this.progress.course(c.meta.id).done).length;
     const watched = ready.reduce((s, c) => s + this.progress.course(c.meta.id).watched, 0);
-    const list = h('div', { class: 'lr-list' });
+    this.listEl = h('div', { class: 'lr-list' });
+    // search: courses, chapters and statements of the graph
+    const search = h('input', { type: 'search', class: 'lr-search', placeholder: 'Chercher un cours, un théorème…', 'aria-label': 'Chercher dans le graphe des cours', spellcheck: 'false', autocomplete: 'off' }) as HTMLInputElement;
+    search.value = this.query;
+    search.addEventListener('input', () => {
+      this.query = search.value;
+      this.paintHomeList();
+    });
+    search.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+      if (e.key === 'Enter') {
+        const first = this.listEl?.querySelector<HTMLButtonElement>('.lr-hit');
+        first?.click();
+      } else if (e.key === 'Escape') {
+        this.query = search.value = '';
+        this.paintHomeList();
+      }
+    });
+    r.replaceChildren(
+      h('div', { class: 'rail-head' }, h('span', { text: '[ LEARN ]' }), h('span', { text: String(COURSES.size).padStart(2, '0') })),
+      h('div', { class: 'rail-prog' }, h('div', { class: 'rp-top' }, h('span', { text: 'COURS TERMINÉS' }), h('span', { class: 'rp-n', text: `${done}/${ready.length}` })), h('div', { class: 'rp-bar' }, h('i', { style: `width:${ready.length ? (100 * done) / ready.length : 0}%` })), h('div', { class: 'rp-rank', text: `TEMPS D’ÉTUDE ${clock(watched)}` })),
+      h('div', { class: 'lr-find' }, search),
+      this.filterBar(),
+      this.listEl,
+      this.railButtons(['COLLE', 'quiz', () => this.colle()], ['EXPLORER', 'target', () => this.host.openExplorer()]),
+    );
+    this.paintHomeList();
+  }
+
+  /** filière (one, or all), levels, chapters and statements shown */
+  private filterBar(): HTMLElement {
+    const f = this.filter;
+    const chip = (label: string, on: boolean, title: string, fn: () => void) => {
+      const b = h('button', { type: 'button', class: `lr-chip${on ? ' on' : ''}`, 'aria-pressed': String(on), title, text: label });
+      b.addEventListener('click', () => {
+        sfx.click();
+        fn();
+        store.set(FILTER_KEY, this.filter);
+        this.recompute();
+        this.paintHomeRail();
+      });
+      return b;
+    };
+    const fil = (x: Filiere) => chip(x, f.filiere === x, `Seulement les cours du programme ${x} (${filiereYear(x)}${filiereYear(x) === 1 ? 're' : 'e'} année)`, () => (this.filter = { ...f, filiere: f.filiere === x ? 'ALL' : x }));
+    const toggle = <K extends 'chapters' | 'statements'>(k: K, label: string, title: string) => chip(label, f[k], title, () => (this.filter = { ...f, [k]: !f[k] }));
+    const level = ([lv, label]: [Level, string]) => chip(label, f.levels.includes(lv), `Montrer les cours ${LEVEL_LABEL[lv]}`, () => (this.filter = { ...f, levels: f.levels.includes(lv) ? f.levels.filter((x) => x !== lv) : [...f.levels, lv] }));
+    return h(
+      'div',
+      { class: 'lr-filters', role: 'group', 'aria-label': 'Filtres du graphe' },
+      h('div', { class: 'lr-frow' }, h('span', { class: 'k', text: 'FILIÈRE' }), chip('TOUTES', f.filiere === 'ALL', 'Tous les cours de prépa', () => (this.filter = { ...f, filiere: 'ALL' }))),
+      h('div', { class: 'lr-frow' }, h('span', { class: 'k', text: '1re' }), ...FILIERES_1.map(fil)),
+      h('div', { class: 'lr-frow' }, h('span', { class: 'k', text: '2e' }), ...FILIERES_2.map(fil)),
+      h('div', { class: 'lr-frow' }, h('span', { class: 'k', text: 'VOIR' }), ...SHOWN_LEVELS.map(level)),
+      h('div', { class: 'lr-frow' }, h('span', { class: 'k' }), toggle('chapters', 'CHAPITRES', 'Montrer les chapitres dans le graphe'), toggle('statements', 'ÉNONCÉS', 'Montrer les énoncés (définitions, théorèmes…) dans le graphe')),
+    );
+  }
+
+  /** the selected course, highlighted in the list without rebuilding it */
+  private markSelected(): void {
+    for (const b of this.host.rail.querySelectorAll<HTMLElement>('.lr-course[data-id]')) {
+      const on = b.dataset.id === this.selected;
+      b.classList.toggle('sel', on);
+      b.setAttribute('aria-pressed', String(on));
+    }
+    for (const b of this.host.rail.querySelectorAll<HTMLElement>('.lr-hit')) b.classList.toggle('sel', Number(b.dataset.node) === this.focus);
+  }
+
+  /** search results, or the courses grouped by year and filière */
+  private paintHomeList(): void {
+    const list = this.listEl;
+    if (!list) return;
+    list.replaceChildren();
+    const g = this.graph();
+    if (this.query.trim()) {
+      const hits = searchGraph(g, this.query, (i) => !!this.vis[i] || courseVisible(g.nodes[i], this.filter), 40);
+      list.append(h('div', { class: 'lr-track', text: hits.length ? `${hits.length >= 40 ? '40+' : hits.length} RÉSULTAT${hits.length > 1 ? 'S' : ''}` : 'AUCUN RÉSULTAT' }));
+      const courseTitle = (id: string) => SHORT(COURSES.get(id)?.meta.title ?? id);
+      for (const i of hits) {
+        const n = g.nodes[i];
+        const b = h('button', { type: 'button', class: `lr-hit${i === this.focus ? ' sel' : ''}`, 'data-node': String(i), title: `${n.title} — ${COURSES.get(n.course)?.meta.title ?? ''}` }, h('span', { class: 'tg', text: nodeTag(n) }), h('span', { class: 'tt', text: n.title }), n.kind === 'course' ? null : h('span', { class: 'mn', text: courseTitle(n.course) }));
+        b.addEventListener('click', () => this.pickNode(i, true));
+        b.addEventListener('dblclick', () => this.openNode(i));
+        list.append(b);
+      }
+      return;
+    }
     const intros = this.intros();
-    const groups = [...(intros.length ? [{ id: 'intros', title: 'INTROS · 30 S', courses: intros }] : []), ...TRACKS];
+    const f = this.filter;
+    // prépa split by year (or the chosen filière); other levels as in the curriculum
+    const groups: { id: string; title: string; courses: string[] }[] = [];
+    if (intros.length) groups.push({ id: 'intros', title: 'INTROS · 30 S', courses: intros });
+    for (const tr of TRACKS) {
+      const shown = tr.courses.filter((id) => {
+        const m = COURSES.get(id)?.meta;
+        return !!m && courseVisible({ level: m.level, filieres: m.filieres ?? [] }, f);
+      });
+      if (tr.id !== 'prepa') {
+        if (shown.length) groups.push({ ...tr, courses: shown });
+        continue;
+      }
+      if (f.filiere !== 'ALL') {
+        groups.push({ id: 'prepa', title: `PRÉPA · ${f.filiere} (${filiereYear(f.filiere)}${filiereYear(f.filiere) === 1 ? 're' : 'e'} année)`, courses: shown });
+        continue;
+      }
+      for (const y of [1, 2] as const) {
+        const ids = shown.filter((id) => courseYear(COURSES.get(id)!.meta) === y);
+        if (ids.length) groups.push({ id: `prepa-${y}`, title: `PRÉPA · ${y === 1 ? '1re' : '2e'} ANNÉE`, courses: ids });
+      }
+    }
     for (const tr of groups) {
       list.append(h('div', { class: 'lr-track', text: tr.title }));
       if (tr.id === 'intros') {
@@ -558,24 +794,20 @@ export class Learn {
         const c = COURSES.get(id);
         if (!c) continue;
         const st = this.status(id);
+        const m = c.meta;
+        const fiche = m.depth === 'fiche';
         const b = h(
           'button',
-          { type: 'button', class: `lr-course s-${st}${id === this.selected ? ' sel' : ''}`, 'aria-pressed': String(id === this.selected), title: `${c.meta.title} — ${st === 'construction' ? 'en construction' : st === 'locked' ? 'verrouillé' : st === 'done' ? 'terminé' : 'disponible'}` },
+          { type: 'button', 'data-id': id, class: `lr-course s-${st}${fiche ? ' fiche' : ''}${id === this.selected ? ' sel' : ''}`, 'aria-pressed': String(id === this.selected), title: `${m.title} — ${st === 'construction' ? 'en construction' : st === 'locked' ? 'verrouillé' : st === 'done' ? 'terminé' : 'disponible'}${fiche ? ' · fiche' : ''}${m.filieres?.length ? ` · ${m.filieres.join(' ')}` : ''}` },
           h('span', { class: 'ic', text: st === 'done' ? '✓' : st === 'locked' ? '◇' : st === 'construction' ? '▲' : '●' }),
-          h('span', { class: 'tt', text: c.meta.title }),
-          h('span', { class: 'mn', text: st === 'construction' ? '…' : c.meta.minutes < 1 ? `${Math.round(c.meta.minutes * 60)}″` : `${c.meta.minutes}′` }),
+          h('span', { class: 'tt', text: m.title }),
+          h('span', { class: 'mn', text: st === 'construction' ? '…' : fiche ? 'FICHE' : m.minutes < 1 ? `${Math.round(m.minutes * 60)}″` : `${m.minutes}′` }),
         );
         b.addEventListener('click', () => this.select(id));
         b.addEventListener('dblclick', () => this.open(id));
         list.append(b);
       }
     }
-    r.replaceChildren(
-      h('div', { class: 'rail-head' }, h('span', { text: '[ LEARN ]' }), h('span', { text: String(COURSES.size).padStart(2, '0') })),
-      h('div', { class: 'rail-prog' }, h('div', { class: 'rp-top' }, h('span', { text: 'COURS TERMINÉS' }), h('span', { class: 'rp-n', text: `${done}/${ready.length}` })), h('div', { class: 'rp-bar' }, h('i', { style: `width:${ready.length ? (100 * done) / ready.length : 0}%` })), h('div', { class: 'rp-rank', text: `TEMPS D’ÉTUDE ${clock(watched)}` })),
-      list,
-      this.railButtons(['COLLE', 'quiz', () => this.colle()], ['EXPLORER', 'target', () => this.host.openExplorer()]),
-    );
   }
 
   private paintPlayRail(): void {
@@ -619,6 +851,8 @@ export class Learn {
       P.replaceChildren();
       return;
     }
+    const fn = this.g?.nodes[this.focus];
+    if (fn && fn.course === this.selected && fn.kind !== 'course') return this.paintNodeCard(this.focus);
     const m = c.meta;
     const st = this.status(m.id);
     const cs = this.progress.course(m.id);
@@ -649,7 +883,8 @@ export class Learn {
         'div',
         { class: 'panel-body lp' },
         h('div', { class: 'ro' }, h('span', { class: 'k', text: 'DURÉE' }), h('span', { class: 'v', text: m.minutes < 1 ? `${Math.round(m.minutes * 60)} s` : c.written ? `lecture ≈ ${m.minutes} min · ${c.exercises.length} exercices (10 min à 1 h+)` : `≈ ${m.minutes} min` })),
-        c.written ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'FORMAT' }), h('span', { class: 'v', text: 'cours écrit, à lire à son rythme' })) : null,
+        c.written ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'FORMAT' }), h('span', { class: 'v', text: m.depth === 'fiche' ? 'fiche : énoncés, méthodes, 3 exercices' : 'cours écrit, à lire à son rythme' })) : null,
+        m.filieres?.length ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'FILIÈRES' }), h('span', { class: 'v', text: m.filieres.join(' · ') })) : null,
         intro && mod ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'MODULE' }), h('span', { class: 'v', text: `${mod.code} · ${mod.title} · ${mod.vizs.length} vues` })) : null,
         intro ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'VOIX' }), h('span', { class: 'v', text: c.voiced ? 'voix off' : 'sous-titres (voix non générée)' })) : null,
         st !== 'construction' && !intro ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'PROGRESSION' }), h('span', { class: 'v', text: cs.done ? 'terminé' : c.written ? (cs.pos > 1 ? `${Math.round(cs.pos)} % lus` : 'pas commencé') : cs.pos > 5 ? `${clock(cs.pos)} vues` : 'pas commencé' })) : null,
@@ -666,6 +901,62 @@ export class Learn {
         m.references?.length ? h('div', { class: 'sec-title', text: 'RÉFÉRENCES' }) : null,
         m.references?.length ? h('ul', { class: 'lp-ref' }, ...m.references.map((r) => h('li', { text: r }))) : null,
       ),
+    );
+  }
+
+  /** card of a chapter or a statement selected in the graph */
+  private paintNodeCard(i: number): void {
+    const g = this.graph();
+    const n = g.nodes[i];
+    const c = COURSES.get(n.course)!;
+    const st = this.status(n.course);
+    const can = st === 'open' || st === 'done';
+    const btn = (label: string, ico: string, fn: () => void, cls = 'btn') => {
+      const b = h('button', { type: 'button', class: cls }, icon(ico), h('span', { text: label }));
+      b.addEventListener('click', () => (sfx.click(), fn()));
+      return b;
+    };
+    const link = (j: number) => {
+      const x = g.nodes[j];
+      const b = h('button', { type: 'button', class: 'tr-cue', title: x.kind === 'course' ? x.title : `${x.title} — ${COURSES.get(x.course)?.meta.title ?? ''}` }, h('span', { class: 'tm', text: nodeTag(x) }), h('span', { class: 'tx', text: x.course === n.course || x.kind === 'course' ? x.title : `${x.title} · ${SHORT(COURSES.get(x.course)?.meta.title ?? '')}` }));
+      b.addEventListener('click', () => this.pickNode(j, true));
+      b.addEventListener('dblclick', () => this.openNode(j));
+      return b;
+    };
+    const ci = g.index.get(courseNode(n.course))!;
+    const action = btn(st === 'construction' ? 'EN CONSTRUCTION' : st === 'locked' ? 'VERROUILLÉ' : n.kind === 'chapter' ? 'LIRE CE CHAPITRE' : 'OUVRIR DANS LE COURS', 'play', () => this.openNode(i), 'btn on');
+    (action as HTMLButtonElement).disabled = !can;
+    action.append(h('span', { class: 'k', text: '⏎' }));
+    const body = h('div', { class: 'panel-body lp' });
+    body.append(h('div', { class: 'sec-title', text: 'COURS' }), link(ci));
+    if (n.kind === 'statement') {
+      const s = c.formulas.statements[n.anchor!];
+      const chi = n.chapter ? g.index.get(chapterNode(n.course, n.chapter)) : undefined;
+      if (chi !== undefined) body.append(h('div', { class: 'sec-title', text: 'CHAPITRE' }), link(chi));
+      if (s) body.append(h('div', { class: 'lx-box lp-st' }, h('div', { class: 'lx-box-head' }, h('span', { class: 'kd', text: STATEMENT_LABEL[s.kind] }), h('span', { class: 'tt', text: s.title })), rich(s.body, 'rich')));
+    } else {
+      const inside = g.adj[i].filter((j) => g.nodes[j].kind === 'statement' && g.nodes[j].chapter === n.anchor && g.nodes[j].course === n.course);
+      if (inside.length) body.append(h('div', { class: 'sec-title', text: `ÉNONCÉS DU CHAPITRE (${inside.length})` }), ...inside.map(link));
+      // a course under construction: the plan of that section
+      const sec = /^plan-(\d+)$/.exec(n.anchor ?? '');
+      const plan = sec ? c.meta.plan?.[Number(sec[1]) - 1] : undefined;
+      if (plan) body.append(h('div', { class: 'sec-title', text: 'PLAN' }), h('ul', { class: 'lp-ref' }, ...plan.items.map((x) => h('li', {}, rich(x, 'inl rich')))));
+    }
+    const out = g.edges.filter((e) => e.kind === 'ref' && e.a === i).map((e) => e.b);
+    const into = g.edges.filter((e) => e.kind === 'ref' && e.b === i).map((e) => e.a);
+    if (out.length) body.append(h('div', { class: 'sec-title', text: 'RENVOIE À' }), ...out.map(link));
+    if (into.length) body.append(h('div', { class: 'sec-title', text: 'CITÉ PAR' }), ...into.map(link));
+    if (!out.length && !into.length && n.kind === 'statement') body.append(h('div', { class: 'dim', text: 'Aucun renvoi pour l’instant.' }));
+    this.host.panel.replaceChildren(
+      h(
+        'div',
+        { class: 'panel-head' },
+        h('div', { class: 'panel-sys' }, h('span', { text: `LEARN // ${n.kind === 'chapter' ? 'CHAPITRE' : STATEMENT_LABEL[n.stKind ?? 'remark']}` }), h('span', { class: 'on', text: st === 'construction' ? 'EN CONSTRUCTION' : st === 'locked' ? 'VERROUILLÉ' : st === 'done' ? 'COURS TERMINÉ' : 'DISPONIBLE' })),
+        h('div', { class: 'panel-title', text: n.title }),
+        h('div', { class: 'panel-sub', text: c.meta.title }),
+        h('div', { class: 'panel-actions' }, action, btn('VOIR LE COURS', 'target', () => this.pickNode(ci, true))),
+      ),
+      body,
     );
   }
 
@@ -816,7 +1107,7 @@ export class Learn {
   /** Ctrl+K entries: courses, chapters, statements (theorems, definitions…) */
   commands(go: (fn: () => void) => void): Command[] {
     const out: Command[] = [];
-    out.push({ id: 'learn:home', label: 'LEARN · ARBRE DES COURS', group: 'LEARN', keywords: 'cours accueil cursus', run: () => go(() => this.home()) });
+    out.push({ id: 'learn:home', label: 'LEARN · GRAPHE DES COURS', group: 'LEARN', keywords: 'cours accueil cursus arbre graphe filière MPSI PCSI PTSI MP2I MP PC PSI PT MPI', run: () => go(() => this.home()) });
     out.push({ id: 'learn:colle', label: 'LEARN · COLLE (EXERCICE CHRONOMÉTRÉ)', group: 'LEARN', keywords: 'colle oral exercice note', run: () => go(() => this.colle()) });
     out.push({ id: 'learn:intros', label: '▶ LES 6 INTROS À LA SUITE (≈ 3 MIN)', group: 'INTROS 30 S', keywords: 'intro intros toutes suite enchaîner playlist vidéos bande-annonce', run: () => go(() => this.playIntros(0)) });
     for (const gdef of GAMES) out.push({ id: `learn:game:${gdef.id}`, label: `◆ JEU · ${gdef.title}`, group: 'JEUX · DÉFIS', keywords: `jeu défi leçon-jeu ${gdef.subtitle} ${gdef.theorem.title}`, run: () => go(() => this.openGame(gdef.id)) });
@@ -853,10 +1144,42 @@ export class Learn {
     if (!this.active) return;
     if (this.player) this.paintPlayRail();
     else if (this.reader) this.paintReadPanel();
-    else {
+    else if (!this.game) {
+      this.recompute();
       this.paintHomeRail();
       this.paintDetails();
     }
+  }
+
+  /** test hook: the home graph; optionally set the filière, search, select or open a node (by id) */
+  graphDebug(cmd: { filiere?: Filiere | 'ALL'; search?: string; pick?: string; open?: string } = {}): { nodes: number; visible: number; edges: number; refs: number; focus: string; rows: number; hits: number; panel: string; katex: number } {
+    const g = this.graph();
+    if (cmd.filiere) {
+      this.filter = { ...this.filter, filiere: cmd.filiere };
+      this.recompute();
+      if (!this.player && !this.reader) this.paintHomeRail();
+    }
+    if (cmd.search !== undefined) {
+      this.query = cmd.search;
+      const input = this.host.rail.querySelector<HTMLInputElement>('.lr-search');
+      if (input) input.value = cmd.search;
+      this.paintHomeList();
+    }
+    const at = (id?: string) => (id ? g.index.get(id) : undefined);
+    if (at(cmd.pick) !== undefined) this.pickNode(at(cmd.pick)!, true);
+    if (at(cmd.open) !== undefined) this.openNode(at(cmd.open)!);
+    const P = this.host.panel;
+    return {
+      nodes: g.nodes.length,
+      visible: this.vis.reduce((s, v) => s + v, 0),
+      edges: g.edges.length,
+      refs: g.edges.filter((e) => e.kind === 'ref').length,
+      focus: g.nodes[this.focus]?.id ?? '',
+      rows: this.host.rail.querySelectorAll('.lr-course').length,
+      hits: this.host.rail.querySelectorAll('.lr-hit').length,
+      panel: P.querySelector('.panel-title')?.textContent ?? '',
+      katex: P.querySelectorAll('.katex').length,
+    };
   }
 }
 

@@ -4,8 +4,16 @@
     { "id": "demo", "title": "DÉMO", "courses": ["demo"] },
     {
       "id": "prepa",
-      "title": "PRÉPA MPSI/MP",
-      "courses": ["suites-series", "riemann", "algebre-lineaire", "reduction", "prehilbertiens", "topologie-evn", "series-entieres", "equations-differentielles"]
+      "title": "PRÉPA CPGE",
+      "courses": [
+        "raisonnement-ensembles", "calculs-algebriques", "nombres-complexes", "techniques-calcul", "suites-series",
+        "limites-continuite", "arithmetique", "structures-algebriques", "calcul-matriciel", "polynomes",
+        "analyse-asymptotique", "geometrie-plan-espace", "algebre-lineaire", "determinants", "riemann",
+        "denombrement", "probabilites-finies", "prehilbertiens", "familles-sommables", "fonctions-deux-variables",
+        "complements-algebre-lineaire", "reduction", "structures-algebriques-2", "endomorphismes-euclidiens", "topologie-evn",
+        "suites-series-fonctions", "series-entieres", "integrales-generalisees", "integrales-parametre", "variables-aleatoires-discretes",
+        "fonctions-vectorielles", "courbes-surfaces", "equations-differentielles", "calcul-differentiel"
+      ]
     },
     {
       "id": "master",

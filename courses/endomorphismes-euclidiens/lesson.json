@@ -1,0 +1,30 @@
+{
+  "id": "endomorphismes-euclidiens",
+  "title": "Endomorphismes des espaces euclidiens",
+  "subtitle": "Adjoint, isométries et matrices orthogonales, rotations du plan et de l'espace, endomorphismes autoadjoints et positifs",
+  "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "PT", "MPI"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 21,
+  "prerequisites": ["prehilbertiens"],
+  "tags": ["adjoint", "isométrie", "matrice orthogonale", "rotation", "théorème spectral", "autoadjoint positif"],
+  "status": "ready",
+  "chapters": [
+    { "id": "adjoint", "title": "Adjoint d'un endomorphisme" },
+    { "id": "isometries", "title": "Isométries et matrices orthogonales" },
+    { "id": "dim-2-3", "title": "Isométries en dimension 2 et 3" },
+    { "id": "autoadjoints", "title": "Endomorphismes autoadjoints" }
+  ],
+  "plan": [
+    { "title": "1. Adjoint d'un endomorphisme (MP, MPI)", "items": ["Existence, unicité, matrice en base orthonormée, orthogonal d'un sous-espace stable"] },
+    { "title": "2. Isométries et matrices orthogonales", "items": ["Caractérisations, $O(n)$ et $SO(n)$, symétries orthogonales et réflexions"] },
+    { "title": "3. Isométries en dimension 2 et 3", "items": ["Rotations et réflexions du plan, rotations de l'espace : axe et angle", "Réduction des isométries (MP, MPI)"] },
+    { "title": "4. Endomorphismes autoadjoints", "items": ["Théorème spectral, endomorphismes positifs et définis positifs (pas en PT)"] }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Algèbre (Ellipses)",
+    "J.-M. Monier, Algèbre MP (Dunod)",
+    "S. Axler, Linear Algebra Done Right, 4e éd., chap. 7 (Springer)"
+  ]
+}

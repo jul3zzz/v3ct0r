@@ -1,0 +1,53 @@
+{
+  "id": "probabilites-finies",
+  "title": "Probabilités sur un univers fini",
+  "subtitle": "Conditionnement, indépendance, variables aléatoires et lois usuelles, espérance, variance, inégalités de Markov et de Bienaymé-Tchebychev",
+  "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 30,
+  "prerequisites": ["denombrement"],
+  "tags": ["probabilité conditionnelle", "Bayes", "indépendance", "loi binomiale", "espérance", "variance", "Bienaymé-Tchebychev"],
+  "status": "ready",
+  "chapters": [
+    { "id": "espaces", "title": "Univers, événements, probabilités" },
+    { "id": "conditionnement", "title": "Conditionnement et indépendance" },
+    { "id": "variables", "title": "Variables aléatoires et lois" },
+    { "id": "esperance", "title": "Espérance, variance, inégalités" }
+  ],
+  "plan": [
+    {
+      "title": "1. Univers, événements, probabilités",
+      "items": [
+        "Vocabulaire, systèmes complets, probabilité sur un univers fini, probabilité uniforme"
+      ]
+    },
+    {
+      "title": "2. Conditionnement et indépendance",
+      "items": [
+        "Probabilités composées, totales, formule de Bayes",
+        "Événements indépendants, indépendance mutuelle"
+      ]
+    },
+    {
+      "title": "3. Variables aléatoires et lois",
+      "items": [
+        "Lois uniforme, de Bernoulli, binomiale ; couples, lois conjointes et marginales",
+        "Variables indépendantes, lemme des coalitions"
+      ]
+    },
+    {
+      "title": "4. Espérance, variance, inégalités",
+      "items": [
+        "Espérance, formule de transfert, variance, covariance",
+        "Inégalités de Markov et de Bienaymé-Tchebychev, loi faible des grands nombres"
+      ]
+    }
+  ],
+  "references": [
+    "J.-F. Delmas, Introduction au calcul des probabilités et à la statistique (Les Presses de l'ENSTA)",
+    "W. Feller, An Introduction to Probability Theory and Its Applications, vol. 1 (Wiley)",
+    "C. Deschamps, A. Warusfel et al., Mathématiques tout-en-un MPSI (Dunod)"
+  ]
+}

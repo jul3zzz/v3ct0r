@@ -1,0 +1,30 @@
+{
+  "id": "calcul-differentiel",
+  "title": "Calcul différentiel et optimisation",
+  "subtitle": "Fonctions de plusieurs variables : différentielle, règle de la chaîne, gradient, théorème de Schwarz, hessienne, extremums",
+  "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "PT", "MPI"],
+  "depth": "complete",
+  "format": "written",
+  "minutes": 21,
+  "prerequisites": ["fonctions-deux-variables"],
+  "tags": ["différentielle", "gradient", "règle de la chaîne", "Schwarz", "hessienne", "extremum", "contrainte"],
+  "status": "ready",
+  "chapters": [
+    { "id": "differentiabilite", "title": "Dérivées partielles et différentielle" },
+    { "id": "chaine-gradient", "title": "Règle de la chaîne et gradient" },
+    { "id": "ordre-2", "title": "Dérivées d'ordre 2 et matrice hessienne" },
+    { "id": "optimisation", "title": "Optimisation" }
+  ],
+  "plan": [
+    { "title": "1. Dérivées partielles et différentielle", "items": ["Dérivée selon un vecteur, différentielle (MP, MPI), fonctions de classe $C^1$"] },
+    { "title": "2. Règle de la chaîne et gradient", "items": ["Composées, matrice jacobienne, gradient, lignes et surfaces de niveau"] },
+    { "title": "3. Dérivées d'ordre 2 et matrice hessienne", "items": ["Classe $C^2$, théorème de Schwarz, formule de Taylor-Young à l'ordre 2"] },
+    { "title": "4. Optimisation", "items": ["Points critiques, conditions d'ordre 2, cas de deux variables", "Extremums sous contrainte (MP, MPI)"] }
+  ],
+  "references": [
+    "X. Gourdon, Les maths en tête — Analyse (Ellipses)",
+    "J.-M. Monier, Analyse MP (Dunod)",
+    "J. Stewart, Calculus: Early Transcendentals, chap. 14 (Cengage)"
+  ]
+}

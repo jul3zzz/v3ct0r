@@ -3,6 +3,8 @@
   "title": "Réduction des endomorphismes",
   "subtitle": "Valeurs propres, polynôme caractéristique, diagonalisation, polynômes annulateurs, Cayley-Hamilton, trigonalisation : les énoncés exacts et leurs preuves.",
   "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "PT", "MPI"],
+  "depth": "complete",
   "minutes": 50,
   "prerequisites": ["algebre-lineaire"],
   "tags": ["valeurs propres", "diagonalisation", "polynôme caractéristique", "Cayley-Hamilton", "lemme des noyaux", "MP"],

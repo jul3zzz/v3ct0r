@@ -385,7 +385,27 @@ await page.evaluate(() => window.__vm.learn());
 await page.waitForTimeout(600);
 const learnHome = await page.evaluate(() => ({ courses: document.querySelectorAll('.lrail .lr-course').length, ready: [...document.querySelectorAll('.lrail .lr-course')].filter((b) => !b.classList.contains('s-construction')).map((b) => b.querySelector('.tt').textContent), learn: document.body.classList.contains('learn') }));
 if (!learnHome.learn || learnHome.courses < 20) errors.push(`[learn] home: ${JSON.stringify(learnHome)}`);
-const introIds = ['intro-integrals', 'intro-4d', 'intro-fractals', 'intro-constants', 'intro-principles', 'intro-probability'];
+// the home graph: every node shown, a filière narrows it, the search finds a statement, its card
+// (with the courses citing it), then a [[reference]] clicked in a written course opens its target
+current = 'learn:graph';
+const gr0 = await page.evaluate(() => window.__vm.learnGraph());
+const gr1 = await page.evaluate(() => window.__vm.learnGraph({ filiere: 'PT' }));
+const gr2 = await page.evaluate(() => window.__vm.learnGraph({ filiere: 'ALL', search: 'bolzano' }));
+const gr3 = await page.evaluate(() => window.__vm.learnGraph({ search: '', pick: 'st:suites-series/thm-bw' }));
+const grCited = await page.evaluate(() => [...document.querySelectorAll('.lpanel .sec-title')].some((x) => x.textContent === 'CITÉ PAR'));
+await page.mouse.move(800, 450);
+await page.waitForTimeout(300);
+await page.evaluate(() => window.__vm.learn('topologie-evn'));
+await page.waitForTimeout(500);
+const xrefs = await page.evaluate(() => document.querySelectorAll('.lw a.xref').length);
+await page.click('.lw a.xref[data-ref="suites-series#thm-bw"]');
+await page.waitForTimeout(700);
+const grJump = await page.evaluate(() => ({ hash: location.hash, box: !!document.querySelector('.lw #lw-st-thm-bw') }));
+const graphOk = gr0.nodes > 250 && gr0.visible === gr0.nodes && gr0.refs >= 5 && gr1.visible < gr0.visible && gr1.rows < gr0.rows && gr2.hits >= 1 && gr3.focus === 'st:suites-series/thm-bw' && gr3.panel.includes('Bolzano') && grCited && xrefs >= 2 && grJump.hash === '#/learn/suites-series' && grJump.box;
+if (!graphOk) errors.push(`[learn] graphe ${JSON.stringify({ gr0, gr1: { visible: gr1.visible, rows: gr1.rows }, hits: gr2.hits, gr3: { focus: gr3.focus, panel: gr3.panel }, grCited, xrefs, grJump })}`);
+await page.evaluate(() => window.__vm.learnGraph({ filiere: 'ALL', search: '' }));
+features.push(`GRAPHE LEARN ${gr0.nodes} nœuds · ${gr0.edges} liens (${gr0.refs} renvois) · filtre PT ${gr1.visible} · renvoi cliqué ${graphOk ? '✓' : '✕'}`);
+const introIds =['intro-integrals', 'intro-4d', 'intro-fractals', 'intro-constants', 'intro-principles', 'intro-probability'];
 const readyIds = ['demo', 'riemann', 'reduction', 'riemann-lebesgue', ...introIds];
 const learnReport = [];
 for (const id of readyIds) {
