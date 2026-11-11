@@ -125,7 +125,7 @@ export const TOURS: Tour[] = [
       },
       {
         title: 'LES LEÇONS-JEUX',
-        text: 'LEARN propose aussi des leçons-jeux : une idée mathématique à pratiquer en 3 niveaux (le duel ε-δ, l’aiguille de Buffon…), un briefing parlé au départ et le théorème exact à la fin. Elles sont dans l’arbre des cours et dans Ctrl+K (« jeu »).',
+        text: 'LEARN propose aussi des leçons-jeux : une idée mathématique à pratiquer en 3 niveaux (le duel ε-δ, l’aiguille de Buffon…), un briefing parlé au départ et le théorème exact à la fin. Elles sont dans la liste de LEARN et dans Ctrl+K (« jeu »).',
         seconds: 30,
       },
       {

@@ -32,7 +32,7 @@ interface LearnState {
 
 declare global {
   interface Window {
-    __vm?: { views: () => string[]; go: (id: string) => boolean; ready: boolean; tours: () => string[]; tour: (id: string) => void; tourNext: () => void; tourState: () => string; unlockAll: () => void; progress: () => string; answers: () => (number | string)[]; missingLabels: () => string[]; learn: (id?: string, t?: number) => void; learnSeek: (t: number) => void; learnState: () => LearnState; learnSheet: () => void; learnColle: () => void; sfxWav: (id: string, mp3s?: Record<string, string>) => Promise<string>; atlas: (uni?: string) => void; atlasState: () => unknown; atlasApproach: (id: string) => boolean; atlasEnter: () => void; gameState: () => unknown; musicState: () => unknown; calc: (text?: string) => unknown; story: (chapter?: string) => unknown; account: () => unknown; notes: (text?: string) => unknown };
+    __vm?: { views: () => string[]; go: (id: string) => boolean; ready: boolean; tours: () => string[]; tour: (id: string) => void; tourNext: () => void; tourState: () => string; unlockAll: () => void; progress: () => string; answers: () => (number | string)[]; missingLabels: () => string[]; learn: (id?: string, t?: number) => void; learnSeek: (t: number) => void; learnState: () => LearnState; learnSheet: () => void; learnColle: () => void; learnGraph: (cmd?: { filiere?: string; search?: string; pick?: string; open?: string }) => unknown; sfxWav: (id: string, mp3s?: Record<string, string>) => Promise<string>; atlas: (uni?: string) => void; atlasState: () => unknown; atlasApproach: (id: string) => boolean; atlasEnter: () => void; gameState: () => unknown; musicState: () => unknown; calc: (text?: string) => unknown; story: (chapter?: string) => unknown; account: () => unknown; notes: (text?: string) => unknown };
   }
 }
 
@@ -96,6 +96,8 @@ async function main(): Promise<void> {
     },
     learnSheet: () => app!.learn.sheet(),
     learnColle: () => app!.learn.colle(),
+    // LEARN home graph: counts, filter, search, select or open a node by id (c:… ch:… st:…)
+    learnGraph: (cmd) => app!.learn.graphDebug(cmd as Parameters<typeof app.learn.graphDebug>[0]),
     // ATLAS: open (optionally a system), state of the ship, put it in front of a body, press ⏎
     atlas: (uni?: string) => app!.openAtlas(uni),
     atlasState: () => app!.atlas.info(),

@@ -3,6 +3,8 @@
   "title": "Topologie des espaces vectoriels normés",
   "subtitle": "Normes, ouverts et fermés, continuité, compacité, dimension finie",
   "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "MPI"],
+  "depth": "complete",
   "format": "written",
   "minutes": 30,
   "prerequisites": [

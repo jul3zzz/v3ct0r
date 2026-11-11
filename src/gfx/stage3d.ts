@@ -13,6 +13,8 @@ export interface Stage3DOptions {
   minDistance?: number;
   maxDistance?: number;
   enablePan?: boolean;
+  /** double-click recenters the camera (default true; off when the view uses double-click itself) */
+  dblclickRecenter?: boolean;
 }
 
 /** Scene + perspective camera + orbit controls (drag: orbit, wheel: zoom, right-drag: pan,
@@ -24,7 +26,7 @@ export class Stage3D {
   private homePos: THREE.Vector3;
   private homeTarget: THREE.Vector3;
   private idleAt = 0;
-  private anim: { t0: number; fromP: THREE.Vector3; fromT: THREE.Vector3 } | null = null;
+  private anim: { t0: number; fromP: THREE.Vector3; fromT: THREE.Vector3; toP: THREE.Vector3; toT: THREE.Vector3; ms: number } | null = null;
   autoRotate: boolean;
 
   constructor(private ctx: VizContext, opts: Stage3DOptions = {}) {
@@ -60,14 +62,29 @@ export class Stage3D {
       this.scene.fog = new THREE.Fog(0x000000, near, far);
     }
     ctx.input.classList.add('grab');
-    ctx.listen(ctx.input, 'dblclick', () => this.recenter());
+    if (opts.dblclickRecenter !== false) ctx.listen(ctx.input, 'dblclick', () => this.recenter());
     ctx.onDispose(() => {
       ctx.input.classList.remove('grab', 'grabbing');
     });
   }
 
   recenter(): void {
-    this.anim = { t0: performance.now(), fromP: this.camera.position.clone(), fromT: this.controls.target.clone() };
+    this.anim = { t0: performance.now(), fromP: this.camera.position.clone(), fromT: this.controls.target.clone(), toP: this.homePos.clone(), toT: this.homeTarget.clone(), ms: 650 };
+  }
+
+  /** glide the orbit centre to `target`, the camera keeping its direction, at `distance` (default: the current one) */
+  flyTo(target: THREE.Vector3, distance?: number, ms = 900): void {
+    const dir = this.camera.position.clone().sub(this.controls.target);
+    const d = distance ?? dir.length();
+    dir.normalize().multiplyScalar(d);
+    this.controls.autoRotate = false;
+    this.idleAt = performance.now();
+    this.anim = { t0: performance.now(), fromP: this.camera.position.clone(), fromT: this.controls.target.clone(), toP: target.clone().add(dir), toT: target.clone(), ms };
+  }
+
+  /** distance from the camera to the orbit centre */
+  get distance(): number {
+    return this.camera.position.distanceTo(this.controls.target);
   }
 
   setHome(pos: [number, number, number], target: [number, number, number] = [0, 0, 0]): void {
@@ -95,10 +112,10 @@ export class Stage3D {
   updateControls(): void {
     const now = performance.now();
     if (this.anim) {
-      const k = Math.min(1, (now - this.anim.t0) / 650);
+      const k = Math.min(1, (now - this.anim.t0) / this.anim.ms);
       const e = 1 - Math.pow(1 - k, 3);
-      this.camera.position.lerpVectors(this.anim.fromP, this.homePos, e);
-      this.controls.target.lerpVectors(this.anim.fromT, this.homeTarget, e);
+      this.camera.position.lerpVectors(this.anim.fromP, this.anim.toP, e);
+      this.controls.target.lerpVectors(this.anim.fromT, this.anim.toT, e);
       if (k >= 1) {
         this.anim = null;
         this.idleAt = now;

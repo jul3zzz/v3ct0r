@@ -3,6 +3,8 @@
   "title": "Équations différentielles linéaires",
   "subtitle": "Premier ordre, systèmes, exponentielle de matrice, portraits de phase",
   "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I", "MP", "PSI", "PT", "MPI"],
+  "depth": "complete",
   "format": "written",
   "minutes": 25,
   "prerequisites": [

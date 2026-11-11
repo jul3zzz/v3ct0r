@@ -24,7 +24,7 @@ $$\|x\|_\infty \le \|x\|_2 \le \|x\|_1 \le n\, \|x\|_\infty, \qquad \|x\|_2 \le 
 Ces trois normes sont donc équivalentes.
 :::
 
-La dernière inégalité est Cauchy-Schwarz appliqué à $(|x_1|, \ldots, |x_n|)$ et $(1, \ldots, 1)$. Des normes équivalentes ont les mêmes suites convergentes, les mêmes parties bornées et, on le verra, les mêmes ouverts : pour la topologie, elles sont interchangeables. En dimension infinie, ce n'est plus vrai : sur $C([0, 1], \mathbb{R})$, la fonction $f_n(t) = t^n$ vérifie $\|f_n\|_\infty = 1$ et $\|f_n\|_1 = \frac{1}{n+1}$, donc aucune constante $\beta$ ne donne $\|f\|_\infty \le \beta \|f\|_1$.
+La dernière inégalité est [[prehilbertiens#thm-cs|Cauchy-Schwarz]] appliqué à $(|x_1|, \ldots, |x_n|)$ et $(1, \ldots, 1)$. Des normes équivalentes ont les mêmes suites convergentes, les mêmes parties bornées et, on le verra, les mêmes ouverts : pour la topologie, elles sont interchangeables. En dimension infinie, ce n'est plus vrai : sur $C([0, 1], \mathbb{R})$, la fonction $f_n(t) = t^n$ vérifie $\|f_n\|_\infty = 1$ et $\|f_n\|_1 = \frac{1}{n+1}$, donc aucune constante $\beta$ ne donne $\|f\|_\infty \le \beta \|f\|_1$.
 
 ::: définition Suites convergentes {#def-cv}
 Une suite $(x_k)$ de $E$ **converge** vers $\ell \in E$ pour la norme $N$ si $N(x_k - \ell) \to 0$. Dans $\mathbb{K}^n$ muni de l'une des normes usuelles, cela équivaut à la convergence de chaque coordonnée.
@@ -106,7 +106,7 @@ Une partie compacte est fermée et bornée. Une partie fermée d'un compact est 
 Dans un espace vectoriel normé de dimension finie, une partie est compacte si et seulement si elle est fermée et bornée.
 :::
 
-Dans $\mathbb{K}^n$ muni de $\|\cdot\|_\infty$, c'est le théorème de Bolzano-Weierstrass appliqué coordonnée par coordonnée : on extrait une sous-suite dont la première coordonnée converge, puis une sous-suite de celle-ci dont la deuxième converge, et ainsi de suite. En dimension infinie, la boule unité fermée n'est jamais compacte : dans $C([0,1])$ muni de $\|\cdot\|_\infty$, la suite $f_n(t) = t^n$, de norme $1$, n'a aucune sous-suite convergente.
+Dans $\mathbb{K}^n$ muni de $\|\cdot\|_\infty$, c'est le [[suites-series#thm-bw|théorème de Bolzano-Weierstrass]] appliqué coordonnée par coordonnée : on extrait une sous-suite dont la première coordonnée converge, puis une sous-suite de celle-ci dont la deuxième converge, et ainsi de suite. En dimension infinie, la boule unité fermée n'est jamais compacte : dans $C([0,1])$ muni de $\|\cdot\|_\infty$, la suite $f_n(t) = t^n$, de norme $1$, n'a aucune sous-suite convergente.
 
 ::: théorème Image continue d'un compact {#thm-image-compact}
 L'image d'un compact par une application continue est compacte. En particulier, une fonction continue $f : K \to \mathbb{R}$ sur un compact non vide est **bornée et atteint ses bornes**.

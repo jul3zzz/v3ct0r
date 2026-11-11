@@ -3,6 +3,8 @@
   "title": "Suites et séries numériques",
   "subtitle": "Limites, vitesses de convergence, séries : le socle de l’analyse",
   "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "complete",
   "format": "written",
   "minutes": 55,
   "prerequisites": [],

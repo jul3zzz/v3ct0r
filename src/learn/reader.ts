@@ -90,7 +90,7 @@ export class Reader {
       b.addEventListener('click', fn);
       return b;
     };
-    page.append(h('footer', { class: 'lw-end' }, h('div', { class: 'lw-k', text: 'FIN DU COURS' }), h('div', { class: 'lw-btns' }, btn('FICHE RÉCAPITULATIVE (PDF)', 'download', () => o.sheet()), btn('COLLE', 'quiz', () => o.colle()), btn('ARBRE DES COURS', 'grid', () => o.home()))));
+    page.append(h('footer', { class: 'lw-end' }, h('div', { class: 'lw-k', text: 'FIN DU COURS' }), h('div', { class: 'lw-btns' }, btn('FICHE RÉCAPITULATIVE (PDF)', 'download', () => o.sheet()), btn('COLLE', 'quiz', () => o.colle()), btn('GRAPHE DES COURS', 'grid', () => o.home()))));
 
     this.el = h('div', { class: 'lw', tabindex: '-1' }, page);
     host.append(this.el);

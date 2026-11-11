@@ -2,6 +2,7 @@
 import katex from 'katex';
 import { h } from '../hud/dom';
 import { tokenize } from './script';
+import { refKey, refLabel, splitRefs } from './refs';
 import type { Token } from './types';
 
 /** `[[key:content]]` tags a term for morphing/highlighting: becomes \htmlData{m=key}{content}. */
@@ -76,13 +77,20 @@ function appendInline(tokens: Token[], root: HTMLElement, displayBlocks: boolean
       continue;
     }
     if (t.t !== 'text') continue;
-    // split on `code`, ** and * (a single * followed by a space is a plain star)
-    for (const part of t.s.split(/(`[^`]+`|\*\*|\*(?=\S)|(?<=\S)\*)/)) {
-      if (!part) continue;
-      if (part === '**') toggle('strong');
-      else if (part === '*') toggle('em');
-      else if (part.startsWith('`') && part.endsWith('`') && part.length > 1) top().append(h('code', { text: part.slice(1, -1) }));
-      else top().append(part);
+    for (const run of splitRefs(t.s)) {
+      // [[course#anchor|label]]: a link (handled by LEARN through a delegated click)
+      if (typeof run !== 'string') {
+        top().append(h('a', { class: 'xref', href: `#/learn/${run.course}`, 'data-ref': refKey(run), text: refLabel(run) }));
+        continue;
+      }
+      // split on `code`, ** and * (a single * followed by a space is a plain star)
+      for (const part of run.split(/(`[^`]+`|\*\*|\*(?=\S)|(?<=\S)\*)/)) {
+        if (!part) continue;
+        if (part === '**') toggle('strong');
+        else if (part === '*') toggle('em');
+        else if (part.startsWith('`') && part.endsWith('`') && part.length > 1) top().append(h('code', { text: part.slice(1, -1) }));
+        else top().append(part);
+      }
     }
   }
 }
@@ -115,7 +123,7 @@ function paragraph(s: string, tag: 'p' | 'li'): HTMLElement {
   return el;
 }
 
-/** Plain text of tokens (search index, aria). */
+/** Plain text of tokens (search index, aria); references read as their label. */
 export function plain(tokens: Token[]): string {
-  return tokens.map((t) => (t.t === 'text' ? t.s : t.t === 'math' ? t.tex : '')).join('');
+  return tokens.map((t) => (t.t === 'text' ? splitRefs(t.s).map((p) => (typeof p === 'string' ? p : refLabel(p))).join('') : t.t === 'math' ? t.tex : '')).join('');
 }

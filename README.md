@@ -115,7 +115,8 @@ Conception complète, trame des 7 actes, jeux d'époque, pièces du vaisseau et 
 
 ## V3CT0R LEARN
 
-Cours de mathématiques de niveau prépa MPSI/MP jusqu'au doctorat, en séances de 30 min à 1 h : énoncés, théorie,
+Cours de mathématiques de la prépa scientifique (toutes filières : MPSI, PCSI, PTSI, MP2I puis MP, PC, PSI, PT, MPI)
+jusqu'au doctorat, en séances de 30 min à 1 h : énoncés, théorie,
 démonstrations, exemples, exercices progressifs, corrections détaillées. Les explications sont du **motion design**
 synchronisé avec une voix off (ElevenLabs, générée à l'avance) : équations écrites symbole par symbole, transformées
 l'une en l'autre, encadrés THÉORÈME / DÉFINITION / PREUVE / REMARQUE, tracés, grilles déformées par une application
@@ -141,7 +142,7 @@ le même moteur et la même voix que les cours, sous-titres compris.
   « INTROS · 30 S » de l'accueil LEARN, Ctrl+K « intro ». Un clic lance la lecture ; l'écran de fin propose
   **EXPLORER LE MODULE →**.
 - **Fichiers** : `courses/intro-<module>/` (`lesson.json` avec `"level": "intro"`, `"module"`, `"minutes": 0.5` ;
-  `script.md` ; `review.md` ; `formulas.json` si une formule est écrite). Hors de l'arbre des cours et de
+  `script.md` ; `review.md` ; `formulas.json` si une formule est écrite). Hors du graphe des cours et de
   `curriculum.json` ; pas d'exercice. `npm test` vérifie une intro par module, des scènes du module, 24 à 36 s.
 - **Bruitages au premier plan** (`"soundtrack": true`, `src/learn/soundtrack.ts`) : nappe grave continue, glitch et
   impact sur le titre, « whoosh » panoramique à chaque rideau, impact sourd à chaque changement de vue, clics des
@@ -196,8 +197,19 @@ qui s'ouvrent dans le navigateur (connexion requise) : l'application reste hors 
   inchangés) ; `-- --write` met à jour titres, chaînes et durées. Liste vérifiée le 2026-11-08.
 - Ajouter une vidéo : son `id` et sa `lang` dans la vue voulue, puis `npm run videos:check -- --write`.
 
-- **Accueil** : arbre des cours en graphe 3D fil de fer (nœuds = cours, arêtes = prérequis ; clic = détails,
-  double-clic ou `⏎` = ouvrir) et liste accessible au clavier dans le rail.
+- **Accueil : le graphe des cours**, en 3D, à la manière du graphe d'Obsidian. Un point par cours (icosaèdre fil de
+  fer), par chapitre (anneau) et par énoncé (disque : théorème, proposition ; anneau fin : définition ; losange :
+  méthode). Les traits : appartenance (énoncé → chapitre → cours), prérequis entre cours, et **renvois** entre
+  énoncés (pointillés). Disposition déterministe (chaque cours forme un amas ; la prépa en bas, le doctorat en
+  haut). Survol = le nœud et ses voisins s'allument, le reste s'éteint ; clic = sa fiche dans le panneau (un énoncé
+  s'y lit en entier, avec « RENVOIE À » et « CITÉ PAR ») ; double-clic ou `⏎` = l'ouvrir dans son cours (au bon
+  chapitre, au bon énoncé) ; double-clic dans le vide = recadrer. Luminosité = progression.
+- **Rail** : recherche (cours, chapitres, énoncés, accents ignorés ; la caméra vole vers le résultat), filtres
+  **filière** (une parmi les 9, ou toutes), niveaux, chapitres et énoncés (mémorisés), puis la liste des cours par
+  année (PRÉPA · 1re ANNÉE / 2e ANNÉE, ou la filière choisie), accessible au clavier.
+- **Renvois** : dans tout texte de cours (hors formules), `[[cours]]`, `[[cours#id]]` (un chapitre ou un énoncé,
+  par son `{#id}`) ou `[[cours#id|texte affiché]]` devient un lien cliquable et une arête du graphe ; sans texte,
+  le lien affiche le titre de la cible. `npm test` vérifie que chaque renvoi pointe quelque part.
 - **Déblocage** : un cours s'ouvre quand ses prérequis *disponibles* sont terminés (les prérequis en construction ne
   bloquent pas). Le mode libre de l'explorateur (Ctrl+K) ouvre tout.
 - **Lecteur** : lecture/pause, vitesses 0,75× à 2×, barre de temps avec chapitres et exercices, chapitres cliquables,
@@ -221,14 +233,17 @@ qui s'ouvrent dans le navigateur (connexion requise) : l'application reste hors 
 | `C` | Sous-titres |
 | `B` | Bruitages on/off (intros) |
 | `F` | Plein écran |
-| `Échap` | Fermer l'exercice / retour à l'arbre |
+| `Échap` | Fermer l'exercice / retour au graphe |
 
 ### Ajouter un cours
 
 1. Créer `courses/<id>/` et l'ajouter dans `courses/curriculum.json` (niveau et ordre).
 2. `lesson.json` : `id`, `title`, `level` (`prepa` · `master` · `doctorat`), `minutes`, `prerequisites`, `tags`,
    `status` (`ready` ou `construction`), `chapters` (`id`, `title`), `plan` (obligatoire en construction),
-   `references` (ouvrages classiques réels uniquement).
+   `references` (ouvrages classiques réels uniquement). Prépa : `filieres` (celles dont le programme officiel
+   couvre le cours, dans l'ordre MPSI, PCSI, PTSI, MP2I, MP, PC, PSI, PT, MPI ; l'année s'en déduit : 1re si une
+   filière de 1re année l'a) et `depth` (`complete`, ou `fiche` : énoncés, méthodes et un exercice de chaque
+   longueur).
 3. `formulas.json` : `eq` (formules LaTeX nommées ; `[[clé:…]]` marque un terme pour la transformation et le
    surlignage), `statements` (`kind` : definition, theorem, proposition, lemma, corollary, proof, remark, example,
    method ; `title` ; `body` en Markdown + `$…$` / `$$…$$`), `recap` (formules de la fiche).
@@ -449,7 +464,8 @@ src/
 └─ learn/             V3CT0R LEARN : types, script (parseur de script.md), speak (LaTeX → français parlé),
                       clips (clips audio, sous-titres, timeline), courses (chargement au build), stage
                       (primitives d'animation, pures en fonction du temps), scene (pilotage des vues),
-                      player (horloge calée sur la voix, barre, pauses exercice), tree (arbre 3D), exercise,
+                      player (horloge calée sur la voix, barre, pauses exercice), graph (graphe des cours,
+                      pur, testé), layout (disposition 3D déterministe), graph-view (rendu), refs ([[renvois]]), exercise,
                       colle, sheet (fiche PDF), progress, learn (contrôleur), learn.css
 courses/              un dossier par cours + curriculum.json + pronunciation.fr.json
 electron/             main.cjs : l’app de bureau (fenêtre, liens vers le navigateur) ; electron-builder.yml : installeur

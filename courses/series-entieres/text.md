@@ -35,10 +35,10 @@ Les trois séries $\sum z^n$, $\sum \frac{z^n}{n}$ et $\sum \frac{z^n}{n^2}$ ont
 - Les séries $\sum a_n z^n$ et $\sum n a_n z^n$ ont le même rayon.
 :::
 
-La règle de d'Alembert s'applique à la série $\sum |a_n| r^n$ : son quotient tend vers $\ell r$. On en tire que $\sum \frac{z^n}{n!}$ a un rayon infini et que $\sum n! z^n$ a un rayon nul. Quand des puissances manquent, comme dans $\sum \frac{z^{2n}}{4^n}$, on ne peut pas appliquer la règle aux coefficients ; on l'applique au terme général, ou l'on pose $w = z^2$. La dernière propriété dit que dériver terme à terme ne change pas le rayon.
+La [[suites-series#thm-dalembert|règle de d'Alembert]] s'applique à la série $\sum |a_n| r^n$ : son quotient tend vers $\ell r$. On en tire que $\sum \frac{z^n}{n!}$ a un rayon infini et que $\sum n! z^n$ a un rayon nul. Quand des puissances manquent, comme dans $\sum \frac{z^{2n}}{4^n}$, on ne peut pas appliquer la règle aux coefficients ; on l'applique au terme général, ou l'on pose $w = z^2$. La dernière propriété dit que dériver terme à terme ne change pas le rayon.
 
 ::: proposition Opérations {#prop-operations-se}
-Si $\sum a_n z^n$ et $\sum b_n z^n$ ont pour rayons $R_a$ et $R_b$, la somme $\sum (a_n + b_n) z^n$ et le produit de Cauchy $\sum c_n z^n$, avec $c_n = \sum_{k=0}^{n} a_k b_{n-k}$, ont un rayon au moins égal à $\min(R_a, R_b)$, et pour $|z| < \min(R_a, R_b)$ :
+Si $\sum a_n z^n$ et $\sum b_n z^n$ ont pour rayons $R_a$ et $R_b$, la somme $\sum (a_n + b_n) z^n$ et le [[suites-series#thm-produit-cauchy|produit de Cauchy]] $\sum c_n z^n$, avec $c_n = \sum_{k=0}^{n} a_k b_{n-k}$, ont un rayon au moins égal à $\min(R_a, R_b)$, et pour $|z| < \min(R_a, R_b)$ :
 $$\sum (a_n + b_n) z^n = \sum a_n z^n + \sum b_n z^n, \qquad \sum c_n z^n = \Big(\sum a_n z^n\Big)\Big(\sum b_n z^n\Big).$$
 :::
 
@@ -94,7 +94,7 @@ Pour développer une fonction $f$ en série entière :
 1. trouver une équation différentielle linéaire simple vérifiée par $f$, avec ses conditions initiales ;
 2. chercher une solution $\sum a_n x^n$ de rayon $R > 0$ : l'équation devient une relation de récurrence entre les $a_n$ ;
 3. résoudre la récurrence, puis calculer le rayon de la série obtenue ;
-4. conclure par unicité de la solution du problème de Cauchy sur $]-R, R[$.
+4. conclure par unicité de la solution du problème de Cauchy ([[equations-differentielles#thm-cl]]) sur $]-R, R[$.
 :::
 
 Exemple : $f(x) = (1 + x)^\alpha$ vérifie $(1 + x) f'(x) = \alpha f(x)$ et $f(0) = 1$. En reportant $\sum a_n x^n$, on trouve $(n + 1) a_{n+1} + n a_n = \alpha a_n$, soit $a_{n+1} = \frac{\alpha - n}{n + 1} a_n$ ; la série a pour rayon $1$ si $\alpha \notin \mathbb{N}$, par d'Alembert, et sa somme, solution du même problème de Cauchy, est $f$.

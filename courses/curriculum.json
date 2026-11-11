@@ -4,7 +4,7 @@
     { "id": "demo", "title": "DÉMO", "courses": ["demo"] },
     {
       "id": "prepa",
-      "title": "PRÉPA MPSI/MP",
+      "title": "PRÉPA CPGE",
       "courses": ["suites-series", "riemann", "algebre-lineaire", "reduction", "prehilbertiens", "topologie-evn", "series-entieres", "equations-differentielles"]
     },
     {

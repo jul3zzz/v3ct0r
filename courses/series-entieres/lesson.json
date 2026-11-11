@@ -3,6 +3,8 @@
   "title": "Séries entières",
   "subtitle": "Rayon, régularité, développements, exponentielle complexe",
   "level": "prepa",
+  "filieres": ["MP", "PC", "PSI", "PT", "MPI"],
+  "depth": "complete",
   "format": "written",
   "minutes": 25,
   "prerequisites": [

@@ -3,6 +3,8 @@
   "title": "L'intégrale de Riemann, construite proprement",
   "subtitle": "Des fonctions en escalier aux sommes de Riemann et au théorème fondamental de l'analyse : définitions exactes, preuves complètes.",
   "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "PTSI", "MP2I"],
+  "depth": "complete",
   "minutes": 45,
   "prerequisites": ["suites-series"],
   "tags": ["intégrale", "fonctions en escalier", "Darboux", "sommes de Riemann", "primitive", "MPSI"],

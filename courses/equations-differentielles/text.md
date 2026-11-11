@@ -85,7 +85,7 @@ $$X(t) = e^{(t - t_0)A} X_0 + \int_{t_0}^{t} e^{(t - s)A}\, B(s)\,ds \qquad \tex
 ::: méthode Calculer e^(tA) {#meth-calcul-expm}
 Pour calculer $e^{tA}$ :
 
-1. si $A$ est diagonalisable, $A = P D P^{-1}$ avec $D = \operatorname{diag}(\lambda_i)$, alors $e^{tA} = P \operatorname{diag}(e^{\lambda_i t}) P^{-1}$ ; les solutions sont des combinaisons de $e^{\lambda_i t} V_i$, où $V_i$ est un vecteur propre ;
+1. si $A$ est [[reduction#def-diag|diagonalisable]], $A = P D P^{-1}$ avec $D = \operatorname{diag}(\lambda_i)$, alors $e^{tA} = P \operatorname{diag}(e^{\lambda_i t}) P^{-1}$ ; les solutions sont des combinaisons de $e^{\lambda_i t} V_i$, où $V_i$ est un vecteur propre ;
 2. si $A = \lambda I_n + N$ avec $N$ nilpotente ($N^m = 0$), alors, $\lambda I_n$ et $N$ commutant, $e^{tA} = e^{\lambda t} \sum_{k < m} \frac{t^k N^k}{k!}$ : des polynômes en $t$ apparaissent ;
 3. dans le cas général, on trigonalise (ou l'on utilise la décomposition de Dunford) et l'on combine les deux cas précédents.
 :::

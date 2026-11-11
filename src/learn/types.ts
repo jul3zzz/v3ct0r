@@ -31,7 +31,24 @@ export interface LessonMeta {
   voiceVolume?: number;
   /** "written": a text read on screen (text.md) with exercises by length; default: a narrated video */
   format?: 'video' | 'written';
+  /** level "prepa": the CPGE tracks whose official programme covers this course (BO 2021) */
+  filieres?: Filiere[];
+  /** "fiche": statements, methods and 3 exercises (one per length); default "complete" */
+  depth?: 'complete' | 'fiche';
 }
+
+/** CPGE scientific tracks: first year, then second year */
+export type Filiere = 'MPSI' | 'PCSI' | 'PTSI' | 'MP2I' | 'MP' | 'PC' | 'PSI' | 'PT' | 'MPI';
+export const FILIERES_1: readonly Filiere[] = ['MPSI', 'PCSI', 'PTSI', 'MP2I'];
+export const FILIERES_2: readonly Filiere[] = ['MP', 'PC', 'PSI', 'PT', 'MPI'];
+export const FILIERES: readonly Filiere[] = [...FILIERES_1, ...FILIERES_2];
+
+/** year of a filière (1 or 2) */
+export const filiereYear = (f: Filiere): 1 | 2 => (FILIERES_1.includes(f) ? 1 : 2);
+
+/** year in which a prépa course is first met (1 if any first-year track has it); 0 outside prépa */
+export const courseYear = (m: Pick<LessonMeta, 'level' | 'filieres'>): 0 | 1 | 2 =>
+  m.level !== 'prepa' ? 0 : (m.filieres ?? []).some((f) => filiereYear(f) === 1) ? 1 : 2;
 
 export type StatementKind = 'definition' | 'theorem' | 'proposition' | 'lemma' | 'corollary' | 'proof' | 'remark' | 'example' | 'method';
 
@@ -130,7 +147,7 @@ export interface Alignment {
 export const LEVEL_LABEL: Record<Level, string> = {
   intro: 'INTRO 30 S',
   demo: 'DÉMO',
-  prepa: 'PRÉPA MPSI/MP',
+  prepa: 'PRÉPA CPGE',
   master: 'LICENCE / MASTER',
   doctorat: 'DOCTORAT',
 };

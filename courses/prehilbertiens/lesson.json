@@ -3,6 +3,8 @@
   "title": "Espaces préhilbertiens et euclidiens",
   "subtitle": "Produit scalaire, orthogonalité, isométries, théorème spectral",
   "level": "prepa",
+  "filieres": ["MPSI", "PCSI", "MP2I", "MP", "PC", "PSI", "PT", "MPI"],
+  "depth": "complete",
   "format": "written",
   "minutes": 30,
   "prerequisites": [
