@@ -61,9 +61,10 @@ const SHOWN_LEVELS: [Level, string][] = [['prepa', 'PRÉPA'], ['master', 'MASTER
 /** the saved filter, checked field by field (an old or damaged value falls back to the default) */
 function loadFilter(): GraphFilter {
   const f = store.get<Partial<GraphFilter>>(FILTER_KEY, {});
+  const levels = Array.isArray(f.levels) ? f.levels.filter((l) => SHOWN_LEVELS.some(([x]) => x === l)) : [];
   return {
     filiere: f.filiere && (f.filiere === 'ALL' || FILIERES.includes(f.filiere)) ? f.filiere : DEFAULT_FILTER.filiere,
-    levels: Array.isArray(f.levels) ? f.levels.filter((l) => SHOWN_LEVELS.some(([x]) => x === l)) : [...DEFAULT_FILTER.levels],
+    levels: levels.length ? levels : [...DEFAULT_FILTER.levels],
     chapters: typeof f.chapters === 'boolean' ? f.chapters : DEFAULT_FILTER.chapters,
     statements: typeof f.statements === 'boolean' ? f.statements : DEFAULT_FILTER.statements,
   };
@@ -76,7 +77,7 @@ export class Learn {
   readonly progress = new LearnProgress();
   private player: Player | null = null;
   private reader: Reader | null = null;
-  private selected = 'riemann';
+  private selected = '';
   private tab: 'transcript' | 'exercises' | 'info' = 'transcript';
   private transcriptEls: HTMLElement[] = [];
   private chapterEls = new Map<string, HTMLElement>();
@@ -99,7 +100,9 @@ export class Learn {
   active = false;
 
   constructor(private host: LearnHost) {
-    if (!COURSES.has(this.selected)) this.selected = [...COURSES.keys()][0] ?? '';
+    // first selection: the first course of the curriculum that can be read now (not the demo)
+    const curriculum = TRACKS.filter((t) => t.id !== 'demo').flatMap((t) => t.courses);
+    this.selected = curriculum.find((id) => this.status(id) === 'open') ?? curriculum.find((id) => COURSES.has(id)) ?? [...COURSES.keys()][0] ?? '';
     this.graphView = graphViz({
       graph: () => this.graph(),
       layout: () => this.layout(),
@@ -710,7 +713,8 @@ export class Learn {
     };
     const fil = (x: Filiere) => chip(x, f.filiere === x, `Seulement les cours du programme ${x} (${filiereYear(x)}${filiereYear(x) === 1 ? 're' : 'e'} année)`, () => (this.filter = { ...f, filiere: f.filiere === x ? 'ALL' : x }));
     const toggle = <K extends 'chapters' | 'statements'>(k: K, label: string, title: string) => chip(label, f[k], title, () => (this.filter = { ...f, [k]: !f[k] }));
-    const level = ([lv, label]: [Level, string]) => chip(label, f.levels.includes(lv), `Montrer les cours ${LEVEL_LABEL[lv]}`, () => (this.filter = { ...f, levels: f.levels.includes(lv) ? f.levels.filter((x) => x !== lv) : [...f.levels, lv] }));
+    // at least one level stays shown (an empty graph would look broken)
+    const level = ([lv, label]: [Level, string]) => chip(label, f.levels.includes(lv), `Montrer les cours ${LEVEL_LABEL[lv]}`, () => (this.filter = { ...f, levels: !f.levels.includes(lv) ? [...f.levels, lv] : f.levels.length > 1 ? f.levels.filter((x) => x !== lv) : f.levels }));
     return h(
       'div',
       { class: 'lr-filters', role: 'group', 'aria-label': 'Filtres du graphe' },
@@ -739,8 +743,10 @@ export class Learn {
     list.replaceChildren();
     const g = this.graph();
     if (this.query.trim()) {
-      const hits = searchGraph(g, this.query, (i) => !!this.vis[i] || courseVisible(g.nodes[i], this.filter), 40);
-      list.append(h('div', { class: 'lr-track', text: hits.length ? `${hits.length >= 40 ? '40+' : hits.length} RÉSULTAT${hits.length > 1 ? 'S' : ''}` : 'AUCUN RÉSULTAT' }));
+      // only what the graph shows (a hidden node could not be lit or reached), 40 at most
+      const found = searchGraph(g, this.query, (i) => !!this.vis[i], 41);
+      const hits = found.slice(0, 40);
+      list.append(h('div', { class: 'lr-track', text: hits.length ? `${found.length > 40 ? '40+' : hits.length} RÉSULTAT${hits.length > 1 ? 'S' : ''}` : 'AUCUN RÉSULTAT' }));
       const courseTitle = (id: string) => SHORT(COURSES.get(id)?.meta.title ?? id);
       for (const i of hits) {
         const n = g.nodes[i];
