@@ -21,6 +21,9 @@ export interface ReaderHooks {
 
 const LEVEL_NAMES = ['', ...WRITTEN_LEVELS.map((l) => l.label)];
 
+// "1 SIMPLE", "2 SIMPLES": French plural, singular up to 1.
+const count = (n: number, word: string): string => `${n} ${word}${n > 1 ? 'S' : ''}`;
+
 export class Reader {
   readonly el: HTMLElement;
   private sections: { id: string; el: HTMLElement }[] = [];
@@ -42,7 +45,7 @@ export class Reader {
         h('div', { class: 'lw-sys' }, h('span', { text: `LEARN // ${LEVEL_LABEL[m.level]} // COURS ÉCRIT` }), h('span', { text: `LECTURE ≈ ${readingMinutes(w)} MIN` })),
         h('h1', { class: 'lw-title', text: m.title }),
         m.subtitle ? h('div', { class: 'lw-sub', text: m.subtitle }) : null,
-        h('div', { class: 'lw-meta', text: `${w.chapters.length} CHAPITRES · ${Object.keys(c.formulas.statements).length} ÉNONCÉS · EXERCICES : ${counts[0]} SIMPLES, ${counts[1]} MOYENS, ${counts[2]} COMPLEXES` }),
+        h('div', { class: 'lw-meta', text: `${count(w.chapters.length, 'CHAPITRE')} · ${count(Object.keys(c.formulas.statements).length, 'ÉNONCÉ')} · EXERCICES : ${count(counts[0], 'SIMPLE')}, ${count(counts[1], 'MOYEN')}, ${count(counts[2], 'COMPLEXE')}` }),
       ),
     );
     const toc = h('ol', { class: 'lw-toc' });
