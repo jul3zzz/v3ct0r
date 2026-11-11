@@ -104,7 +104,8 @@ export function graphViz(hooks: GraphHooks): VizDef {
         const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), view).normalize();
         const up = new THREE.Vector3().crossVectors(view, right);
         const tv = Math.tan((45 * Math.PI) / 360);
-        const th = tv * aspect;
+        // a pane not laid out yet (0 px wide) is framed as a landscape one; resize() frames it again
+        const th = tv * (aspect > 0.05 ? aspect : 1.6);
         let d = 4;
         const rel = new THREE.Vector3();
         for (let i = 0; i < N; i++) {
@@ -116,7 +117,8 @@ export function graphViz(hooks: GraphHooks): VizDef {
       };
       const D = fit(ctx.width / Math.max(1, ctx.height));
       const homeAt = (d: number): [number, number, number] => [centre.x + view.x * d, centre.y + view.y * d, centre.z + view.z * d];
-      const fog: [number, number] = [D * 0.6, D * 1.9];
+      const fogAt = (d: number): [number, number] => [d * 0.6, d * 1.9];
+      const fog = fogAt(D);
       const st = new Stage3D(ctx, { position: homeAt(D), target: [centre.x, centre.y, centre.z], fog, rotateSpeed: 0.25, maxDistance: D * 1.8, minDistance: 0.6, dblclickRecenter: false });
 
       // ── courses: wireframe solids ──
@@ -408,8 +410,14 @@ export function graphViz(hooks: GraphHooks): VizDef {
         },
         resize(w, h) {
           st.resize(w, h);
-          // the recenter (double-click on empty space) frames the whole graph again at the new size
-          st.setHome(homeAt(fit(w / Math.max(1, h))), [centre.x, centre.y, centre.z]);
+          // at the new size: the recenter (double-click on empty space) frames the whole graph again,
+          // zooming out may reach it, and the fog fades from the same distance
+          const d = fit(w / Math.max(1, h));
+          st.setHome(homeAt(d), [centre.x, centre.y, centre.z]);
+          st.controls.maxDistance = d * 1.8;
+          const [near, far] = fogAt(d);
+          if (st.scene.fog instanceof THREE.Fog) [st.scene.fog.near, st.scene.fog.far] = [near, far];
+          pmat.uniforms.fogRange.value.set(near, far);
           pmat.uniforms.dpr.value = ctx.renderer.getPixelRatio();
         },
         dispose() {

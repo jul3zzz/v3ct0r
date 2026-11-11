@@ -95,7 +95,8 @@ $$\ln(1 + x) = \sum_{k=1}^{n} \frac{(-1)^{k+1}x^k}{k} + o(x^n),$$
 $$\cos x = \sum_{k=0}^{n} \frac{(-1)^k x^{2k}}{(2k)!} + o(x^{2n+1}),$$
 $$\sin x = \sum_{k=0}^{n} \frac{(-1)^k x^{2k+1}}{(2k+1)!} + o(x^{2n+2}),$$
 les mêmes sans les signes $(-1)^k$ pour $\operatorname{ch}$ et $\operatorname{sh}$, puis
-$$(1 + x)^\alpha = \sum_{k=0}^{n} \binom{\alpha}{k} x^k + o(x^n), \qquad \binom{\alpha}{k} = \frac{\alpha(\alpha - 1)\cdots(\alpha - k + 1)}{k!},$$
+$$(1 + x)^\alpha = \sum_{k=0}^{n} \binom{\alpha}{k} x^k + o(x^n), \qquad \text{où}$$
+$$\binom{\alpha}{k} = \frac{\alpha(\alpha - 1)\cdots(\alpha - k + 1)}{k!},$$
 $$\operatorname{Arctan} x = \sum_{k=0}^{n} \frac{(-1)^k x^{2k+1}}{2k+1} + o(x^{2n+2}),$$
 et enfin $\tan x = x + \frac{x^3}{3} + o(x^3)$.
 :::

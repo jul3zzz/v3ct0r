@@ -142,7 +142,8 @@ Quand une somme pose problème, on revient aux développements avec des $o$, qui
 
 ::: proposition Équivalents usuels {#prop-usuels}
 Si $x_n \to 0$, avec $x_n \neq 0$ :
-$$\sin x_n \sim x_n, \qquad \tan x_n \sim x_n, \qquad \ln(1 + x_n) \sim x_n, \qquad e^{x_n} - 1 \sim x_n,$$
+$$\sin x_n \sim x_n, \qquad \tan x_n \sim x_n,$$
+$$\ln(1 + x_n) \sim x_n, \qquad e^{x_n} - 1 \sim x_n,$$
 $$1 - \cos x_n \sim \frac{x_n^2}{2}, \qquad (1 + x_n)^\alpha - 1 \sim \alpha\, x_n \quad (\alpha \neq 0).$$
 :::
 

@@ -41,7 +41,8 @@ Conditionner, c'est restreindre l'univers à $B$ et renormaliser. Dans un modèl
 
 ::: théorème Formule des probabilités composées {#thm-composees}
 Si $P(A_1 \cap \cdots \cap A_{m-1}) > 0$,
-$$P(A_1 \cap \cdots \cap A_m) = P(A_1)\,P(A_2 \mid A_1) \cdots P(A_m \mid A_1 \cap \cdots \cap A_{m-1}).$$
+$$P(A_1 \cap \cdots \cap A_m) = P(A_1) \prod_{k=2}^{m} P(A_k \mid A_1 \cap \cdots \cap A_{k-1}),$$
+c'est-à-dire $P(A_1)\,P(A_2 \mid A_1) \cdots P(A_m \mid A_1 \cap \cdots \cap A_{m-1})$.
 :::
 
 C'est la règle des **arbres** : on multiplie les probabilités le long d'une branche. Exemple : on tire successivement sans remise deux boules d'une urne contenant $3$ rouges et $2$ noires ; $P(R_1 \cap R_2) = \frac35 \cdot \frac24 = \frac{3}{10}$.

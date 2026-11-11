@@ -79,7 +79,9 @@ $$p_F(x) = \sum_{i=1}^{k} \langle x, e_i \rangle\, e_i.$$
 
 ::: théorème Distance à un sous-espace {#thm-distance}
 Soit $F$ un sous-espace de dimension finie et $x \in E$. Le vecteur $p_F(x)$ est l'**unique** élément de $F$ le plus proche de $x$ :
-$$d(x, F) = \min_{y \in F} \|x - y\| = \|x - p_F(x)\|, \qquad \|x - y\|^2 = \|x - p_F(x)\|^2 + \|p_F(x) - y\|^2 \ \text{ pour tout } y \in F.$$
+$$d(x, F) = \min_{y \in F} \|x - y\| = \|x - p_F(x)\|,$$
+et, pour tout $y \in F$,
+$$\|x - y\|^2 = \|x - p_F(x)\|^2 + \|p_F(x) - y\|^2.$$
 :::
 
 L'égalité de droite est Pythagore, puisque $x - p_F(x) \in F^{\perp}$ et $p_F(x) - y \in F$. Elle dit tout : la meilleure approximation de $x$ par un élément de $F$ est sa projection, et elle se caractérise par le fait que l'erreur est orthogonale à $F$. Ce principe est celui des **moindres carrés** : ajuster une droite à un nuage de points, c'est projeter le vecteur des mesures sur le plan engendré par $(1, \ldots, 1)$ et $(t_1, \ldots, t_n)$. Avec $\langle f, g \rangle = \int fg$, c'est approcher une fonction par un polynôme en minimisant l'erreur quadratique.

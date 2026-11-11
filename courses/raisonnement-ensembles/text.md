@@ -46,7 +46,8 @@ Deux ensembles sont égaux s'ils ont les mêmes éléments ; on montre $A = B$ p
 
 ::: proposition Lois de De Morgan, distributivité {#prop-morgan}
 Pour $A, B, C \subset E$ :
-$$\overline{A \cup B} = \overline{A} \cap \overline{B}, \qquad \overline{A \cap B} = \overline{A} \cup \overline{B}, \qquad A \cap (B \cup C) = (A \cap B) \cup (A \cap C).$$
+$$\overline{A \cup B} = \overline{A} \cap \overline{B}, \qquad \overline{A \cap B} = \overline{A} \cup \overline{B},$$
+$$A \cap (B \cup C) = (A \cap B) \cup (A \cap C).$$
 :::
 
 Les lois de De Morgan sont la version ensembliste de la négation : « ne pas être dans $A$ ou $B$ », c'est n'être ni dans $A$ ni dans $B$.

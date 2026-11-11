@@ -110,7 +110,8 @@ En effet $t^{X+Y} = t^Xt^Y$, et l'espérance d'un produit de variables indépend
 
 ::: théorème Inégalités et loi faible des grands nombres {#thm-lfgn-dn}
 Les inégalités de [[probabilites-finies#thm-markov|Markov]] et de [[probabilites-finies#thm-bt|Bienaymé-Tchebychev]] restent vraies pour des variables discrètes (d'espérance finie, respectivement de variance finie). Si $(X_n)$ est une suite de variables indépendantes de même loi, de variance finie, d'espérance $m$, et $S_n = X_1 + \cdots + X_n$, alors pour tout $\varepsilon > 0$,
-$$P\left(\left|\frac{S_n}{n} - m\right| \ge \varepsilon\right) \le \frac{V(X_1)}{n\varepsilon^2} \xrightarrow[n \to +\infty]{} 0 \qquad \text{(loi faible des grands nombres)}.$$
+$$P\left(\left|\frac{S_n}{n} - m\right| \ge \varepsilon\right) \le \frac{V(X_1)}{n\varepsilon^2} \xrightarrow[n \to +\infty]{} 0.$$
+C'est la **loi faible des grands nombres**.
 :::
 
 La moyenne empirique converge vers l'espérance, au sens où la probabilité d'un écart donné tend vers $0$. La loi **forte** (convergence presque sûre) et le théorème central limite dépassent le programme.

@@ -122,7 +122,8 @@ Pour deux triangulaires supérieures $T$ et $T'$ et $i > j$, chaque terme $t_{ik
 
 ::: théorème Formule du binôme pour des matrices qui commutent {#thm-binome-m}
 Si $A, B \in \mathcal{M}_n(\mathbb{K})$ **commutent** ($AB = BA$), alors pour tout $m \in \mathbb{N}$
-$$(A + B)^m = \sum_{k=0}^{m} \binom{m}{k} A^k B^{m-k}, \qquad A^m - B^m = (A - B)\sum_{k=0}^{m-1} A^k B^{m-1-k}.$$
+$$(A + B)^m = \sum_{k=0}^{m} \binom{m}{k} A^k B^{m-k},$$
+$$A^m - B^m = (A - B)\sum_{k=0}^{m-1} A^k B^{m-1-k}.$$
 :::
 
 La preuve est celle de la [[calculs-algebriques#thm-binome|formule du binôme]], qui n'utilise la commutativité qu'à un endroit : pour regrouper les termes $A^k B^{m-k}$. Sans elle, la formule est fausse : $(A + B)^2 = A^2 + AB + BA + B^2$.

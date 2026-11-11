@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { COURSES, courseTexts, refErrors, resolveRef } from '../src/learn/courses';
+import { COURSES, TRACKS, courseTexts, refErrors, resolveRef } from '../src/learn/courses';
 import { REF_RE, parseRefs, refLabel, splitRefs } from '../src/learn/refs';
 import { tokenize } from '../src/learn/script';
 import { DEFAULT_FILTER, buildGraph, courseVisible, nodeVisible, searchGraph } from '../src/learn/graph';
 import { layoutGraph } from '../src/learn/layout';
-import { FILIERES, FILIERES_1, FILIERES_2, courseYear } from '../src/learn/types';
+import { FILIERES, FILIERES_1, FILIERES_2, courseYear, filiereYear } from '../src/learn/types';
 
 describe('references [[course#anchor|label]]', () => {
   it('are parsed outside math only, with anchor and label', () => {
@@ -60,6 +60,24 @@ describe('filières', () => {
     expect(courseYear({ level: 'prepa', filieres: ['PT'] })).toBe(2);
     expect(courseYear({ level: 'master' })).toBe(0);
     expect(FILIERES_1.length + FILIERES_2.length).toBe(9);
+  });
+
+  it('a prépa course never waits for a course its track has not met yet', () => {
+    for (const c of COURSES.values()) {
+      const m = c.meta;
+      if (m.level !== 'prepa') continue;
+      for (const pid of m.prerequisites) {
+        const p = COURSES.get(pid)?.meta;
+        if (p?.level !== 'prepa') continue;
+        // each track of the course has the prerequisite, or met it in first year (second-year tracks)
+        for (const f of m.filieres!) expect(p.filieres!.includes(f) || (filiereYear(f) === 2 && courseYear(p) === 1), `${m.id} (${f}) ← ${pid}`).toBe(true);
+      }
+    }
+  });
+
+  it('the curriculum lists every prerequisite before the course that needs it', () => {
+    const at = new Map(TRACKS.flatMap((t) => t.courses).map((id, i) => [id, i]));
+    for (const [id, i] of at) for (const p of COURSES.get(id)!.meta.prerequisites) if (at.has(p)) expect(at.get(p)!, `${id} ← ${p}`).toBeLessThan(i);
   });
 });
 
