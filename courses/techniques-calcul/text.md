@@ -4,7 +4,8 @@ Le point de vue de cette fiche est **pratique** : en s'appuyant sur le lycée, o
 
 ::: définition Logarithme, exponentielle, puissances {#def-puissances}
 Le **logarithme népérien** $\ln$ est la primitive de $x \mapsto \frac1x$ sur $]0, +\infty[$ qui s'annule en $1$ ; l'**exponentielle** est sa réciproque, de $\mathbb{R}$ sur $]0, +\infty[$. Pour $x > 0$ et $\alpha \in \mathbb{R}$, on pose $x^\alpha = e^{\alpha\ln x}$ ; si $\alpha > 0$, on prolonge par $0^\alpha = 0$. Alors
-$$(xy)^\alpha = x^\alpha y^\alpha, \qquad x^{\alpha + \beta} = x^\alpha x^\beta, \qquad (x^\alpha)^\beta = x^{\alpha\beta}, \qquad (x^\alpha)' = \alpha x^{\alpha - 1}.$$
+$$(xy)^\alpha = x^\alpha y^\alpha, \qquad x^{\alpha + \beta} = x^\alpha x^\beta,$$
+$$(x^\alpha)^\beta = x^{\alpha\beta}, \qquad (x^\alpha)' = \alpha x^{\alpha - 1}.$$
 Le logarithme en base $b$ est $\log_b x = \frac{\ln x}{\ln b}$ ; en particulier le logarithme décimal ($b = 10$) et en base $2$.
 :::
 

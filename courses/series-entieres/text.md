@@ -39,7 +39,8 @@ La [[suites-series#thm-dalembert|règle de d'Alembert]] s'applique à la série 
 
 ::: proposition Opérations {#prop-operations-se}
 Si $\sum a_n z^n$ et $\sum b_n z^n$ ont pour rayons $R_a$ et $R_b$, la somme $\sum (a_n + b_n) z^n$ et le [[suites-series#thm-produit-cauchy|produit de Cauchy]] $\sum c_n z^n$, avec $c_n = \sum_{k=0}^{n} a_k b_{n-k}$, ont un rayon au moins égal à $\min(R_a, R_b)$, et pour $|z| < \min(R_a, R_b)$ :
-$$\sum (a_n + b_n) z^n = \sum a_n z^n + \sum b_n z^n, \qquad \sum c_n z^n = \Big(\sum a_n z^n\Big)\Big(\sum b_n z^n\Big).$$
+$$\sum (a_n + b_n) z^n = \sum a_n z^n + \sum b_n z^n,$$
+$$\sum c_n z^n = \Big(\sum a_n z^n\Big)\Big(\sum b_n z^n\Big).$$
 :::
 
 ::: théorème Convergence normale sur les disques fermés {#thm-normale}
@@ -80,9 +81,11 @@ Une fonction $f$ définie au voisinage de $0$ est **développable en série enti
 
 ::: proposition Développements usuels {#prop-dse-usuels}
 Pour tout $x \in \mathbb{R}$ :
-$$e^x = \sum_{n \ge 0} \frac{x^n}{n!}, \qquad \cos x = \sum_{n \ge 0} (-1)^n \frac{x^{2n}}{(2n)!}, \qquad \sin x = \sum_{n \ge 0} (-1)^n \frac{x^{2n+1}}{(2n+1)!}.$$
+$$e^x = \sum_{n \ge 0} \frac{x^n}{n!}, \qquad \cos x = \sum_{n \ge 0} (-1)^n \frac{x^{2n}}{(2n)!},$$
+$$\sin x = \sum_{n \ge 0} (-1)^n \frac{x^{2n+1}}{(2n+1)!}.$$
 Pour $|x| < 1$ :
-$$\frac{1}{1 - x} = \sum_{n \ge 0} x^n, \qquad \ln(1 + x) = \sum_{n \ge 1} (-1)^{n+1} \frac{x^n}{n}, \qquad \arctan x = \sum_{n \ge 0} (-1)^n \frac{x^{2n+1}}{2n+1},$$
+$$\frac{1}{1 - x} = \sum_{n \ge 0} x^n, \qquad \ln(1 + x) = \sum_{n \ge 1} (-1)^{n+1} \frac{x^n}{n},$$
+$$\arctan x = \sum_{n \ge 0} (-1)^n \frac{x^{2n+1}}{2n+1},$$
 $$(1 + x)^\alpha = 1 + \sum_{n \ge 1} \frac{\alpha(\alpha - 1)\cdots(\alpha - n + 1)}{n!}\, x^n \quad (\alpha \in \mathbb{R}).$$
 :::
 

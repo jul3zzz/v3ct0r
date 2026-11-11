@@ -8,7 +8,6 @@
   "format": "written",
   "minutes": 25,
   "prerequisites": [
-    "reduction",
     "riemann"
   ],
   "tags": [

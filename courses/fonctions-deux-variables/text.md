@@ -33,8 +33,8 @@ La fonction $f$ est **de classe $C^1$** sur l'ouvert $U$ si ses deux dérivées 
 :::
 
 ::: théorème Développement limité à l'ordre 1 {#thm-dl1-2}
-Si $f$ est de classe $C^1$ sur $U$ et $(x_0, y_0) \in U$, alors, quand $(h, k) \to (0, 0)$,
-$$f(x_0 + h, y_0 + k) = f(x_0, y_0) + \frac{\partial f}{\partial x}(x_0, y_0)\,h + \frac{\partial f}{\partial y}(x_0, y_0)\,k + o\big(\|(h, k)\|\big).$$
+Si $f$ est de classe $C^1$ sur $U$ et $(x_0, y_0) \in U$, alors, quand $(h, k) \to (0, 0)$, les dérivées partielles étant prises en $(x_0, y_0)$,
+$$f(x_0 + h, y_0 + k) = f(x_0, y_0) + \frac{\partial f}{\partial x}\,h + \frac{\partial f}{\partial y}\,k + o\big(\|(h, k)\|\big).$$
 En particulier, une fonction de classe $C^1$ est continue.
 :::
 
@@ -59,7 +59,9 @@ La dernière affirmation vient de l'inégalité de Cauchy-Schwarz : $\langle \na
 
 ::: théorème Règle de la chaîne {#thm-chaine}
 Soient $f$ de classe $C^1$ sur $U$, et $x, y$ de classe $C^1$ sur un intervalle $I$, avec $(x(t), y(t)) \in U$ pour tout $t$. Alors $g : t \mapsto f(x(t), y(t))$ est de classe $C^1$ et
-$$g'(t) = \frac{\partial f}{\partial x}\big(x(t), y(t)\big)\,x'(t) + \frac{\partial f}{\partial y}\big(x(t), y(t)\big)\,y'(t) = \big\langle \nabla f(\gamma(t)), \gamma'(t)\big\rangle,$$
+$$g'(t) = \frac{\partial f}{\partial x}\big(x(t), y(t)\big)\,x'(t) + \frac{\partial f}{\partial y}\big(x(t), y(t)\big)\,y'(t),$$
+c'est-à-dire
+$$g'(t) = \big\langle \nabla f(\gamma(t)), \gamma'(t)\big\rangle,$$
 où $\gamma(t) = (x(t), y(t))$ et $\gamma'(t) = (x'(t), y'(t))$.
 :::
 

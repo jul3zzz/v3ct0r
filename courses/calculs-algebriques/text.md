@@ -25,7 +25,9 @@ Les deux premières se prouvent par récurrence ou par télescopage (par exemple
 
 ::: proposition Factorisation de aⁿ − bⁿ {#prop-an-bn}
 Pour tous réels ou complexes $a, b$ et tout $n \ge 1$,
-$$a^n - b^n = (a - b)\sum_{k=0}^{n-1} a^k b^{n-1-k} = (a - b)(a^{n-1} + a^{n-2}b + \cdots + b^{n-1}).$$
+$$a^n - b^n = (a - b)\sum_{k=0}^{n-1} a^k b^{n-1-k},$$
+c'est-à-dire
+$$a^n - b^n = (a - b)(a^{n-1} + a^{n-2}b + \cdots + b^{n-1}).$$
 :::
 
 ### Coefficients binomiaux
@@ -51,7 +53,9 @@ $$(a + b)^n = \sum_{k=0}^{n} \binom{n}{k} a^k b^{n-k}.$$
 
 ::: preuve Formule du binôme
 Récurrence sur $n$. Pour $n = 0$, les deux membres valent $1$. Si la formule est vraie au rang $n$, alors
-$$(a + b)^{n+1} = (a + b)\sum_{k=0}^{n}\binom nk a^k b^{n-k} = \sum_{k=0}^{n}\binom nk a^{k+1}b^{n-k} + \sum_{k=0}^{n}\binom nk a^k b^{n+1-k}.$$
+$$(a + b)^{n+1} = (a + b)\sum_{k=0}^{n}\binom nk a^k b^{n-k},$$
+qui se développe en
+$$(a + b)^{n+1} = \sum_{k=0}^{n}\binom nk a^{k+1}b^{n-k} + \sum_{k=0}^{n}\binom nk a^k b^{n+1-k}.$$
 Dans la première somme on pose $j = k + 1$ ; en regroupant les termes en $a^j b^{n+1-j}$, on obtient $\sum_{j=0}^{n+1}\Big[\binom{n}{j-1} + \binom{n}{j}\Big] a^j b^{n+1-j} = \sum_{j=0}^{n+1}\binom{n+1}{j} a^j b^{n+1-j}$, par la relation de Pascal (et les conventions aux bords).
 :::
 
@@ -91,7 +95,8 @@ Le cercle trigonométrique est le cercle de centre $O$ et de rayon $1$ ; le poin
 
 ::: proposition Formules d'addition {#prop-addition}
 Pour tous réels $a$ et $b$ :
-$$\cos(a + b) = \cos a\cos b - \sin a\sin b, \qquad \sin(a + b) = \sin a\cos b + \cos a \sin b,$$
+$$\cos(a + b) = \cos a\cos b - \sin a\sin b,$$
+$$\sin(a + b) = \sin a\cos b + \cos a \sin b,$$
 et, lorsque les tangentes sont définies, $\tan(a + b) = \frac{\tan a + \tan b}{1 - \tan a\tan b}$. On en déduit les formules pour $a - b$ en changeant $b$ en $-b$.
 :::
 

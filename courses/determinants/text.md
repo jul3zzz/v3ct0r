@@ -113,7 +113,8 @@ $$\det A = \sum_{j=1}^{n} a_{ij}\, C_{ij} \quad \text{(selon la ligne } i\text{)
 Les signes $(-1)^{i+j}$ forment un damier commençant par $+$ en haut à gauche. On développe selon la ligne ou la colonne qui contient le plus de zéros, après avoir éventuellement créé ces zéros par des opérations élémentaires.
 
 ::: proposition Formules en dimension 2 et 3 {#prop-sarrus}
-$$\begin{vmatrix} a & b \\ c & d \end{vmatrix} = ad - bc, \qquad \begin{vmatrix} a & b & c \\ d & e & f \\ g & h & i \end{vmatrix} = aei + bfg + cdh - ceg - afh - bdi.$$
+$$\begin{vmatrix} a & b \\ c & d \end{vmatrix} = ad - bc,$$
+$$\begin{vmatrix} a & b & c \\ d & e & f \\ g & h & i \end{vmatrix} = aei + bfg + cdh - ceg - afh - bdi.$$
 La seconde (règle de Sarrus) ne se généralise pas aux tailles supérieures : en dimension $n$, la somme a $n!$ termes.
 :::
 

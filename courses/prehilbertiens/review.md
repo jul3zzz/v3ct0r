@@ -3,6 +3,7 @@
 Relecture humaine demandée avant diffusion.
 
 ## Choix de présentation
+- **Prérequis** : « Algèbre linéaire » seulement, pour que le cours s'ouvre en 1re année (MPSI, PCSI, MP2I). Le chapitre « Le théorème spectral » utilise la diagonalisation, vue en 2e année : il renvoie à [[reduction#def-diag]] au lieu de verrouiller tout le cours.
 - Espaces **réels** uniquement (le cas hermitien n'est pas traité ; à signaler si le professeur l'aborde).
 - Le cours est volontairement dense en énoncés (23) et plus court en texte : temps de lecture estimé ≈ 30 min, hors exercices.
 - **Supplémentaire orthogonal** : énoncé pour $F$ de dimension finie dans $E$ quelconque ; preuve non détaillée (via une base orthonormée de $F$ et la formule de projection).

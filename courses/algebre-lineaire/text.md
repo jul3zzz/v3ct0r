@@ -4,7 +4,8 @@ L'algèbre linéaire étudie tout ce qui peut s'additionner et se multiplier par
 
 ::: définition Espace vectoriel {#def-ev}
 Un **espace vectoriel** sur $\mathbb{K}$ est un ensemble $E$ muni d'une addition $E \times E \to E$ et d'une multiplication par les scalaires $\mathbb{K} \times E \to E$ telles que $(E, +)$ soit un groupe commutatif, d'élément neutre noté $0_E$, et que pour tous $\lambda, \mu \in \mathbb{K}$ et $x, y \in E$ :
-$$\lambda(x + y) = \lambda x + \lambda y, \qquad (\lambda + \mu)x = \lambda x + \mu x, \qquad \lambda(\mu x) = (\lambda\mu)x, \qquad 1 \cdot x = x.$$
+$$\lambda(x + y) = \lambda x + \lambda y, \qquad (\lambda + \mu)x = \lambda x + \mu x,$$
+$$\lambda(\mu x) = (\lambda\mu)x, \qquad 1 \cdot x = x.$$
 :::
 
 Les exemples sont partout : $\mathbb{K}^n$, l'espace $\mathbb{K}[X]$ des polynômes, l'espace $\mathcal{M}_{n,p}(\mathbb{K})$ des matrices, l'espace $\mathcal{F}(I, \mathbb{R})$ des fonctions d'un intervalle $I$ dans $\mathbb{R}$, l'espace $\mathbb{K}^{\mathbb{N}}$ des suites. Des axiomes découlent les règles de calcul attendues : $0 \cdot x = 0_E$, $(-1) x = -x$, et $\lambda x = 0_E$ si et seulement si $\lambda = 0$ ou $x = 0_E$.
@@ -108,7 +109,8 @@ Une **forme linéaire** sur $E$ est une application linéaire de $E$ dans $\math
 
 ::: proposition Noyau et image {#prop-ker-im}
 Pour $u \in \mathcal{L}(E, F)$, le **noyau** $\ker u = u^{-1}(\{0\})$ est un sous-espace de $E$ et l'**image** $\operatorname{Im} u = u(E)$ un sous-espace de $F$. De plus,
-$$u \text{ est injective} \iff \ker u = \{0\}, \qquad u \text{ est surjective} \iff \operatorname{Im} u = F.$$
+$$u \text{ est injective} \iff \ker u = \{0\},$$
+$$u \text{ est surjective} \iff \operatorname{Im} u = F.$$
 :::
 
 Le critère d'injectivité vient de ce que $u(x) = u(y)$ équivaut à $x - y \in \ker u$ : l'ensemble des solutions de $u(x) = b$, s'il n'est pas vide, est $x_0 + \ker u$ pour n'importe quelle solution particulière $x_0$. C'est le principe qui régit les systèmes linéaires et les équations différentielles linéaires : solution générale = solution particulière + solution générale de l'équation homogène.
@@ -241,7 +243,7 @@ Pour $n = 2$ on retrouve la formule à connaître par cœur : $\begin{pmatrix} a
 
 ::: exemple Déterminant de Vandermonde {#ex-vandermonde}
 Pour $x_1, \ldots, x_n \in \mathbb{K}$,
-$$V(x_1, \ldots, x_n) = \det \begin{pmatrix} 1 & x_1 & x_1^2 & \cdots & x_1^{n-1} \\ 1 & x_2 & x_2^2 & \cdots & x_2^{n-1} \\ \vdots & \vdots & \vdots & & \vdots \\ 1 & x_n & x_n^2 & \cdots & x_n^{n-1} \end{pmatrix} = \prod_{1 \le i < j \le n} (x_j - x_i).$$
+$$V(x_1, \ldots, x_n) = \det \begin{pmatrix} 1 & x_1 & \cdots & x_1^{n-1} \\ 1 & x_2 & \cdots & x_2^{n-1} \\ \vdots & \vdots & & \vdots \\ 1 & x_n & \cdots & x_n^{n-1} \end{pmatrix} = \prod_{1 \le i < j \le n} (x_j - x_i).$$
 Il est non nul si et seulement si les $x_i$ sont deux à deux distincts.
 :::
 

@@ -20,7 +20,8 @@ Deux normes $N$ et $N'$ sur $E$ sont **équivalentes** s'il existe des constante
 
 ::: proposition Les normes usuelles de K^n {#prop-normes-kn}
 Pour tout $x \in \mathbb{K}^n$,
-$$\|x\|_\infty \le \|x\|_2 \le \|x\|_1 \le n\, \|x\|_\infty, \qquad \|x\|_2 \le \sqrt n\, \|x\|_\infty, \qquad \|x\|_1 \le \sqrt n\, \|x\|_2.$$
+$$\|x\|_\infty \le \|x\|_2 \le \|x\|_1 \le n\, \|x\|_\infty,$$
+$$\|x\|_2 \le \sqrt n\, \|x\|_\infty, \qquad \|x\|_1 \le \sqrt n\, \|x\|_2.$$
 Ces trois normes sont donc équivalentes.
 :::
 
@@ -74,7 +75,8 @@ C'est la façon la plus rapide de reconnaître ouverts et fermés : $\{(x, y) : 
 
 ::: définition Applications lipschitziennes et uniformément continues {#def-lipschitz}
 L'application $f : A \to F$ est **$k$-lipschitzienne** si $\|f(x) - f(y)\|_F \le k\,\|x - y\|_E$ pour tous $x, y \in A$. Elle est **uniformément continue** si
-$$\forall \varepsilon > 0,\ \exists \delta > 0,\ \forall x, y \in A,\quad \|x - y\|_E \le \delta \implies \|f(x) - f(y)\|_F \le \varepsilon.$$
+$$\forall \varepsilon > 0,\ \exists \delta > 0,\ \forall x, y \in A,$$
+$$\|x - y\|_E \le \delta \implies \|f(x) - f(y)\|_F \le \varepsilon.$$
 Lipschitzienne implique uniformément continue, qui implique continue.
 :::
 

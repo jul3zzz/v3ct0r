@@ -3,6 +3,7 @@
 Relecture humaine demandée avant diffusion.
 
 ## Choix de présentation
+- **Prérequis** : « Riemann » seulement, pour que le cours s'ouvre en 1re année. Les systèmes et l'exponentielle de matrice utilisent la diagonalisation, vue en 2e année : le texte renvoie à [[reduction#def-diag]] au lieu de verrouiller tout le cours.
 - **Cauchy-Lipschitz linéaire** : énoncé sans preuve (la preuve classique passe par un point fixe ou les approximations de Picard).
 - **Wronskien** : équivalence « nul en un point ⟺ nul partout ⟺ famille liée » et formule de Liouville $W' = \operatorname{tr}(A)\,W$ énoncées sans preuve.
 - **Exponentielle de matrice** : convergence pour une norme d'algèbre admise ; $\det(e^A) = e^{\operatorname{tr} A}$ énoncé sans preuve (trigonalisation dans $\mathbb{C}$, ou Liouville).

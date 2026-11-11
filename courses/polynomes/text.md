@@ -12,7 +12,8 @@ L'addition et la multiplication se font comme on l'imagine : $\left(\sum a_k X^k
 
 ::: proposition Degré d'une somme, d'un produit {#prop-degre}
 Pour $P, Q \in \mathbb{K}[X]$ :
-$$\deg(P + Q) \le \max(\deg P, \deg Q), \qquad \deg(PQ) = \deg P + \deg Q.$$
+$$\deg(P + Q) \le \max(\deg P, \deg Q),$$
+$$\deg(PQ) = \deg P + \deg Q.$$
 En particulier, $PQ = 0$ implique $P = 0$ ou $Q = 0$ : l'anneau $\mathbb{K}[X]$ est **intègre**. Les polynômes inversibles sont les constantes non nulles.
 :::
 
