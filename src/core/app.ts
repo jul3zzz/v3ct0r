@@ -1235,7 +1235,8 @@ export class App {
       h('div', { class: 'quiz-q', text: 'Bienvenue dans V3CT0R. Un tuto interactif de quelques minutes te montre comment tout utiliser.' }),
       h('div', { style: 'display:flex;gap:8px;margin-top:6px' }, go, later),
     );
-    d.foot.append(h('span', { text: 'RELANCER À TOUT MOMENT : TOUCHE T' }));
+    // a phone has no T key: the TUTO button sits at the foot of the EXPLORER menu
+    d.foot.append(h('span', { text: touchScreen() ? 'RELANCER À TOUT MOMENT : EXPLORER, MENU ≡, BOUTON TUTO' : 'RELANCER À TOUT MOMENT : TOUCHE T' }));
     this.openDialog(d);
     go.focus();
   }
@@ -1271,8 +1272,10 @@ export class App {
     if (!online) return;
     // a phone or a tablet: install the website on the home screen (PWA tutorial)
     if (downloadKind(navigator.userAgent, navigator.maxTouchPoints) === 'mobile') {
-      b.title = b.ariaLabel = 'Installer V3CT0R sur ce téléphone : une icône sur l’écran d’accueil, plein écran, hors ligne';
-      b.replaceChildren(icon('download'), h('span', { text: 'INSTALLER' }));
+      for (const x of [b, this.L.sbDownload]) {
+        x.title = x.ariaLabel = 'Installer V3CT0R sur ce téléphone : une icône sur l’écran d’accueil, plein écran, hors ligne';
+        x.replaceChildren(icon('download'), h('span', { text: 'INSTALLER' }));
+      }
       return;
     }
     if (downloadKind(navigator.userAgent, navigator.maxTouchPoints) === 'installer') {
