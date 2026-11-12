@@ -377,11 +377,26 @@ class Duel implements GameLogic {
       g.moveTo(xr, B.y);
       g.lineTo(xr, B.y + B.h);
       g.stroke();
-      g.textAlign = 'center';
       g.fillStyle = '#fff';
-      g.fillText(`a − δ`, xl, B.y - 8);
-      g.fillText(`a + δ`, xr, B.y - 8);
-      g.fillText(`δ = ${delta < 0.01 ? delta.toExponential(2).replace('.', ',') : fr(delta, 4)}`, (xl + xr) / 2, B.y + 10);
+      // a narrow band (small δ, phone): the two ends go outside their lines and δ beside the band
+      const dText = `δ = ${delta < 0.01 ? delta.toExponential(2).replace('.', ',') : fr(delta, 4)}`;
+      if (xr - xl < g.measureText('a − δ').width + 8) {
+        g.textAlign = 'right';
+        g.fillText(`a − δ`, xl - 4, B.y - 8);
+        g.textAlign = 'left';
+        g.fillText(`a + δ`, xr + 4, B.y - 8);
+      } else {
+        g.textAlign = 'center';
+        g.fillText(`a − δ`, xl, B.y - 8);
+        g.fillText(`a + δ`, xr, B.y - 8);
+      }
+      if (xr - xl < g.measureText(dText).width + 12) {
+        g.textAlign = 'left';
+        g.fillText(dText, xr + 6, B.y + 10);
+      } else {
+        g.textAlign = 'center';
+        g.fillText(dText, (xl + xr) / 2, B.y + 10);
+      }
     }
     // the optimum, at the reveal
     if (phase === 'reveal' && this.level < 2) {

@@ -62,7 +62,8 @@
   /* ── status bar: the essentials (the keyboard hints go) ── */
   .statusbar { gap: 10px; padding: 0 10px; }
   .statusbar > span:nth-child(2), .statusbar > span:last-child { display: none; }
-  .statusbar > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  /* SYS.MODULE_… is décor (the view title names the module): squeezed by INSTALLER it left a lone letter */
+  .statusbar > span:first-child { display: none; }
 
   /* ── LEARN player, on three rows: the position, then play / ±5 s / time, then speed and options ── */
   .lxp { --bar: 98px; }
