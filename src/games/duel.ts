@@ -508,6 +508,11 @@ export const DUEL: GameDef = {
     'Niveau 3 : choisis ε, puis la machine propose des δ de plus en plus petits ; à chaque fois, clique un x à moins de δ de a où |f(x) − L| ≥ ε. Score : ε élevé (jusqu’au maximum possible) et δ battus.',
     'À la fin d’une manche, la machine montre l’optimum δ* ou le contre-exemple.',
   ],
+  touchRules: [
+    'Niveaux 1 et 2 : glisse pour régler δ (◀ δ et δ ▶ pour affiner). Score = δ / δ* (le meilleur δ possible), si ton δ marche ; 0 s’il existe un contre-exemple.',
+    'Niveau 3 : choisis ε en glissant verticalement (▼ ε et ε ▲ pour affiner), puis la machine propose des δ de plus en plus petits ; à chaque fois, touche un x à moins de δ de a où |f(x) − L| ≥ ε. Score : ε élevé (jusqu’au maximum possible) et δ battus.',
+    'À la fin d’une manche, la machine montre l’optimum δ* ou le contre-exemple.',
+  ],
   levels: [
     { title: 'Fonctions sages', brief: 'continues, ε de 0,5 à 0,05', rounds: 5, time: 25 },
     { title: 'Asymétries et trous', brief: '1/x, sin x / x, x·sin(1/x)…, ε jusqu’à 0,01', rounds: 5, time: 25 },

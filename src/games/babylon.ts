@@ -314,6 +314,11 @@ export const BABYLON: GameDef = {
     'Le score compare l’erreur finale à celle de la meilleure stratégie, sur une échelle logarithmique : chaque décimale exacte compte.',
     'Niveau 3 : une boîte de base x × x et de hauteur N/x² doit devenir un cube ; le meilleur point n’est plus le milieu.',
   ],
+  touchRules: [
+    'Glisser sur la règle (◀ ▶ pour ajuster, ◁ ▷ plus finement) : choisir le nouveau côté x′, entre x et N/x. ✓ VALIDER : valider l’étape. L’autre côté devient N/x′.',
+    'Le score compare l’erreur finale à celle de la meilleure stratégie, sur une échelle logarithmique : chaque décimale exacte compte.',
+    'Niveau 3 : une boîte de base x × x et de hauteur N/x² doit devenir un cube ; le meilleur point n’est plus le milieu.',
+  ],
   levels: [
     { title: 'La tablette', brief: '√2 depuis 1;30, puis d’autres racines · 3 étapes', rounds: 4, time: 60 },
     { title: 'Grands carrés', brief: 'aires de 20 à 999, départ grossier · 4 étapes', rounds: 4, time: 70 },

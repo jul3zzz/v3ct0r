@@ -233,6 +233,11 @@ export const PRIMES: GameDef = {
     'Score = (premiers touchés − composés touchés − ½ premiers manqués) / nombre de premiers. Réussi à partir de 60.',
     'Niveau 3 : « 2ⁿ⁻¹ ≡ 1 » est vrai pour tout premier impair, mais aussi pour quelques composés (1 105, 1 729, 2 047…).',
   ],
+  touchRules: [
+    'Touche un nombre : tirer (définitif). Un premier touché : bien. Un composé touché : sa factorisation s’affiche, c’est une erreur. Un premier qui touche le sol : manqué.',
+    'Score = (premiers touchés − composés touchés − ½ premiers manqués) / nombre de premiers. Réussi à partir de 60.',
+    'Niveau 3 : « 2ⁿ⁻¹ ≡ 1 » est vrai pour tout premier impair, mais aussi pour quelques composés (1 105, 1 729, 2 047…).',
+  ],
   levels: [
     { title: 'Sous 100', brief: 'les impairs qui trompent : 51, 57, 87, 91…', rounds: 5, time: 35 },
     { title: 'Sous 1 000', brief: 'produits de deux premiers ≥ 7', rounds: 5, time: 35 },

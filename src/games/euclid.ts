@@ -274,6 +274,11 @@ export const EUCLID: GameDef = {
     'Score = découpes justes / découpes nécessaires. Réussi à partir de 60.',
     'À la fin, les nombres de carrés forment la fraction continue de a/b. Niveau 3 : les nombres de Fibonacci, le cas le plus lent.',
   ],
+  touchRules: [
+    'Touche un chiffre, de 1 à 9 : le nombre de carrés à découper. Une réponse fausse est corrigée et comptée comme erreur.',
+    'Score = découpes justes / découpes nécessaires. Réussi à partir de 60.',
+    'À la fin, les nombres de carrés forment la fraction continue de a/b. Niveau 3 : les nombres de Fibonacci, le cas le plus lent.',
+  ],
   levels: [
     { title: 'Petits rectangles', brief: 'côtés jusqu’à 81, un PGCD à trouver', rounds: 4, time: 40 },
     { title: 'Grands rectangles', brief: 'côtés de 40 à 600', rounds: 4, time: 45 },

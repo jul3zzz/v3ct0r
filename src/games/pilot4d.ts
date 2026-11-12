@@ -238,6 +238,11 @@ export const PILOT4D: GameDef = {
     'Sous 1 % d’écart, la silhouette se verrouille toute seule (100 points). ⏎ valide plus tôt : réussi sous 4 %.',
     'L’écart compare les ensembles de sommets : une symétrie du tesseract qui les permute donne la même image et compte comme juste.',
   ],
+  touchRules: [
+    'Maintiens XW − ou XW + pour tourner dans le plan XW, de même YW et ZW aux niveaux suivants. PRÉCIS, maintenu d’un autre doigt : rotation lente, pour la précision.',
+    'Sous 1 % d’écart, la silhouette se verrouille toute seule (100 points). ✓ VALIDER valide plus tôt : réussi sous 4 %.',
+    'L’écart compare les ensembles de sommets : une symétrie du tesseract qui les permute donne la même image et compte comme juste.',
+  ],
   levels: [
     { title: 'Un plan', brief: 'XW seulement', rounds: 5, time: 30 },
     { title: 'Deux plans', brief: 'XW et YW', rounds: 5, time: 45 },

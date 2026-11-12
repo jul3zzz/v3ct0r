@@ -77,6 +77,9 @@ export interface GameDef {
   /** mission briefing: two or three sentences */
   brief: string;
   rules: string[];
+  /** the same rules for a touch screen, in the same order: taps, drags and the touch bar's buttons instead of
+   *  keys, clicks and the wheel (required as soon as `rules` names one, tests/games.test.ts) */
+  touchRules?: string[];
   levels: GameLevel[];
   /** the exact statement behind the game, revealed at the debrief (rich text, $…$) */
   theorem: { kind: 'definition' | 'theorem' | 'proposition'; title: string; body: string };
