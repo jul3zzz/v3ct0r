@@ -44,10 +44,10 @@ site, de télécharger la version hors ligne. Sans configuration, pas de compte 
 réglages (son, qualité, musique) et la position du vaisseau restent propres à chaque appareil.
 
 1. Créer un projet sur [supabase.com](https://supabase.com) (offre gratuite).
-2. *SQL Editor* → coller `supabase/schema.sql` → *Run* : la table `progress`, protégée (chaque joueur ne lit et
-   n'écrit que sa ligne).
-3. *Project Settings → API* : copier l'URL et la clé **anon public** dans `.env.local` (modèle : `.env.example`),
-   jamais la clé `service_role`. Pour le site en ligne, les mêmes valeurs en variables du dépôt GitHub
+2. *SQL Editor* → coller les fichiers de `supabase/migrations/` dans l'ordre → *Run* : la table `progress`, protégée
+   (chaque joueur ne lit et n'écrit que sa ligne), puis les tables des écoles (`docs/ADMIN.md`).
+3. *Project Settings → API Keys* : copier l'URL et la clé **publique** (`sb_publishable_…`, ou l'ancienne `anon`) dans
+   `.env.local` (modèle : `.env.example`), jamais la clé secrète. Pour le site en ligne, les mêmes valeurs en variables du dépôt GitHub
    (*Settings → Secrets and variables → Actions → Variables*) : `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`.
 4. *Authentication → URL Configuration* : mettre l'adresse du site GitHub Pages en *Site URL* (lien de confirmation des
    e-mails). Pour se passer de la confirmation : *Authentication → Providers → Email → Confirm email* désactivé.
@@ -55,6 +55,15 @@ réglages (son, qualité, musique) et la position du vaisseau restent propres à
 Fusion entre appareils (`src/core/sync.ts`, testée) : rien de gagné ne se perd — meilleures notes et compteurs au
 maximum, balises lues et vues validées réunies, pour chaque exercice le meilleur résultat. La synchro se fait à la
 connexion, au démarrage, quelques secondes après chaque progrès et quand l'onglet passe en arrière-plan.
+
+## Écoles
+
+V3CT0R se propose aux établissements en trois temps : essai, classe pilote, licence (cahier des charges
+`docs/ECOLES.md`, modèle de données `docs/ECOLES-MODELE.md`). Une **clé d'essai** (lien `?essai=<clé>`, ou J'AI UN CODE
+sur l'écran d'accueil et dans COMPTE) ouvre V3CT0R aux couleurs de l'école, sans compte, toutes les vues et tous les
+cours débloqués, jusqu'à la date de fin, puis un écran bloquant donne l'adresse de contact. Administration (SQL, clés,
+`npm run school`, suivi des essais) : `docs/ADMIN.md` ; données personnelles : `docs/RGPD.md` ; tests des policies :
+`npm run db:test` (Docker).
 
 ## V3CT0R ATLAS
 

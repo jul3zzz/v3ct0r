@@ -3,7 +3,7 @@
 // error or uncaught exception.
 //   node scripts/smoke.mjs [--only=fractals] [--shots=<dir>] [--wait=900] [--headed]
 import { chromium } from 'playwright-core';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -24,6 +24,23 @@ if (!existsSync(file)) {
   process.exit(1);
 }
 const url = pathToFileURL(file).href;
+
+// no secret in the build: a Supabase secret key (sb_secret_…) or a service_role JWT would bypass
+// every rule of the database (docs/ADMIN.md); the public key (anon / publishable) is expected
+{
+  const html = await readFile(file, 'utf8');
+  const roles = (html.match(/eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+/g) ?? []).map((j) => {
+    try {
+      return JSON.parse(Buffer.from(j.split('.')[1], 'base64url').toString()).role ?? null;
+    } catch {
+      return null;
+    }
+  });
+  if (/sb_secret_/.test(html) || roles.includes('service_role')) {
+    console.error('✕ une clé secrète Supabase se trouve dans le build : arrêt (elle ne va que dans .env.local, sans préfixe VITE_).');
+    process.exit(1);
+  }
+}
 
 const browser = await chromium.launch({
   channel: 'msedge',
@@ -194,11 +211,12 @@ if (!calcOk) errors.push(`[calc] ${JSON.stringify({ ...calc, calcClosed })}`);
 const mus = await page.evaluate(() => window.__vm.musicState());
 const musicOk = mus.playing && mus.mood === 'explore' && !mus.ducked;
 if (!musicOk) errors.push(`[music] ${JSON.stringify(mus)}`);
-// account: the COMPTE button exists only in a build configured for Supabase; its form has 2 fields
+// account: the COMPTE button exists only in a build configured for Supabase; its form has 2 fields,
+// and a school code field (CODE D'ÉCOLE) follows
 current = 'account';
 const acc = await page.evaluate(() => ({ ...window.__vm.account(), shown: getComputedStyle([...document.querySelectorAll('.tb-btn')].find((b) => b.textContent.includes('COMPTE'))).display !== 'none' }));
 await page.keyboard.press('Escape');
-const accOk = acc.enabled ? acc.shown && acc.inputs === 2 : !acc.shown;
+const accOk = acc.enabled ? acc.shown && acc.inputs === 2 && acc.code : !acc.shown;
 if (!accOk) errors.push(`[compte] ${JSON.stringify(acc)}`);
 // TÉLÉCHARGER: only online; this smoke runs the downloaded version (file://), where it is hidden
 const dlShown = await page.evaluate(() => getComputedStyle([...document.querySelectorAll('.tb-btn')].find((b) => b.textContent.includes('TÉLÉCHARGER'))).display !== 'none');
@@ -795,6 +813,116 @@ current = 'narrow';
   if (!narrowOk) errors.push(`[narrow] vue ${vpW} px · rail replié ${hidden} · tiroir ${drawer} · fermé ${closed}`);
   features.push(`FENÊTRE 960 vue ${Math.round(vpW)} px · tiroir MODULES ${narrowOk ? 'ok' : 'KO'}`);
   await np.close();
+}
+
+// school trial (docs/ECOLES.md, phase 1). The default theme stays black and white (checked on
+// the main page, no trial). The trial runs on dist-smoke/ (npm run build:smoke: accounts configured
+// with a fake server, .env.smoke), whose server is simulated with page.route (no network): a key in the address → the school's card → its start route, every
+// lock open, badge and accent; an ended trial → the blocking screen (contact, new key field);
+// a new key reopens the app; an unknown key → « Clé refusée », then CONTINUER SANS CLÉ.
+current = 'school';
+{
+  const theme = await page.evaluate(() => {
+    const b = document.createElement('button');
+    b.className = 'btn on';
+    document.body.append(b);
+    const c = getComputedStyle(b);
+    const r = { accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(), bg: c.backgroundColor, color: c.color, border: c.borderTopColor, enabled: window.__vm.school().enabled };
+    b.remove();
+    return r;
+  });
+  const themeOk = theme.bg === 'rgb(255, 255, 255)' && theme.color === 'rgb(0, 0, 0)' && theme.border === 'rgb(255, 255, 255)';
+  if (!themeOk) errors.push(`[école] thème par défaut modifié ${JSON.stringify(theme)}`);
+  const schoolFile = resolve('dist-smoke/index.html');
+  if (!existsSync(schoolFile)) features.push(`ÉCOLE non testée (dist-smoke absent : npm run build:smoke) · thème par défaut ${themeOk ? 'ok' : 'KO'}`);
+  else {
+    const surl = pathToFileURL(schoolFile).href;
+    const KEY = 'AAAAABBBBBCCCCCDDDDD';
+    const LOGO = `data:image/svg+xml;base64,${Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#2255cc"/><path d="M3 7 5 2 7 7z" fill="#fff"/></svg>').toString('base64')}`;
+    const srv = { state: 'active', opens: 0, pings: 0 };
+    const row = (key) =>
+      key === KEY
+        ? { state: srv.state, school_name: 'Lycée Smoke', logo: LOGO, accent: '#2255cc', start_route: '#/learn/riemann', ends_at: new Date(Date.now() + (srv.state === 'expired' ? -1 : 20) * 86_400_000).toISOString(), server_now: new Date().toISOString() }
+        : { state: 'unknown', school_name: null, logo: null, accent: null, start_route: null, ends_at: null, server_now: new Date().toISOString() };
+    // a browser context of its own: the trial kept by these pages never reaches the other pages
+    const schoolPage = async () => {
+      const ctx = await browser.newContext({ viewport: { width: 1400, height: 850 } });
+      const p = await ctx.newPage();
+      await p.addInitScript(() => {
+        localStorage.setItem('vector-math.e2e', 'true');
+        localStorage.setItem('vector-math.intro.seen', 'true');
+      });
+      p.on('pageerror', (e) => errors.push(`[école] pageerror: ${e.message}`));
+      p.on('console', (m) => m.type() === 'error' && errors.push(`[école] console.error: ${m.text()}`));
+      await p.route('**/rest/v1/rpc/trial_open', (r) => {
+        srv.opens++;
+        const k = JSON.parse(r.request().postData() || '{}').p_key;
+        return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([row(k)]) });
+      });
+      await p.route('**/rest/v1/rpc/trial_ping', (r) => {
+        srv.pings++;
+        return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([{ state: srv.state, ends_at: row(KEY).ends_at, server_now: new Date().toISOString() }]) });
+      });
+      return { ctx, p };
+    };
+    let { ctx, p: sp } = await schoolPage();
+    const boot = async (u) => {
+      await sp.goto(u);
+      await sp.waitForTimeout(300);
+      await sp.keyboard.press('Space');
+    };
+    // 1. the link of the mail
+    await boot(`${surl}?essai=aaaaa-bbbbb-ccccc-ddddd`);
+    await sp.waitForSelector('.wl-card.sc-card .sc-head', { timeout: 15000 });
+    const card = await sp.evaluate(() => ({ title: document.querySelector('.sc-card .wl-title')?.textContent ?? '', logo: !!document.querySelector('.sc-card img.sc-logo'), border: getComputedStyle(document.querySelector('.sc-card')).borderTopColor, notice: document.querySelector('.sc-card')?.textContent?.includes('compte les ouvertures') ?? false, url: location.href }));
+    if (shots) await sp.screenshot({ path: join(shots, 'school__1-trial-card.png') });
+    await sp.locator('.sc-card button', { hasText: 'COMMENCER L’ESSAI' }).click();
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    await sp.waitForTimeout(1500);
+    const run = await sp.evaluate(() => {
+      const b = document.querySelector('.sc-badge');
+      const tab = document.querySelector('.tabs .tab[aria-selected="true"]');
+      return { ...window.__vm.school(), hash: location.hash, course: window.__vm.learnState().course, badge: b && getComputedStyle(b).display !== 'none' ? b.textContent : '', tabBg: tab ? getComputedStyle(tab).backgroundColor : '', url: location.href };
+    });
+    if (shots) await sp.screenshot({ path: join(shots, 'school__2-running.png') });
+    const enabled = await sp.evaluate(() => window.__vm.school().enabled);
+    if (!enabled) errors.push('[école] dist-smoke sans comptes configurés (.env.smoke)');
+    const startOk = card.title === 'Lycée Smoke' && card.logo && card.border === 'rgb(34, 85, 204)' && card.notice && !card.url.includes('essai=');
+    const runOk = run.state === 'active' && run.course === 'riemann' && run.badge.includes('Lycée Smoke') && run.accent === '#2255cc' && run.tabBg === 'rgb(34, 85, 204)' && srv.opens === 1;
+    if (!startOk) errors.push(`[école] carte d’essai ${JSON.stringify(card)}`);
+    if (!runOk) errors.push(`[école] essai en cours ${JSON.stringify({ ...run, opens: srv.opens })}`);
+    // 2. the trial ends: next opening → the blocking screen
+    srv.state = 'expired';
+    await boot(surl);
+    await sp.waitForSelector('.wl-card.sc-card input.sc-input', { timeout: 15000 });
+    const ended = await sp.evaluate(() => ({ text: document.querySelector('.sc-card')?.textContent ?? '', mail: !!document.querySelector('.sc-card a.sc-mail'), field: !!document.querySelector('.sc-card input.sc-input') }));
+    if (shots) await sp.screenshot({ path: join(shots, 'school__3-ended.png') });
+    const endedOk = ended.text.includes('ESSAI TERMINÉ') && ended.text.includes('Lycée Smoke') && ended.field && (ended.mail || ended.text.includes('contacte la personne'));
+    if (!endedOk) errors.push(`[école] écran de fin ${JSON.stringify(ended)}`);
+    // 3. a new key reopens the app
+    srv.state = 'active';
+    await sp.fill('.sc-card input.sc-input', 'AAAAA-BBBBB-CCCCC-DDDDD');
+    // accepted while the app runs: the page reloads to read the new trial everywhere
+    await Promise.all([sp.waitForEvent('load', { timeout: 15000 }), sp.locator('.sc-card button', { hasText: 'VALIDER' }).click()]);
+    await sp.waitForTimeout(300);
+    await sp.keyboard.press('Space');
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    const reopened = await sp.evaluate(() => window.__vm.school().state);
+    if (reopened !== 'active') errors.push(`[école] nouvelle clé : ${reopened}`);
+    // 4. an unknown key, on a fresh profile: refused, then the app without a trial (e2e skips the account)
+    await ctx.close();
+    ({ ctx, p: sp } = await schoolPage());
+    await boot(`${surl}?essai=ZZZZZ-ZZZZZ-ZZZZZ-ZZZZZ`);
+    await sp.waitForSelector('.wl-card .sc-code', { timeout: 15000 });
+    const refused = await sp.evaluate(() => document.querySelector('.wl-card .wl-title')?.textContent ?? '');
+    await sp.locator('.wl-card button', { hasText: 'CONTINUER SANS CLÉ' }).click();
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    const after = await sp.evaluate(() => ({ ...window.__vm.school(), badge: getComputedStyle(document.querySelector('.sc-badge')).display }));
+    const refusedOk = refused === 'Clé refusée' && after.state === null && after.badge === 'none' && after.accent === '#fff';
+    if (!refusedOk) errors.push(`[école] clé inconnue ${JSON.stringify({ refused, ...after })}`);
+    features.push(`ÉCOLE carte ${startOk ? 'ok' : 'KO'} · vue de départ + verrous + badge + accent ${runOk ? 'ok' : 'KO'} · fin d’essai ${endedOk ? 'ok' : 'KO'} · nouvelle clé ${reopened === 'active' ? 'ok' : 'KO'} · clé inconnue ${refusedOk ? 'ok' : 'KO'} · thème par défaut ${themeOk ? 'ok' : 'KO'} (${srv.opens} trial_open simulés)`);
+    await ctx.close();
+  }
 }
 
 // first-run prompt on a fresh profile

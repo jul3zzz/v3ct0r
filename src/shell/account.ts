@@ -5,6 +5,8 @@ import { h } from '../hud/dom';
 import { icon } from '../hud/deco';
 import { Dialog, toast } from './overlays';
 import { cloud } from '../core/cloud';
+import { school } from '../school/school';
+import { codeForm } from './school-ui';
 import './account.css';
 
 const when = (t: number) => (t ? new Date(t).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'jamais');
@@ -74,8 +76,28 @@ export function accountDialog(): Dialog {
     msg.textContent = text;
     msg.classList.toggle('bad', bad);
   };
+  /** a school trial: the one running here, and a field for a key (docs/ECOLES.md) */
+  const schoolPart = () => {
+    const info = school.info;
+    return h(
+      'div',
+      { class: 'sc-or' },
+      info ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'ESSAI' }), h('span', { class: 'v', text: `${info.school} · ${school.active ? school.until() : 'terminé'}` })) : null,
+      codeForm(
+        () => {
+          toast('CLÉ ACCEPTÉE — RECHARGEMENT', 1400);
+          setTimeout(() => location.reload(), 1200);
+        },
+        { label: 'CODE D’ÉCOLE (CLÉ D’ESSAI)', focus: false },
+      ),
+    );
+  };
   const paint = () => {
     d.body.replaceChildren();
+    paintAccount();
+    if (cloud.enabled) d.body.append(schoolPart());
+  };
+  const paintAccount = () => {
     if (!cloud.enabled) {
       d.body.append(h('p', { text: 'Les comptes ne sont pas configurés dans cette version : la progression reste dans ce navigateur.' }));
       return;

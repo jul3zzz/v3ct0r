@@ -213,7 +213,8 @@ export class App {
       openExplorer: (view) => this.openExplorer(view),
       fullscreen: () => this.fullscreen(),
       setCrumbs: (parts) => this.L.crumbs.replaceChildren(...parts.flatMap((p, i) => (i ? [h('span', { text: '▸' }), h('span', { class: i === parts.length - 1 ? 'hi' : '', text: p })] : [h('span', { text: p })]))),
-      free: () => this.progress.free,
+      // free mode (saved) or a school trial (not saved): every course is open
+      free: () => this.progress.open,
       openDialog: (d) => this.openDialog(d),
       setHash: (hash) => {
         try {
@@ -1127,7 +1128,7 @@ export class App {
   }
 
   private tourLock(t: Tour): string | null {
-    if (t.kind === 'tuto' || this.progress.free) return null;
+    if (t.kind === 'tuto' || this.progress.open) return null;
     for (const s of t.steps) {
       if (!s.view) continue;
       const [mid, vid] = s.view.split('/');

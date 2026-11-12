@@ -9,3 +9,5 @@ voice-samples/
 .claude/settings.local.json
 *.log
 release/
+dist-smoke/
+!.env.smoke

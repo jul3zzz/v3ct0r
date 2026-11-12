@@ -1,6 +1,6 @@
 // Optional account (Supabase): email + password, and the progress synced across devices.
 // Configured at build time by VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (.env.local; the anon key
-// is public by design, the table is protected by row-level security, supabase/schema.sql). Without
+// is public by design, the table is protected by row-level security, supabase/migrations). Without
 // them, or offline, nothing changes: the progress stays in this browser. No SDK: a few fetch calls
 // to the auth (GoTrue) and REST (PostgREST) endpoints.
 import { store, onStoreSet } from './settings';
@@ -9,7 +9,8 @@ import { SYNCED, mergeSnapshots, sameSnapshot } from './sync';
 const URL_ = ((import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? '').trim().replace(/\/+$/, '');
 const ANON = ((import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ?? '').trim();
 
-export const cloudConfigured = /^https:\/\//.test(URL_) && ANON.length > 20;
+// https, or the local stack of `npm run supabase -- start` (docs/ADMIN.md, tests)
+export const cloudConfigured = /^(https:\/\/|http:\/\/(127\.0\.0\.1|localhost):\d+$)/.test(URL_) && ANON.length > 20;
 
 interface Session {
   access_token: string;
@@ -35,7 +36,8 @@ function explain(status: number, body: Record<string, unknown> | null): string {
   if (raw.includes('invalid') && raw.includes('email')) return 'Adresse e-mail invalide';
   if (raw.includes('rate limit') || status === 429) return 'Trop d’essais : réessaie dans une minute';
   if (status === 401 || raw.includes('jwt')) return 'Session expirée : reconnecte-toi';
-  if (status === 404 || raw.includes('relation') || raw.includes('does not exist')) return 'Table « progress » absente : exécuter supabase/schema.sql dans le projet Supabase';
+  if (raw.includes('could not find the function')) return 'Serveur pas encore à jour : appliquer les migrations de supabase/migrations (docs/ADMIN.md)';
+  if (status === 404 || raw.includes('relation') || raw.includes('does not exist')) return 'Table « progress » absente : appliquer supabase/migrations dans le projet Supabase (docs/ADMIN.md)';
   return `Erreur du serveur (${status || 'réseau'})`;
 }
 
@@ -159,6 +161,13 @@ export class Cloud {
     this.session = null;
     store.set(SESSION, null);
     this.emit();
+  }
+
+  /** a SQL function of the API (POST /rest/v1/rpc/<fn>); anonymous unless `auth` (school trial:
+   *  supabase/migrations/20261111120000_school_trial.sql) */
+  async rpc<T>(fn: string, args: Record<string, unknown> = {}, o: { auth?: boolean; keepalive?: boolean } = {}): Promise<T> {
+    if (o.auth) await this.fresh();
+    return (await this.call(`/rest/v1/rpc/${fn}`, { method: 'POST', auth: !!o.auth, keepalive: o.keepalive, body: JSON.stringify(args) })) as T;
   }
 
   /** this device's synced progress */

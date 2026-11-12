@@ -40,3 +40,36 @@ describe('way in (download offer, required account)', () => {
     expect(welcomeSteps({ ...base, skip: true })).toEqual([]);
   });
 });
+
+describe('way in with a school trial', () => {
+  it('a key to check comes first and alone (no download offer)', () => {
+    expect(welcomeSteps({ ...base, trial: 'key' })).toEqual(['trial']);
+    expect(welcomeSteps({ ...base, online: false, trial: 'key' })).toEqual(['trial']);
+  });
+
+  it('a running trial needs no account', () => {
+    expect(welcomeSteps({ ...base, trial: 'active' })).toEqual([]);
+    expect(welcomeSteps({ ...base, online: false, trial: 'active' })).toEqual([]);
+  });
+
+  it('an ended trial blocks, signed in or not', () => {
+    expect(welcomeSteps({ ...base, trial: 'expired' })).toEqual(['trial-ended']);
+    expect(welcomeSteps({ ...base, signedIn: true, answered: true, trial: 'expired' })).toEqual(['trial-ended']);
+  });
+
+  it('no trial: the usual steps', () => {
+    expect(welcomeSteps({ ...base, trial: 'none' })).toEqual(['download', 'account']);
+  });
+
+  it('end-to-end runs still see the trial (the smoke tests it)', () => {
+    expect(welcomeSteps({ ...base, skip: true, trial: 'key' })).toEqual(['trial']);
+    expect(welcomeSteps({ ...base, skip: true, trial: 'expired' })).toEqual(['trial-ended']);
+  });
+
+  it('without accounts in the build there is no trial: the app is as before', () => {
+    for (const trial of ['key', 'active', 'expired'] as const) {
+      expect(welcomeSteps({ ...base, configured: false, trial })).toEqual(['download']);
+      expect(welcomeSteps({ ...base, configured: false, skip: true, trial })).toEqual([]);
+    }
+  });
+});

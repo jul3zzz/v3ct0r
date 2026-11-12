@@ -12,6 +12,10 @@
   --fg-10: rgb(255 255 255 / 0.1);
   --fg-05: rgb(255 255 255 / 0.05);
   --veil: rgb(0 0 0 / 0.78);
+  /* school theme (docs/ECOLES.md): set on :root by src/school/school.ts during a trial. The
+     default is white on black, so the default theme stays identical to the pixel. */
+  --accent: var(--fg);
+  --accent-ink: var(--bg);
 
   --line: 1px solid var(--fg-20);
   --line-mid: 1px solid var(--fg-40);
