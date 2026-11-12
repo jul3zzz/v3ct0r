@@ -258,6 +258,11 @@ export const ERATOSTHENES: GameDef = {
     'Score selon l’erreur relative sur l’angle : 25 % au niveau 1, 10 % au niveau 2, 6 % au niveau 3 font tomber le score à zéro.',
     'Les angles petits sont agrandis à l’écran (la tangente est multipliée) ; l’échelle est indiquée.',
   ],
+  touchRules: [
+    'Glisser dans le zoom du gnomon : orienter le bras depuis le haut du gnomon vers le bout de l’ombre. ◀ ▶ : ajuster (◁ ▷ : plus fin). ✓ VALIDER : valider.',
+    'Score selon l’erreur relative sur l’angle : 25 % au niveau 1, 10 % au niveau 2, 6 % au niveau 3 font tomber le score à zéro.',
+    'Les angles petits sont agrandis à l’écran (la tangente est multipliée) ; l’échelle est indiquée.',
+  ],
   levels: [
     { title: 'Ératosthène', brief: 'Syène et Alexandrie, puis deux villes du tropique', rounds: 4, time: 40 },
     { title: 'Les grandes mesures', brief: 'Picard, Maupertuis, La Condamine, Delambre et Méchain', rounds: 4, time: 40 },

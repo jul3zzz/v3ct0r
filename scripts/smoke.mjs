@@ -1149,6 +1149,9 @@ current = 'phone';
   for (const [g, n] of Object.entries(GK)) {
     await pp.evaluate((g) => window.__vm.learn(`game:${g}`), g);
     await pp.waitForTimeout(700);
+    // the panel gives the touch rules (GameDef.touchRules): no key, click or wheel left in them
+    const rules = await pp.evaluate(() => [...document.querySelectorAll('.panel .sec-title')].find((e) => e.textContent === 'RÈGLES')?.nextElementSibling?.textContent ?? '');
+    if (!rules || /\bclic|\bclique|molette|\bmaj\b|⏎|←|→|↑|↓|touches? (maintenues|\d)/i.test(rules)) bad.push(`jeu ${g} : règles au clavier sur téléphone « ${rules.slice(0, 80)} »`);
     await pp.tap('.game-touch .gt-b.go');
     await pp.waitForTimeout(400);
     const s = await pp.evaluate(() => ({ phase: window.__vm.gameState()?.phase, keys: document.querySelectorAll('.game-touch .gt-b.gk').length, h: Math.round(document.querySelector('.viewport').getBoundingClientRect().height) }));
@@ -1191,7 +1194,7 @@ current = 'phone';
   await tp.close();
 
   for (const b of bad) errors.push(`[phone] ${b}`);
-  features.push(`TÉLÉPHONE 375 onglets · tiroir · feuille · ATLAS au doigt ${atlasTouch} · zoom à deux doigts · 46 vues · gestes · graphe au doigt · cours écrit · scènes portrait · 11 jeux au tap ${bad.length ? `KO (${bad.length})` : 'ok'} · TABLETTE 768 vue ${tab.vp} px`);
+  features.push(`TÉLÉPHONE 375 onglets · tiroir · feuille · ATLAS au doigt ${atlasTouch} · zoom à deux doigts · 46 vues · gestes · graphe au doigt · cours écrit · scènes portrait · 11 jeux au tap et règles tactiles ${bad.length ? `KO (${bad.length})` : 'ok'} · TABLETTE 768 vue ${tab.vp} px`);
 }
 
 // first-run prompt on a fresh profile

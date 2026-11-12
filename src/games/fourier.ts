@@ -286,6 +286,11 @@ export const FOURIER: GameDef = {
     'Score = énergie captée / meilleure énergie possible avec autant de cercles (égalité de Parseval). Réussi à partir de 80.',
     'À la fin de la manche : la meilleure courbe en pointillés et le spectre complet (hauteur = |cₙ|).',
   ],
+  touchRules: [
+    'Touche les fréquences (de −10 à +10) pour les ajouter ou les retirer : ta courbe et ses cercles s’affichent en direct (sauf au niveau 3).',
+    'Score = énergie captée / meilleure énergie possible avec autant de cercles (égalité de Parseval). Réussi à partir de 80.',
+    'À la fin de la manche : la meilleure courbe en pointillés et le spectre complet (hauteur = |cₙ|).',
+  ],
   levels: [
     { title: 'Trois cercles', brief: 'trois fréquences dominantes', rounds: 5, time: 40 },
     { title: 'Cinq cercles', brief: 'dont un cœur, calculé par transformée de Fourier', rounds: 5, time: 50 },

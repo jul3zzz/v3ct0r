@@ -293,6 +293,11 @@ export const BUFFON: GameDef = {
     'Niveaux 2 et 3 : glisse les deux bornes de ton intervalle. Si la valeur tombe dedans, le score monte quand l’intervalle se rapproche de l’intervalle à 95 % ; sinon 0.',
     'Le hasard est réel : un intervalle à 95 % rate une fois sur vingt.',
   ],
+  touchRules: [
+    'Niveau 1 : glisse sur la règle (◀ ▶ pour affiner). Score plein si tu es à moins de 0,02 de la vraie probabilité.',
+    'Niveaux 2 et 3 : glisse les deux bornes de ton intervalle (MIN ◀ ▶ et MAX ▼ ▲ pour affiner). Si la valeur tombe dedans, le score monte quand l’intervalle se rapproche de l’intervalle à 95 % ; sinon 0.',
+    'Le hasard est réel : un intervalle à 95 % rate une fois sur vingt.',
+  ],
   levels: [
     { title: 'La cote', brief: 'estimer 2ℓ/(πd)', rounds: 5, time: 25 },
     { title: 'Le pari', brief: 'intervalle pour 100 aiguilles', rounds: 5, time: 30 },
