@@ -140,7 +140,7 @@ Une branche et un plan validé par moi pour chaque phase.
 - Phase 0 : faite le 2026-11-11.
   - Plan validé, modèle de données dans `docs/ECOLES-MODELE.md`.
   - Réponses : le compte reste obligatoire pour les particuliers dès que le site est configuré ; passage en Pro avant les mails ; région UE ; fusion de `feat/mobile-layout` avant la phase 1.
-- Phase 1 (`feat/school-trial`) : code et tests faits le 2026-11-12, rien n'est commité.
+- Phase 1 (`feat/school-trial`) : code et tests faits le 2026-11-12, commités ; `feat/mobile-layout` fusionnée dans main puis ramenée dans la branche ; PR ouverte.
   - **Fait.**
     - Migrations `supabase/migrations/` : schéma `school` non exposé, RLS sans policy, `trial_open` / `trial_ping`, fonctions `admin_*`.
     - 49 tests pgTAP (`npm run db:test`).
@@ -151,10 +151,18 @@ Une branche et un plan validé par moi pour chaque phase.
     - Écran bloquant de fin d'essai (contact `VITE_CONTACT_EMAIL`, nouvelle clé).
     - Section ÉCOLE du smoke (`dist-smoke/`), avec captures.
     - `docs/ADMIN.md`, `docs/RGPD.md`.
-  - **Vérifié de bout en bout** sur la pile Supabase locale, dans le navigateur.
-  - **Reste**, à faire par l'utilisateur :
-    - fusion de `feat/mobile-layout` dans main, puis `git merge main` dans `feat/school-trial` ;
-    - commit et PR ;
-    - côté Supabase : Pro, variables `VITE_SUPABASE_ANON_KEY` et `VITE_CONTACT_EMAIL`, migrations (`docs/ADMIN.md` §0) ;
-    - `SUPABASE_SECRET_KEY` dans `.env.local`.
+    - Version téléphone et tablette :
+      - sur téléphone, le logo de l'école prend la place du symbole V3CT0R ; sans logo, un ESSAI compact ;
+      - sur tablette, un nom long est coupé à 160 px ;
+      - les onglets restent sur la première ligne (smoke à 375 px).
+  - **Vérifié de bout en bout** sur la pile Supabase locale, dans le navigateur, y compris l'arrêt d'un essai en cours de session : école désactivée, écran bloquant au ping suivant, sans recharger (2026-11-12, ping envoyé au passage en arrière-plan ; le minuteur des 5 minutes appelle la même fonction).
+  - **Reste** :
+    - fusion de la PR dans main (le site se reconstruit ; sans `VITE_SUPABASE_ANON_KEY`, l'essai y reste inactif) ;
+    - à faire par l'utilisateur, côté Supabase : Pro, variables `VITE_SUPABASE_ANON_KEY` et `VITE_CONTACT_EMAIL`, migrations (`docs/ADMIN.md` §0) ;
+    - `SUPABASE_SECRET_KEY` dans `.env.local`, tapée par l'utilisateur.
+- Demande du 2026-11-12, à planifier avant les phases 2 à 6 :
+  - clé de licence d'établissement, à côté de la clé d'essai ;
+  - installation en même temps sur tous les PC de la prépa, chaque poste débloqué pour tous ses utilisateurs, sans saisie ;
+  - installeur signé : l'utilisateur prend le certificat ;
+  - améliorations demandées : accueil et apparence, espace proviseur, onglet CLASSE, tableau de bord pour l'administrateur.
 - Phases 2 à 6 : à faire.
