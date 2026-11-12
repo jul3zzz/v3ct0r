@@ -1,0 +1,87 @@
+/* V3CT0R on a phone (< 720 px wide): a single column. The top bar takes two rows (the sections, then the tools in
+   a strip that scrolls sideways), the rail stays a drawer, and the panel (explorer controls, LEARN details) becomes
+   a sheet under the view: open on 42 % of the height, or folded down to its grip (body.sheet-min, setSheet in
+   shell/layout.ts). Same tokens as everywhere: black, white, white opacities, 1px lines.
+   Imported last (main.ts), so that these rules win over the wider-window ones of hud.css, learn.css, atlas.css. */
+
+.sheet-grip { display: none; }
+
+@media (max-width: 719px) {
+  :root { --bar: 66px; }
+
+  /* ── grid: bar / view / grip / sheet / status ── */
+  #app {
+    height: 100vh;
+    height: 100dvh;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: var(--bar) minmax(0, 1fr) 32px 42% var(--status);
+    grid-template-areas: 'top' 'vp' 'grip' 'panel' 'status';
+    transition: grid-template-rows var(--t) var(--ease);
+  }
+  body.sheet-min #app { grid-template-rows: var(--bar) minmax(0, 1fr) 32px 0 var(--status); }
+  body.sheet-min #app > .panel { visibility: hidden; }
+  html body.atlas #app { grid-template-columns: minmax(0, 1fr); grid-template-rows: var(--bar) minmax(0, 1fr) 0 0 var(--status); }
+  html body.chrome-off #app { grid-template-columns: minmax(0, 1fr); grid-template-rows: 0 minmax(0, 1fr) 0 0 0; }
+
+  /* ── top bar: the sections on the first row, the tools on the second ── */
+  .topbar { flex-wrap: wrap; align-content: stretch; column-gap: 10px; row-gap: 0; padding: 0 10px; }
+  .brand .wm, .topbar .crumbs, .topbar .spacer, .topbar .meta { display: none; }
+  .tabs { margin-left: auto; }
+  .tabs .tab { padding: 6px 9px; }
+  .tabs .tab .kanji { display: none; }
+  .tb-tools { flex: 1 0 100%; justify-content: space-between; gap: 4px; margin: 0 -10px; padding: 3px 10px; border-top: var(--line); }
+  .topbar .tb-btn { height: 24px; padding: 0 8px; }
+  /* a school trial (shell/school-ui.ts): the school's logo takes the place of the V3CT0R symbol, without its name,
+     so that the sections keep the first row next to MODULES; a school without a logo gets a compact ESSAI */
+  .topbar:has(> .sc-badge.on) > .brand { display: none; }
+  .topbar .sc-badge { gap: 0; margin: 0; padding: 0 5px; max-width: none; }
+  .topbar .sc-badge-name, .topbar .sc-badge-logo ~ .sc-badge-k { display: none; }
+  .topbar .sc-badge-k { padding: 2px 4px; letter-spacing: 0.04em; }
+  .topbar .sc-badge:not(:has(> .sc-badge-logo)) { border: 0; padding: 0; }
+
+  /* ── rail: still a drawer, over the view and the sheet ── */
+  #app > .rail { grid-area: 2 / 1 / 5 / 2; width: min(300px, 86vw); border-right: var(--line-mid); }
+
+  /* ── the sheet and its grip ── */
+  #app > .panel { border-left: 0; border-top: var(--line); }
+  .sheet-grip { grid-area: grip; display: flex; align-items: center; gap: 10px; padding: 0 12px; border-top: var(--line); color: var(--fg-70); font-size: var(--fs-xs); letter-spacing: var(--track-caps); text-align: left; }
+  .sheet-grip::after { content: ''; margin-left: auto; width: 32px; height: 1px; background: var(--fg-40); }
+  .sheet-grip:hover, .sheet-grip:active { color: var(--fg); background: var(--fg-05); }
+  .sheet-grip .sg-ch::before { content: '▾'; }
+  body.sheet-min .sheet-grip .sg-ch::before { content: '▴'; }
+  .sheet-grip .sg-l, body.learn .sheet-grip .sg-x { display: none; }
+  body.learn .sheet-grip .sg-l { display: inline; }
+  body.atlas .sheet-grip, body.chrome-off .sheet-grip { display: none; }
+
+  /* a long read-out of the LEARN details (DURÉE of a written course) wraps instead of being cut by the edge */
+  .lpanel .ro .v { white-space: normal; }
+
+  /* ── view HUD: the sheet already carries the title and the subtitle; the mouse hints (wheel, right
+     click) and the cursor coordinates mean nothing under a finger ── */
+  .vp-title { top: 10px; left: 14px; max-width: calc(100% - 28px); }
+  .vp-title .sub, .vp-tags, .vp-coords, .vp-hint { display: none; }
+  .vp-stats { left: 12px; bottom: 12px; }
+
+  /* ── tours, study terminal ── */
+  .tour { left: 8px; right: 8px; bottom: 8px; width: auto; }
+  .term { width: 100%; border-right: 0; }
+
+  /* ── status bar: the essentials (the keyboard hints go) ── */
+  .statusbar { gap: 10px; padding: 0 10px; }
+  .statusbar > span:nth-child(2), .statusbar > span:last-child { display: none; }
+  .statusbar > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+  /* ── LEARN player, on three rows: the position, then play / ±5 s / time, then speed and options ── */
+  .lxp { --bar: 98px; }
+  .lx-bar { flex-wrap: wrap; align-content: space-evenly; gap: 6px; padding: 4px 10px; }
+  .lx-scrub { order: -1; flex: 1 0 100%; }
+  .lx-chapname { display: none; }
+  .lx-time { min-width: 0; flex: 1 0 auto; text-align: right; }
+  .lx-subs { width: 94%; }
+  .lx-subs .ln { font-size: 15px; }
+}
+
+/* the label of the MODULES / COURS button comes back when the first row has room for it */
+@media (min-width: 360px) and (max-width: 719px) {
+  .topbar .rail-toggle > span { display: inline; }
+}

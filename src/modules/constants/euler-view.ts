@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, text, line, marker } from '../../gfx/plot2d';
 import { fmt } from '../../hud/dom';
 import { floatingTeX } from './common';
@@ -38,7 +38,13 @@ export const eulerView: VizDef = {
         const g = ctx.g;
         const W = ctx.width;
         const H = ctx.height;
-        // a narrow viewport (small window): the circle takes the whole width, never a negative size
+        // a narrow viewport (small window): the circle takes the whole width, never a negative size;
+        // on a phone the big formula moves to the bottom right corner, smaller
+        const phone = W < NARROW_VIEW;
+        big.style.right = phone ? '14px' : '330px';
+        big.style.top = phone ? 'auto' : '120px';
+        big.style.bottom = phone ? '16px' : '';
+        big.style.fontSize = phone ? '19px' : '30px';
         const side = W > 760 ? 420 : 40;
         const size = Math.max(60, Math.min(W - side, H - 190));
         fr.set(side === 420 ? 60 + (W - 420 - size) / 2 : (W - size) / 2, 110 + Math.max(0, H - 190 - size) / 2, size, size);

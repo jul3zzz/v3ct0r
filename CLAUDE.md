@@ -12,6 +12,7 @@ Architecture et contrat `VizDef` : voir README.md.
 - Vidéos YouTube des vues : `npm run videos:check` (réseau, oEmbed) ; `-- --write` met à jour titres, chaînes et durées.
 - Écoles : `npm run school -- create|trial|extend|disable|status|report [--local]` (script admin, clé secrète lue dans `.env.local`, jamais affichée ; voir docs/ADMIN.md) · `npm run db:test` (Docker Desktop ouvert : pile Supabase locale, migrations réappliquées, tests pgTAP de `supabase/tests/`) · `npm run supabase -- <cmd>` (CLI figée 2.122.0). Sous Git Bash, `MSYS_NO_PATHCONV=1` sinon `--start "#/learn/x"` est déformé.
 - Décimales : `npm run digits` (BigInt, double vérification) ; polices : `npm run fonts` (réseau, rare).
+- PWA : `npm run pwa` (http, service worker, hors ligne ; inclus dans `npm run check`) ; un fichier ajouté à dist/ est gardé hors ligne tout seul (plugin `pwa` de vite.config.ts).
 
 ## Règles
 - DA stricte : noir #000 / blanc #FFF (opacités de blanc), lignes 1px ; jamais de text-transform sur les libellés (casse des symboles). Seule exception : le thème d'une école (docs/ECOLES.md), posé par variables CSS sur `:root` (`--accent`, `--accent-ink` dans `src/hud/tokens.css`, valeurs par défaut `var(--fg)`/`var(--bg)`) ; un sélecteur ne prend l'accent que par ces variables, jamais par une couleur en dur, et le thème par défaut reste identique au pixel près (vérifié par le smoke, section ÉCOLE). Le logo d'une école garde ses couleurs et ne s'affiche qu'en `<img src="data:…">`.
@@ -38,4 +39,5 @@ Architecture et contrat `VizDef` : voir README.md.
 - Fichiers contenant des backslashes (LaTeX, GLSL, regex) : écrire avec Write/Edit, jamais via un heredoc Bash.
 - Logo « orbite et vecteur » (choix de l'utilisateur, 2026-11-08) : maîtres `src/assets/logo/v3ct0r-icon.svg` et `v3ct0r-icon-small.svg` (≤ 24 px, traits épaissis) ; le symbole de l'app (`src/hud/logo.ts`) reprend la même géométrie : changer les deux, puis `npm run icons`.
 - App de bureau (`electron/main.cjs`, `electron-builder.yml`) : charge `dist/index.html` en file://, liens externes vers le navigateur, pas de menu. `release.yml` construit l'installeur sur Windows à chaque tag `v*` ; le bouton TÉLÉCHARGER (Windows) pointe vers `releases/latest/download/V3CT0R-Setup.exe` : ne pas renommer ce fichier. Installeur non signé (avertissement SmartScreen au 1er lancement).
+- Téléphone (< 720 px, `src/hud/phone.css` importé en dernier) : feuille sous la vue (`setSheet`) ; une vue 2D étroite (< 560 px) se met en page par `narrowPlot` (`gfx/frame2d.ts`) ; une commande clavier d'un jeu a son bouton tactile (`GameLogic.touchKeys`) ; le smoke vérifie 375×812 au doigt.
 - Interface en français ; code, identifiants et commentaires en anglais.

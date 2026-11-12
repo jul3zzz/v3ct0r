@@ -4,7 +4,7 @@
 // deeper levels need deeper dives. The set is rendered by a fragment shader (shared WebGL2).
 import * as THREE from 'three';
 import type { VizContext } from '../core/types';
-import { fr, type Box, type GameDef, type GameLogic, type RoundResult } from './types';
+import { fr, type Box, type GameDef, type GameLogic, type RoundResult, type TouchKey } from './types';
 
 /** period of the attracting cycle that catches the orbit of 0; 'escape' if it leaves |z| ≤ 2;
  *  null when undecided after `maxIter` steps (very close to the boundary) */
@@ -77,6 +77,9 @@ class MandelDive implements GameLogic {
   private returned = false;
   private box: Box = { x: 0, y: 0, w: 1, h: 1 };
   private drag: { x: number; y: number; vx: number; vy: number; moved: boolean } | null = null;
+  /** touch: the fingers on the play area, and the distance between two of them while they pinch */
+  private fingers = new Map<number, [number, number]>();
+  private pinchD = 0;
   private gl: { ctx: VizContext; scene: THREE.Scene; cam: THREE.OrthographicCamera; mat: THREE.ShaderMaterial } | null = null;
 
   attach(ctx: VizContext): void {
@@ -112,6 +115,14 @@ class MandelDive implements GameLogic {
     return 'GLISSER : DÉPLACER · MOLETTE : ZOOMER · CLIC : SONDER c · R : VUE INITIALE';
   }
 
+  touchControls(): string {
+    return 'GLISSER : DÉPLACER · DEUX DOIGTS : ZOOMER · TOUCHER : SONDER c';
+  }
+
+  touchKeys(): TouchKey[] {
+    return [{ label: 'VUE INITIALE', title: 'Revenir à la vue de départ (R)', key: 'r' }];
+  }
+
   // view: centre (x, y), half-height s; the box keeps its aspect
   private range(): [number, number, number, number] {
     const hw = this.view.s * (this.box.w / Math.max(1, this.box.h));
@@ -126,14 +137,39 @@ class MandelDive implements GameLogic {
     return [this.box.x + ((cx - x0) / (x1 - x0)) * this.box.w, this.box.y + ((y1 - cy) / (y1 - y0)) * this.box.h];
   }
 
+  /** zoom by k (< 1: closer) keeping the point under (x, y) in place */
+  private zoomAt(x: number, y: number, k: number): void {
+    const [cx, cy] = this.toC(x, y);
+    const s = Math.max(2e-5, Math.min(HOME.s * 1.5, this.view.s * k));
+    this.view = { x: cx + (this.view.x - cx) * (s / this.view.s), y: cy + (this.view.y - cy) * (s / this.view.s), s };
+  }
+
   pointer(type: 'move' | 'down' | 'up' | 'wheel', x: number, y: number, e: PointerEvent | WheelEvent): void {
     if (type === 'wheel') {
-      const [cx, cy] = this.toC(x, y);
-      const k = Math.pow(1.0015, (e as WheelEvent).deltaY);
-      const s = Math.max(2e-5, Math.min(HOME.s * 1.5, this.view.s * k));
-      // keep the point under the cursor in place
-      this.view = { x: cx + (this.view.x - cx) * (s / this.view.s), y: cy + (this.view.y - cy) * (s / this.view.s), s };
+      this.zoomAt(x, y, Math.pow(1.0015, (e as WheelEvent).deltaY));
       return;
+    }
+    // touch: two fingers pinch to zoom; a pinch neither drags nor probes
+    const pe = e as PointerEvent;
+    if (pe.pointerType === 'touch') {
+      if (type === 'up') {
+        this.fingers.delete(pe.pointerId);
+        if (this.pinchD) {
+          if (this.fingers.size < 2) {
+            this.pinchD = 0;
+            this.drag = null;
+          }
+          return;
+        }
+      } else if (type === 'down' || this.fingers.has(pe.pointerId)) this.fingers.set(pe.pointerId, [x, y]);
+      if (this.fingers.size >= 2) {
+        const [a, b] = [...this.fingers.values()];
+        const d = Math.max(1, Math.hypot(a[0] - b[0], a[1] - b[1]));
+        if (!this.pinchD) this.drag = null;
+        else this.zoomAt((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, this.pinchD / d);
+        this.pinchD = d;
+        return;
+      }
     }
     if (type === 'down') {
       this.drag = { x, y, vx: this.view.x, vy: this.view.y, moved: false };

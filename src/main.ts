@@ -14,6 +14,9 @@ import { cloud, cloudConfigured } from './core/cloud';
 import { trialEnded, welcome } from './shell/welcome';
 import { school } from './school/school';
 import { paintBadge } from './shell/school-ui';
+import { setupPwa } from './shell/pwa';
+// last: the phone layout overrides the wider-window rules of every stylesheet imported above
+import './hud/phone.css';
 
 interface LearnState {
   course: string;
@@ -59,6 +62,8 @@ function probeGPU(): { gpu: string; maxTex: number; failure?: string } {
 }
 
 async function main(): Promise<void> {
+  // the website as an installable app (manifest, offline service worker); nothing in file://
+  setupPwa();
   const host = document.getElementById('app')!;
   const probe = probeGPU();
   const views = MODULES.reduce((n, m) => n + m.vizs.length, 0);

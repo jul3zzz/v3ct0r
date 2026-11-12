@@ -14,4 +14,6 @@
 .sc-badge { display: inline-flex; align-items: center; gap: 6px; height: 22px; padding: 0 8px; margin: 0 6px; border: 1px solid var(--accent); color: var(--fg); font-size: var(--fs-xs); letter-spacing: 0.06em; white-space: nowrap; max-width: 260px; }
 .sc-badge-logo { width: 16px; height: 16px; object-fit: contain; flex: none; }
 .sc-badge-name { overflow: hidden; text-overflow: ellipsis; }
-.sc-badge-k { color: var(--accent-ink); background: var(--accent); padding: 0 4px; font-size: 9px; letter-spacing: var(--track-caps); }
+.sc-badge-k { color: var(--accent-ink); background: var(--accent); padding: 0 4px; font-size: 9px; letter-spacing: var(--track-caps); flex: none; }
+/* a tablet: a long name is cut (the full one is in the title) so that the tools strip keeps its room */
+@media (max-width: 1199px) { .sc-badge { max-width: 160px; } }

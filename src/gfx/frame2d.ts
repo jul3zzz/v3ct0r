@@ -1,5 +1,16 @@
 import { INK, fmtTick, line, niceStep, text } from './plot2d';
 
+/** below this view width (a phone, phone.css) the 2D views lay out in one column */
+export const NARROW_VIEW = 560;
+
+/** the plot rectangle [x, y, w, h] of a narrow view: under the view title (vp-title), above `stats` lines of
+ *  HUD stats (vp-stats, bottom left) */
+export function narrowPlot(W: number, H: number, stats = 3): [number, number, number, number] {
+  const top = 98;
+  const bottom = 26 + stats * 20;
+  return [44, top, W - 62, Math.max(70, H - top - bottom)];
+}
+
 /** A fixed plotting rectangle inside the overlay canvas (no pan/zoom): world box → screen rect. */
 export class Frame2D {
   constructor(

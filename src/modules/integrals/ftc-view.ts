@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, hatch, marker, text, line, callout } from '../../gfx/plot2d';
 import { range } from '../../math/numeric';
 import { fmt } from '../../hud/dom';
@@ -84,11 +84,14 @@ export const ftcView: VizDef = {
         }
         const W = ctx.width;
         const H = ctx.height;
-        const L = 70;
-        const R = 40;
-        const ph = (H - 200) / 2;
-        top.set(L, 130, W - L - R, ph - 10).world(st.a, st.b, Math.min(0, fr[0]) - 0.1 * (fr[1] - fr[0] || 1), Math.max(0, fr[1]) + 0.15 * (fr[1] - fr[0] || 1));
-        bot.set(L, 130 + ph + 30, W - L - R, ph - 10).world(st.a, st.b, Math.min(0, Fr[0]) - 0.1 * (Fr[1] - Fr[0] || 1), Math.max(0, Fr[1]) + 0.15 * (Fr[1] - Fr[0] || 1));
+        // narrow view (phone): smaller margins, the two plots between the title and the HUD stats
+        const narrow = W < NARROW_VIEW;
+        const L = narrow ? 44 : 70;
+        const R = narrow ? 16 : 40;
+        const y0 = narrow ? 104 : 130;
+        const ph = narrow ? Math.max(50, (H - y0 - 100) / 2) : (H - 200) / 2;
+        top.set(L, y0, W - L - R, ph - 10).world(st.a, st.b, Math.min(0, fr[0]) - 0.1 * (fr[1] - fr[0] || 1), Math.max(0, fr[1]) + 0.15 * (fr[1] - fr[0] || 1));
+        bot.set(L, y0 + ph + 30, W - L - R, ph - 10).world(st.a, st.b, Math.min(0, Fr[0]) - 0.1 * (Fr[1] - Fr[0] || 1), Math.max(0, Fr[1]) + 0.15 * (Fr[1] - Fr[0] || 1));
         const g = ctx.g;
         const x = st.a + st.x * (st.b - st.a);
         // top: f with accumulated area

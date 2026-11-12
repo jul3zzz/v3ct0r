@@ -28,8 +28,29 @@ Version téléchargée :
    Onglets en haut à gauche : **ATLAS**, **EXPLORER** (les 46 vues, menus classiques), **LEARN** (les cours).
    Fenêtre de moins de 1200 px de large : la colonne des modules (ou des cours) se replie en tiroir, ouvert par
    le bouton ≡ MODULES, pour laisser à la vue au moins 630 px.
+   Sur téléphone (moins de 720 px) : une seule colonne. La barre du haut tient sur deux lignes (onglets, puis outils
+   en bande qui défile), et le panneau devient une feuille sous la vue, repliée ou ouverte par sa poignée
+   (RÉGLAGES DE LA VUE, DÉTAILS DU COURS). Elle se replie d'elle-même quand un cours s'ouvre, pour que le lecteur
+   prenne tout l'écran (un cours, une leçon-jeu). Écran tactile : un doigt tourne les vues 3D et le graphe LEARN,
+   deux doigts zooment, un double tap recentre ; l'ATLAS a son pad et ses boutons (AVANCER, BOOST, ▲ ▼, ENTRER),
+   les leçons-jeux une barre de boutons, et AIDE liste les gestes.
+
 4. Un compte est demandé à la première ouverture (internet nécessaire cette fois-là) ; un appareil déjà connecté
    s'ouvre ensuite sans internet. Puis l'application propose le **tuto** (≈ 13 min, 17 étapes), qui se relance avec `T`.
+
+### Sur un téléphone (Android, iPhone, iPad)
+
+Le site s'installe comme une app (PWA) : une icône sur l'écran d'accueil, en plein écran, qui s'ouvre **sans
+internet** une fois ouverte une première fois (la page et les voix, ≈ 8 Mo, restent sur le téléphone).
+Le bouton **INSTALLER** de la barre du haut (et l'accueil du site, à la première visite) donne les étapes :
+
+- **Android** : ouvrir https://jul3zzz.github.io/v3ct0r/ dans Chrome, menu ⋮, « Installer l'application »
+  (ou « Ajouter à l'écran d'accueil ») ; quand Chrome le propose, un bouton l'installe d'un geste.
+- **iPhone / iPad** : ouvrir le site dans Safari, bouton Partager, « Sur l'écran d'accueil », Ajouter.
+
+Le manifeste et les icônes viennent de `public/` (`npm run icons`), le service worker (`dist/sw.js`) est écrit
+au build à partir de `scripts/sw-template.js`, avec la liste des fichiers à garder ; il n'existe qu'en http(s) :
+le zip et l'app Windows restent en `file://`, inchangés. `npm run pwa` le vérifie (inclus dans `npm run check`).
 
 Aucun réseau n'est utilisé, sauf pour le compte (connexion à la première ouverture, puis synchro de la progression) : polices, KaTeX, Three.js, les 10 000 décimales de chaque constante et le contenu des cours
 sont embarqués dans le fichier. Sans les MP3, les cours se jouent avec sous-titres seuls.

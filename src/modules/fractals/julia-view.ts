@@ -185,6 +185,8 @@ export const juliaView: VizDef = {
         }
         const W = ctx.width;
         const H = ctx.height;
+        // narrow view (phone): a smaller map of c, so that the Julia set keeps the view
+        Object.assign(map, W < 560 ? { x: 14, y: 96, w: 150, h: 112 } : { x: 26, y: 132, w: 280, h: 210 });
         uniforms.uCenter.value = [pz.cx, pz.cy];
         uniforms.uView.value = [pz.scale * W, pz.scale * H];
         uniforms.uC.value = st.c;

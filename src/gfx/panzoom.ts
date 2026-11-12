@@ -48,7 +48,31 @@ export class PanZoom {
     if (o.pan !== false || o.onDrag) el.classList.add('grab');
     ctx.onDispose(() => el.classList.remove('grab', 'grabbing'));
 
+    // touch: two fingers pinch to zoom (and pan with their midpoint); a double tap is a dblclick (core/touch.ts)
+    const touches = new Map<number, [number, number]>();
+    let pinch: { d: number; mx: number; my: number } | null = null;
+    const pinchNow = () => {
+      const [a, b] = [...touches.values()];
+      return { d: Math.max(1, Math.hypot(a[0] - b[0], a[1] - b[1])), mx: (a[0] + b[0]) / 2, my: (a[1] + b[1]) / 2 };
+    };
     ctx.listen(el, 'pointerdown', (e: PointerEvent) => {
+      if (e.pointerType === 'touch') {
+        touches.set(e.pointerId, local(e));
+        if (touches.size === 2) {
+          // a second finger: the one-finger drag (if any) ends where it is, the pinch begins
+          if (this.down) {
+            if (this.down.custom) o.onDrag?.(...this.toWorld(this.down.x, this.down.y), e, 'end');
+            this.down = null;
+            this.dragging = false;
+            el.classList.remove('grabbing');
+          }
+          el.setPointerCapture(e.pointerId);
+          pinch = pinchNow();
+          this.anim = null;
+          return;
+        }
+        if (touches.size > 2) return;
+      }
       if (e.button !== 0) return;
       const [x, y] = local(e);
       const [wx, wy] = this.toWorld(x, y);
@@ -59,6 +83,20 @@ export class PanZoom {
     });
     ctx.listen(el, 'pointermove', (e: PointerEvent) => {
       const [x, y] = local(e);
+      if (e.pointerType === 'touch' && touches.has(e.pointerId)) {
+        touches.set(e.pointerId, [x, y]);
+        if (pinch && touches.size === 2) {
+          const p = pinchNow();
+          if (o.zoom !== false) this.zoomAt(p.mx, p.my, pinch.d / p.d);
+          if (o.pan !== false) {
+            this.cx -= (p.mx - pinch.mx) * this.scale;
+            this.cy += (p.my - pinch.my) * this.scale;
+          }
+          pinch = p;
+          ctx.hud.refresh();
+          return;
+        }
+      }
       this.mouse = [x, y];
       if (!this.down || this.down.id !== e.pointerId) return;
       const dx = x - this.down.x;
@@ -81,6 +119,14 @@ export class PanZoom {
       ctx.hud.refresh();
     });
     const up = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') {
+        touches.delete(e.pointerId);
+        // the end of a pinch: the finger left on the screen does not start a drag
+        if (pinch) {
+          if (touches.size < 2) pinch = null;
+          return;
+        }
+      }
       if (!this.down || this.down.id !== e.pointerId) return;
       const [x, y] = local(e);
       const [wx, wy] = this.toWorld(x, y);

@@ -1,6 +1,6 @@
 import type { VizDef } from '../../core/types';
 import { PanZoom } from '../../gfx/panzoom';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, axes, dotGrid, plot, hatch, marker, text, line } from '../../gfx/plot2d';
 import { adaptiveSimpson, riemann, range, METHOD_ORDER, type RiemannMethod } from '../../math/numeric';
 import { fmt, fmtSci } from '../../hud/dom';
@@ -148,6 +148,8 @@ export const riemannView: VizDef = {
     const drawConvergence = (g: CanvasRenderingContext2D) => {
       const W = ctx.width;
       const H = ctx.height;
+      // narrow view (phone): no room for the inset, which would cover the curve (the panel gives the error and the order)
+      if (W < NARROW_VIEW) return;
       conv.set(W - 250 - 30, H - 150 - 60, 250, 150);
       const pts: Record<string, [number, number][]> = {};
       let lo = 0;

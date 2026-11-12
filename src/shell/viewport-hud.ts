@@ -1,7 +1,20 @@
 import { h, setText, fmt } from '../hud/dom';
 import { icon } from '../hud/deco';
+import { touchScreen } from '../core/touch';
 
 type Mapper = (px: number, py: number) => readonly [number, number] | null;
+
+/** a view's mouse hint said with the fingers (touch screen): the wheel is a pinch, the right button two
+ *  fingers, a double click a double tap, a hover a touch */
+export const touchHint = (text: string): string =>
+  text
+    .replace(/MOLETTE : ZOOM AU CURSEUR/g, 'PINCER : ZOOM')
+    .replace(/MOLETTE : ZOOM/g, 'PINCER : ZOOM')
+    .replace(/CLIC DROIT : DÉPLACER/g, 'DEUX DOIGTS : DÉPLACER')
+    .replace(/DOUBLE-CLIC/g, 'DOUBLE TAP')
+    .replace(/CLIC MAINTENU/g, 'DOIGT POSÉ')
+    .replace(/SURVOLER/g, 'TOUCHER')
+    .replace(/CLIC/g, 'TAP');
 
 /** Decorative and informative layer over the viewport: corners, rulers, reticle, title, stats, tags. */
 export class ViewportHud {
@@ -98,7 +111,7 @@ export class ViewportHud {
   }
 
   hint(text: string): void {
-    this.hintEl.textContent = text;
+    this.hintEl.textContent = touchScreen() ? touchHint(text) : text;
   }
 
   /** Map screen → world coordinates for the cursor readout; null disables the reticle. */

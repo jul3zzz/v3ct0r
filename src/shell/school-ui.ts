@@ -52,7 +52,10 @@ export function contactLine(): HTMLElement {
 /** the badge of the top bar: logo, name, days left (hidden without a running trial) */
 export function paintBadge(el: HTMLElement): void {
   const info = school.info;
-  if (!info || !school.active) {
+  const on = !!info && school.active;
+  // `on`: phone.css gives the badge the place of the V3CT0R symbol
+  el.classList.toggle('on', on);
+  if (!info || !on) {
     el.style.display = 'none';
     el.replaceChildren();
     return;

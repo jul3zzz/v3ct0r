@@ -134,6 +134,10 @@ class FourierPainter implements GameLogic {
     return 'CLIC SUR UNE FRÉQUENCE : AJOUTER / RETIRER';
   }
 
+  touchControls(): string {
+    return 'TOUCHE UNE FRÉQUENCE : AJOUTER / RETIRER';
+  }
+
   pointer(type: 'move' | 'down' | 'up' | 'wheel', x: number, y: number): void {
     if (type !== 'down') return;
     const i = this.btn.findIndex((b) => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h);

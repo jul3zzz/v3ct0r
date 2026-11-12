@@ -891,6 +891,19 @@ current = 'school';
     const runOk = run.state === 'active' && run.course === 'riemann' && run.badge.includes('Lycée Smoke') && run.accent === '#2255cc' && run.tabBg === 'rgb(34, 85, 204)' && srv.opens === 1;
     if (!startOk) errors.push(`[école] carte d’essai ${JSON.stringify(card)}`);
     if (!runOk) errors.push(`[école] essai en cours ${JSON.stringify({ ...run, opens: srv.opens })}`);
+    // the same trial on a phone (src/hud/phone.css): the badge fits on the first row with the sections
+    await sp.setViewportSize({ width: 375, height: 812 });
+    await sp.waitForTimeout(500);
+    const phone = await sp.evaluate(() => {
+      const bar = document.querySelector('.topbar').getBoundingClientRect();
+      const b = document.querySelector('.sc-badge').getBoundingClientRect();
+      const tabs = [...document.querySelectorAll('.tabs .tab')].map((t) => t.getBoundingClientRect());
+      return { bar: Math.round(bar.height), badge: b.width > 0 && b.right <= innerWidth, row: tabs.every((t) => Math.abs(t.top - b.top) < 12 && t.right <= innerWidth + 0.5), page: document.documentElement.scrollWidth <= innerWidth };
+    });
+    if (shots) await sp.screenshot({ path: join(shots, 'school__4-phone.png') });
+    const phoneOk = phone.bar === 66 && phone.badge && phone.row && phone.page;
+    if (!phoneOk) errors.push(`[école] badge sur téléphone ${JSON.stringify(phone)}`);
+    await sp.setViewportSize({ width: 1400, height: 850 });
     // 2. the trial ends: next opening → the blocking screen
     srv.state = 'expired';
     await boot(surl);
@@ -920,9 +933,265 @@ current = 'school';
     const after = await sp.evaluate(() => ({ ...window.__vm.school(), badge: getComputedStyle(document.querySelector('.sc-badge')).display }));
     const refusedOk = refused === 'Clé refusée' && after.state === null && after.badge === 'none' && after.accent === '#fff';
     if (!refusedOk) errors.push(`[école] clé inconnue ${JSON.stringify({ refused, ...after })}`);
-    features.push(`ÉCOLE carte ${startOk ? 'ok' : 'KO'} · vue de départ + verrous + badge + accent ${runOk ? 'ok' : 'KO'} · fin d’essai ${endedOk ? 'ok' : 'KO'} · nouvelle clé ${reopened === 'active' ? 'ok' : 'KO'} · clé inconnue ${refusedOk ? 'ok' : 'KO'} · thème par défaut ${themeOk ? 'ok' : 'KO'} (${srv.opens} trial_open simulés)`);
+    features.push(`ÉCOLE carte ${startOk ? 'ok' : 'KO'} · vue de départ + verrous + badge + accent ${runOk ? 'ok' : 'KO'} · badge téléphone ${phoneOk ? 'ok' : 'KO'} · fin d’essai ${endedOk ? 'ok' : 'KO'} · nouvelle clé ${reopened === 'active' ? 'ok' : 'KO'} · clé inconnue ${refusedOk ? 'ok' : 'KO'} · thème par défaut ${themeOk ? 'ok' : 'KO'} (${srv.opens} trial_open simulés)`);
     await ctx.close();
   }
+}
+
+// phone (375 × 812, touch): one column, the top bar on two rows, the panel as a sheet under the view
+// (src/hud/phone.css). Every step is done with real taps and a real touch drag, then checked for horizontal overflow.
+current = 'phone';
+{
+  const pp = await browser.newPage({ viewport: { width: 375, height: 812 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
+  await pp.addInitScript(() => {
+    localStorage.setItem('vector-math.e2e', 'true');
+    localStorage.setItem('vector-math.intro.seen', 'true');
+    localStorage.setItem('vector-math.progress.v1', JSON.stringify({ free: true, views: {} }));
+  });
+  pp.on('pageerror', (e) => errors.push(`[phone] pageerror: ${e.message}`));
+  pp.on('console', (m) => m.type() === 'error' && errors.push(`[phone] console.error: ${m.text()}`));
+  const bad = [];
+  const shot = async (name) => shots && (await pp.screenshot({ path: join(shots, `phone-${name}.png`) }));
+  // what sticks out sideways: the page, the top bar, the tools strip, a tab cut by the edge
+  const overflow = (where) =>
+    pp.evaluate((where) => {
+      const W = innerWidth;
+      const els = { page: document.documentElement, topbar: document.querySelector('.topbar'), tools: document.querySelector('.tb-tools'), reader: document.querySelector('.lw') };
+      const out = Object.entries(els).filter(([, e]) => e && e.scrollWidth > e.clientWidth + 1).map(([k, e]) => `${k} ${e.scrollWidth}>${e.clientWidth}`);
+      for (const t of document.querySelectorAll('.tabs .tab')) {
+        const b = t.getBoundingClientRect();
+        if (b.width === 0 || b.left < 0 || b.right > W + 0.5) out.push(`onglet ${t.textContent} coupé`);
+      }
+      // the open sheet: no text cut by its right edge (display formulas scroll on their own)
+      const sheet = [...document.querySelectorAll('#app > .panel')].find((p) => p.offsetParent && !document.body.classList.contains('sheet-min'));
+      if (sheet) {
+        const R = sheet.getBoundingClientRect().right;
+        for (const e of sheet.querySelectorAll('*')) {
+          if (!e.getClientRects().length || e.closest('.katex-display') || (e instanceof SVGElement && e.closest('.katex'))) continue;
+          if (e.getBoundingClientRect().right > R + 0.5) {
+            out.push(`panneau : « ${(e.textContent ?? '').trim().slice(0, 40)} » coupé`);
+            break;
+          }
+        }
+      }
+      return out.map((x) => `${where} : ${x}`);
+    }, where);
+  const box = (sel) => pp.evaluate((sel) => {
+    const e = document.querySelector(sel);
+    if (!e || !e.offsetParent) return { w: 0, h: 0 };
+    const r = e.getBoundingClientRect();
+    return { w: Math.round(r.width), h: Math.round(r.height) };
+  }, sel);
+  const mode = () => pp.evaluate(() => (document.body.classList.contains('atlas') ? 'atlas' : document.body.classList.contains('learn') ? 'learn' : 'explore'));
+  await pp.goto(url);
+  await pp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+  await pp.waitForTimeout(600);
+  if ((await mode()) !== 'atlas') bad.push(`accueil ${await mode()} au lieu de l’ATLAS`);
+  bad.push(...(await overflow('ATLAS')));
+  await shot('atlas');
+  // real touches (CDP): one finger held on an element (optionally sliding by dx), two fingers that spread
+  const cdp = await pp.context().newCDPSession(pp);
+  const press = async (sel, ms, dx = 0) => {
+    const b = await pp.locator(sel).boundingBox();
+    const x = b.x + b.width / 2;
+    const y = b.y + b.height / 2;
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    for (let k = 1; k <= Math.ceil(ms / 50); k++) {
+      if (dx) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x + dx * Math.min(1, k / 4), y }] });
+      await pp.waitForTimeout(50);
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  };
+  const spread = async (sel) => {
+    const b = await pp.locator(sel).boundingBox();
+    const x = b.x + b.width / 2;
+    const y = b.y + b.height / 2;
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: x - 20, y, id: 1 }, { x: x + 20, y, id: 2 }] });
+    for (let k = 1; k <= 8; k++) {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: x - 20 - 12 * k, y, id: 1 }, { x: x + 20 + 12 * k, y, id: 2 }] });
+      await pp.waitForTimeout(30);
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  };
+
+  // ATLAS by touch (atlas.ts buildTouch): AVANCER held moves the ship, the pad turns it
+  const at0 = await pp.evaluate(() => window.__vm.atlasState());
+  const pad = await pp.locator('.atlas-touch .at-stick').count();
+  await press('.at-pad .at-b:nth-child(2)', 1200);
+  await press('.atlas-touch .at-stick', 800, 50);
+  await pp.waitForTimeout(300);
+  const at1 = await pp.evaluate(() => window.__vm.atlasState());
+  const moved = Math.hypot(at1.pos[0] - at0.pos[0], at1.pos[1] - at0.pos[1], at1.pos[2] - at0.pos[2]);
+  if (!pad || moved < 1 || Math.abs(at1.yaw - at0.yaw) < 0.01) bad.push(`ATLAS au doigt : pad ${pad} · déplacement ${moved.toFixed(1)} · cap ${(at1.yaw - at0.yaw).toFixed(3)}`);
+  const atlasTouch = `${moved.toFixed(0)} u`;
+
+  // EXPLORER, then a view picked in the MODULES drawer
+  await pp.tap('.tabs .tab:nth-child(2)');
+  await pp.waitForTimeout(900);
+  if ((await mode()) !== 'explore') bad.push('onglet EXPLORER sans effet');
+  await pp.tap('.rail-toggle');
+  await pp.waitForTimeout(400);
+  const drawer = await pp.evaluate(() => document.body.classList.contains('rail-open'));
+  const target = pp.locator('#app > .rail .mod.active .viz-btn:not(.intro)').nth(1);
+  const viewTitle = (await target.textContent())?.trim() ?? '';
+  await target.tap();
+  await pp.waitForTimeout(900);
+  const opened = await pp.evaluate(() => ({ title: document.querySelector('.panel-title')?.textContent ?? '', closed: !document.body.classList.contains('rail-open') }));
+  if (!drawer || !opened.closed || opened.title.trim() !== viewTitle) bad.push(`vue « ${viewTitle} » par le tiroir : ouvert ${drawer} · ouverte « ${opened.title} » · refermé ${opened.closed}`);
+  const vp = await box('.viewport');
+  const sheet = await box('#app > .panel:not(.lpanel)');
+  if (vp.w < 375 || vp.h < 250 || sheet.h < 250) bad.push(`explorateur : vue ${vp.w}×${vp.h} · feuille ${sheet.h} px`);
+  bad.push(...(await overflow('EXPLORER')));
+  await shot('explorer');
+  // the grip folds the sheet (the view gets the height) and opens it again
+  await pp.tap('.sheet-grip');
+  await pp.waitForTimeout(500);
+  const folded = await box('.viewport');
+  await pp.tap('.sheet-grip');
+  await pp.waitForTimeout(500);
+  const reopened = await box('#app > .panel:not(.lpanel)');
+  if (folded.h < vp.h + 200 || reopened.h < 250) bad.push(`poignée : vue repliée ${folded.h} px · feuille rouverte ${reopened.h} px`);
+  // two fingers zoom a 2D view (gfx/panzoom.ts): the ZOOM read-out of Mandelbrot changes
+  await pp.evaluate(() => window.__vm.go('fractals/mandelbrot'));
+  await pp.waitForTimeout(700);
+  const zoomOf = () => pp.evaluate(() => [...document.querySelectorAll('.vp-stats .k')].find((k) => k.textContent === 'ZOOM')?.nextElementSibling?.textContent ?? '');
+  const z0 = await zoomOf();
+  await spread('.viewport canvas.ov2d');
+  await pp.waitForTimeout(300);
+  const z1 = await zoomOf();
+  if (!z0 || z0 === z1) bad.push(`deux doigts sur Mandelbrot : zoom ${z0} → ${z1}`);
+  // every view at phone size: no error (narrow layouts), the page never wider than the screen
+  const allViews = await pp.evaluate(() => window.__vm.views());
+  for (const v of allViews) {
+    await pp.evaluate((v) => window.__vm.go(v), v);
+    await pp.waitForTimeout(220);
+  }
+  bad.push(...(await overflow('46 vues')));
+  // AIDE on a touch screen: the gestures, not the keys
+  await pp.tap('.tb-tools .tb-btn:last-child');
+  await pp.waitForTimeout(300);
+  const aide = await pp.evaluate(() => ({ touch: !!document.querySelector('.dlg .keymap.touch'), rows: document.querySelectorAll('.dlg .keymap .row').length }));
+  if (!aide.touch || aide.rows < 5) bad.push(`AIDE au doigt : ${JSON.stringify(aide)}`);
+  await pp.keyboard.press('Escape');
+  await pp.waitForTimeout(200);
+
+  // LEARN: the graph turns under one finger (OrbitControls: .grabbing while the drag lasts)
+  await pp.tap('[data-act=tab-learn]');
+  await pp.waitForTimeout(1200);
+  if ((await mode()) !== 'learn') bad.push('onglet LEARN sans effet');
+  const graph = await box('.viewport');
+  if (graph.w < 375 || graph.h < 250) bad.push(`graphe LEARN ${graph.w}×${graph.h}`);
+  const gb = await pp.locator('.viewport canvas.ov2d').boundingBox();
+  const tx = gb.x + gb.width * 0.25;
+  const ty = gb.y + gb.height * 0.5;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: tx, y: ty }] });
+  for (let k = 1; k <= 10; k++) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: tx + 18 * k, y: ty + 3 * k }] });
+    await pp.waitForTimeout(16);
+  }
+  const grabbing = await pp.evaluate(() => document.querySelector('.viewport canvas.ov2d').classList.contains('grabbing'));
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await pp.waitForTimeout(200);
+  const released = await pp.evaluate(() => !document.querySelector('.viewport canvas.ov2d').classList.contains('grabbing'));
+  const touchAction = await pp.evaluate(() => getComputedStyle(document.querySelector('.viewport canvas.ov2d')).touchAction);
+  if (!grabbing || !released || touchAction !== 'none') bad.push(`graphe au doigt : glissé ${grabbing} · relâché ${released} · touch-action ${touchAction}`);
+  bad.push(...(await overflow('LEARN')));
+  await shot('learn');
+
+  // a written course, opened from the sheet: the reader takes the whole width and height, the sheet folds
+  await pp.evaluate(() => window.__vm.learnGraph({ pick: 'c:nombres-complexes' }));
+  await pp.waitForTimeout(500);
+  await pp.tap('.lpanel .panel-actions .btn.on');
+  await pp.waitForTimeout(900);
+  const reader = await box('.lw');
+  const min = await pp.evaluate(() => document.body.classList.contains('sheet-min'));
+  if (reader.w < 375 || reader.h < 600 || !min) bad.push(`cours écrit : lecteur ${reader.w}×${reader.h} · feuille repliée ${min}`);
+  await pp.evaluate(() => document.querySelector('.lw').scrollTo(0, 4000));
+  await pp.waitForTimeout(200);
+  bad.push(...(await overflow('cours écrit')));
+  await shot('reader');
+
+  // the video player: its transport bar fits in its own height
+  await pp.evaluate(() => window.__vm.learn('riemann'));
+  await pp.waitForTimeout(900);
+  const bar = await pp.evaluate(() => {
+    const b = document.querySelector('.lx-bar');
+    if (!b) return 'absente';
+    const r = b.getBoundingClientRect();
+    const out = [...b.children].filter((e) => e.offsetParent && (e.getBoundingClientRect().top < r.top - 0.5 || e.getBoundingClientRect().bottom > r.bottom + 0.5 || e.getBoundingClientRect().right > r.right + 0.5));
+    return out.map((e) => e.className).join(', ');
+  });
+  if (bar) bad.push(`barre de lecture : ${bar} hors de la barre`);
+  bad.push(...(await overflow('cours vidéo')));
+  await shot('player');
+  // the scenes on a portrait stage (stage.ts PORTRAIT_SLOTS): every formula inside its slot, every object inside the stage
+  for (const [c, t] of [['demo', 30], ['reduction', 300], ['riemann', 200]]) {
+    await pp.evaluate(([c, t]) => window.__vm.learn(c, t), [c, t]);
+    await pp.waitForTimeout(1400);
+    const out = await pp.evaluate(() => {
+      const st = document.querySelector('.lx').getBoundingClientRect();
+      const bad = [];
+      for (const e of document.querySelectorAll('.lx-eq')) {
+        const s = e.getBoundingClientRect();
+        const i = e.querySelector('.lx-eq-in').getBoundingClientRect();
+        if (i.left < s.left - 2 || i.right > s.right + 2) bad.push(`formule ${Math.round(i.left)}…${Math.round(i.right)} hors de ${Math.round(s.left)}…${Math.round(s.right)}`);
+      }
+      for (const e of document.querySelectorAll('.lx-obj')) {
+        const r = e.getBoundingClientRect();
+        if (r.left < st.left - 1 || r.right > st.right + 1) bad.push(`${e.getAttribute('class')} hors de la scène`);
+      }
+      return bad;
+    });
+    for (const b of out) bad.push(`cours ${c} à ${t} s : ${b}`);
+  }
+  // the 11 leçons-jeux by taps: COMMENCER, the game's own buttons (engine.ts touchKeys), ✕ back to the briefing
+  const GK = { 'duel-eps': 2, 'eigen-hunt': 4, 'fourier-painter': 0, 'pilot-4d': 3, 'mandel-dive': 1, 'buffon-casino': 2, 'prime-hunt': 0, babylon: 4, euclid: 0, eratosthenes: 4, archimedes: 0 };
+  for (const [g, n] of Object.entries(GK)) {
+    await pp.evaluate((g) => window.__vm.learn(`game:${g}`), g);
+    await pp.waitForTimeout(700);
+    await pp.tap('.game-touch .gt-b.go');
+    await pp.waitForTimeout(400);
+    const s = await pp.evaluate(() => ({ phase: window.__vm.gameState()?.phase, keys: document.querySelectorAll('.game-touch .gt-b.gk').length, h: Math.round(document.querySelector('.viewport').getBoundingClientRect().height) }));
+    if (s.phase !== 'play' || s.keys !== n || s.h < 600) bad.push(`jeu ${g} au doigt : ${JSON.stringify(s)} (attendu ${n} bouton(s), vue pleine hauteur)`);
+    if (g === 'duel-eps') {
+      await pp.tap('.game-touch .gt-b.go');
+      await pp.waitForTimeout(300);
+      const p = await pp.evaluate(() => window.__vm.gameState()?.phase);
+      if (p !== 'reveal') bad.push(`jeu duel-eps : VALIDER → ${p}`);
+    } else {
+      await pp.tap('.game-touch .gt-b:not(.gk):not(.go)');
+      await pp.waitForTimeout(250);
+      const p = await pp.evaluate(() => window.__vm.gameState()?.phase);
+      if (p !== 'brief') bad.push(`jeu ${g} : ✕ → ${p}`);
+    }
+    bad.push(...(await overflow(`jeu ${g}`)));
+  }
+  await shot('game');
+  await pp.close();
+
+  // tablet (768 × 1024): the tools strip of the top bar scrolls instead of being cut by the edge
+  const tp = await browser.newPage({ viewport: { width: 768, height: 1024 }, isMobile: true, hasTouch: true });
+  await tp.addInitScript(() => {
+    localStorage.setItem('vector-math.e2e', 'true');
+    localStorage.setItem('vector-math.intro.seen', 'true');
+  });
+  tp.on('pageerror', (e) => errors.push(`[tablet] pageerror: ${e.message}`));
+  await tp.goto(url);
+  await tp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+  await tp.evaluate(() => window.__vm.go('constants/euler'));
+  await tp.waitForTimeout(800);
+  const tab = await tp.evaluate(() => {
+    const t = document.querySelector('.topbar');
+    const tools = document.querySelector('.tb-tools');
+    tools.scrollLeft = tools.scrollWidth;
+    const help = [...tools.querySelectorAll('.tb-btn')].pop().getBoundingClientRect();
+    return { top: t.scrollWidth <= t.clientWidth, help: help.right <= innerWidth + 0.5 && help.width > 0, vp: Math.round(document.querySelector('.viewport').getBoundingClientRect().width) };
+  });
+  if (!tab.top || !tab.help || tab.vp < 440) bad.push(`tablette 768 : barre ${tab.top ? 'ok' : 'coupée'} · AIDE atteignable ${tab.help} · vue ${tab.vp} px`);
+  await tp.close();
+
+  for (const b of bad) errors.push(`[phone] ${b}`);
+  features.push(`TÉLÉPHONE 375 onglets · tiroir · feuille · ATLAS au doigt ${atlasTouch} · zoom à deux doigts · 46 vues · gestes · graphe au doigt · cours écrit · scènes portrait · 11 jeux au tap ${bad.length ? `KO (${bad.length})` : 'ok'} · TABLETTE 768 vue ${tab.vp} px`);
 }
 
 // first-run prompt on a fresh profile

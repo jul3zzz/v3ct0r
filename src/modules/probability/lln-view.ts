@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, text, line } from '../../gfx/plot2d';
 import { fmt, fmtInt } from '../../hud/dom';
 import { rng } from '../fractals/common';
@@ -72,8 +72,10 @@ export const llnView: VizDef = {
         const g = ctx.g;
         const W = ctx.width;
         const H = ctx.height;
-        fr.set(80, 140, W - 160, H - 290).world(0, 5, e.yr[0], e.yr[1]);
-        fr.box(g, 'MOYENNE EMPIRIQUE EN FONCTION DE n (ÉCHELLE LOG)', false);
+        const narrow = W < NARROW_VIEW;
+        if (narrow) fr.set(...narrowPlot(W, H, 3)).world(0, 5, e.yr[0], e.yr[1]);
+        else fr.set(80, 140, W - 160, H - 290).world(0, 5, e.yr[0], e.yr[1]);
+        fr.box(g, narrow ? 'MOYENNE EMPIRIQUE · n EN LOG' : 'MOYENNE EMPIRIQUE EN FONCTION DE n (ÉCHELLE LOG)', false);
         for (let d = 0; d <= 5; d++) {
           line(g, fr.sx(d), fr.y, fr.sx(d), fr.y + fr.h, INK.f10);
           text(g, `10${'⁰¹²³⁴⁵'[d]}`, fr.sx(d), fr.y + fr.h + 14, { align: 'center', color: INK.f60 });

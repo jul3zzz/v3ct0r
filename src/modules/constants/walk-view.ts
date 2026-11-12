@@ -1,6 +1,6 @@
 import type { VizDef } from '../../core/types';
 import { PanZoom } from '../../gfx/panzoom';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, text } from '../../gfx/plot2d';
 import { fmt, fmtInt } from '../../hud/dom';
 import { CONSTANTS, type ConstId, byId } from './data';
@@ -108,8 +108,11 @@ export const walkView: VizDef = {
         for (let i = 0; i < n; i++) counts[digits.charCodeAt(i) - 48]++;
         let chi = 0;
         for (const c of counts) chi += (c - n / 10) ** 2 / (n / 10);
-        hist.set(ctx.width - 260, ctx.height - 190, 220, 110);
-        hist.box(g, 'FRÉQUENCE DES CHIFFRES 0–9');
+        // narrow view (phone): a smaller histogram in the bottom right corner, beside the HUD stats
+        const narrow = ctx.width < NARROW_VIEW;
+        if (narrow) hist.set(ctx.width - 148, ctx.height - 118, 134, 62);
+        else hist.set(ctx.width - 260, ctx.height - 190, 220, 110);
+        hist.box(g, narrow ? 'CHIFFRES 0–9' : 'FRÉQUENCE DES CHIFFRES 0–9');
         counts.forEach((c, d) => {
           const f = c / n;
           const x0 = hist.sx(d - 0.35);

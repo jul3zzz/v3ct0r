@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type { VizDef } from '../../core/types';
 import { Stage3D } from '../../gfx/stage3d';
 import { axes, lineMat } from '../../gfx/materials';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, hatch, line, marker, text } from '../../gfx/plot2d';
 import { compile } from '../../math/parser';
 import { ballVolume } from '../../math/numeric';
@@ -209,7 +209,9 @@ export const hyperView: VizDef = {
           if (frame % 4 === 0) tS.set(st.t, true);
         }
         const g = ctx.g;
-        graph.set(ctx.width - 290, ctx.height - 205, 260, 140);
+        // narrow view (phone): a smaller graph at the top right, clear of the HUD stats
+        if (ctx.width < NARROW_VIEW) graph.set(ctx.width - 166, 96, 150, 72);
+        else graph.set(ctx.width - 290, ctx.height - 205, 260, 140);
         if (st.mode === 'func') {
           const u = dmat.uniforms;
           u.uT.value = st.t;

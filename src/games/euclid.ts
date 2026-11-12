@@ -95,6 +95,10 @@ class Euclid implements GameLogic {
     return 'TOUCHES 1 À 9 (OU CLIC SUR UN CHIFFRE) : LE NOMBRE DE CARRÉS';
   }
 
+  touchControls(): string {
+    return 'TOUCHE UN CHIFFRE : LE NOMBRE DE CARRÉS';
+  }
+
   private answer(q: number): void {
     const s = this.steps[this.k];
     if (!s || this.finished) return;

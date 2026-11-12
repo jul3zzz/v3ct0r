@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, text, line } from '../../gfx/plot2d';
 import { fmt, fmtInt } from '../../hud/dom';
 import { DIGITS } from '../../data/digits';
@@ -63,7 +63,10 @@ export const zeta3View: VizDef = {
         const H = ctx.height;
         // left: stacked cubes column
         const colW = Math.min(260, (W - 120) * 0.35);
-        fr.set(80, 140, colW, H - 290).world(0, 1, 0, 1.3);
+        // narrow view (phone): a thinner column, the grid of triplets to its right
+        const nb = W < NARROW_VIEW ? narrowPlot(W, H, 3) : null;
+        if (nb) fr.set(nb[0], nb[1] + 10, Math.min(120, nb[2] * 0.38), nb[3] - 10).world(0, 1, 0, 1.3);
+        else fr.set(80, 140, colW, H - 290).world(0, 1, 0, 1.3);
         fr.box(g, 'Σ 1/n³ EMPILÉE', false);
         let s = 0;
         for (let k = 1; k <= st.n; k++) {
@@ -79,15 +82,16 @@ export const zeta3View: VizDef = {
         line(g, fr.x - 6, fr.sy(Z3), fr.x + fr.w + 6, fr.sy(Z3), INK.fg, [4, 3]);
         text(g, 'ζ(3)', fr.x + fr.w + 10, fr.sy(Z3) + 4, { color: INK.fg });
         // right: grid of recent triplets
-        const gx = fr.x + fr.w + 90;
-        const gw = W - gx - 330;
+        const gx = fr.x + fr.w + (nb ? 54 : 90);
+        const gw = nb ? W - gx - 14 : W - gx - 330;
         const cols = 30;
         const cell = Math.max(4, Math.min(16, gw / cols));
-        text(g, 'TRIPLETS RÉCENTS (■ = PREMIERS ENTRE EUX)', gx, 132, { size: 9, color: INK.f40 });
+        const gy = nb ? nb[1] + 18 : 140;
+        text(g, nb ? '■ PREMIERS ENTRE EUX' : 'TRIPLETS RÉCENTS (■ = PREMIERS ENTRE EUX)', gx, gy - 8, { size: 9, color: INK.f40 });
         st.recent.forEach((ok, i) => {
           const x = gx + (i % cols) * cell;
-          const y = 140 + Math.floor(i / cols) * cell;
-          if (y > H - 160) return;
+          const y = gy + Math.floor(i / cols) * cell;
+          if (y > H - (nb ? 92 : 160)) return;
           if (ok) {
             g.fillStyle = INK.f80;
             g.fillRect(x + 1, y + 1, cell - 2, cell - 2);

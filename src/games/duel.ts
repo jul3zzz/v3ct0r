@@ -1,7 +1,7 @@
 // DUEL ε-δ: the definition of a limit played as the game it is. Levels 1-2: the machine names ε,
 // you answer with δ (the larger, the better, as long as it works). Level 3: the roles swap on
 // functions WITHOUT a limit: you pick ε, then defeat every δ the machine tries with a counterexample.
-import { fr, type Box, type GameDef, type GameLogic, type RoundResult } from './types';
+import { fr, type Box, type GameDef, type GameLogic, type RoundResult, type TouchKey } from './types';
 
 export interface LimitFn {
   /** display (unicode) */
@@ -162,6 +162,25 @@ class Duel implements GameLogic {
   controls(): string {
     if (this.level < 2) return 'GLISSER : RÉGLER δ · MOLETTE : AFFINER · ← → ±2 %';
     return this.step === 0 ? 'GLISSER VERTICALEMENT : RÉGLER ε · ↑ ↓ ±2 %' : 'CLIC : CONTRE-EXEMPLE';
+  }
+
+  touchControls(): string {
+    if (this.level < 2) return 'GLISSER : RÉGLER δ · ◀ ▶ : AFFINER (±2 %)';
+    return this.step === 0 ? 'GLISSER VERTICALEMENT : RÉGLER ε · ▼ ▲ : AFFINER (±2 %)' : 'TOUCHER LE GRAPHE : CONTRE-EXEMPLE';
+  }
+
+  touchKeys(): TouchKey[] {
+    if (this.level < 2)
+      return [
+        { label: '◀ δ', title: 'δ −2 %', key: 'ArrowLeft', repeat: true },
+        { label: 'δ ▶', title: 'δ +2 %', key: 'ArrowRight', repeat: true },
+      ];
+    return this.step === 0
+      ? [
+          { label: '▼ ε', title: 'ε −2 %', key: 'ArrowDown', repeat: true },
+          { label: 'ε ▲', title: 'ε +2 %', key: 'ArrowUp', repeat: true },
+        ]
+      : [];
   }
 
   private mDelta(): number {

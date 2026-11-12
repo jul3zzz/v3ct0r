@@ -74,6 +74,8 @@ export interface Layout {
   tabAtlas: HTMLButtonElement;
   learnRail: HTMLElement;
   learnPanel: HTMLElement;
+  /** phone: opens or folds the panel sheet (phone.css) */
+  sheetGrip: HTMLButtonElement;
   btnLearn: HTMLButtonElement;
 }
 
@@ -129,16 +131,8 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
     crumbs,
     h('div', { class: 'spacer' }),
     h('div', { class: 'meta' }, h('span', { class: 'rec-dot' }, h('i'), recTime), hex, uptime, clock, fps),
-    btnPalette,
-    btnQuality,
-    btnSound,
-    btnMusic,
-    btnCalc,
-    btnNotes,
-    btnAccount,
-    btnDownload,
-    btnScan,
-    btnHelp,
+    // the tools: inline in the bar on a wide window, a strip that scrolls when the window is narrow (hud.css, phone.css)
+    h('div', { class: 'tb-tools' }, btnPalette, btnQuality, btnSound, btnMusic, btnCalc, btnNotes, btnAccount, btnDownload, btnScan, btnHelp),
   );
 
   // rail
@@ -248,8 +242,17 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
   const learnRail = h('nav', { class: 'rail lrail', 'aria-label': 'Cours' });
   const learnPanel = h('aside', { class: 'panel lpanel', 'aria-label': 'Détails du cours' });
 
+  // phone: the grip that opens or folds the panel, shown as a sheet under the view (phone.css)
+  const sheetGrip = h(
+    'button',
+    { type: 'button', class: 'sheet-grip', 'aria-expanded': 'true', title: 'Ouvrir ou replier le panneau' },
+    h('span', { class: 'sg-ch', 'aria-hidden': 'true' }),
+    h('span', { class: 'sg-x', text: 'RÉGLAGES DE LA VUE' }),
+    h('span', { class: 'sg-l', text: 'DÉTAILS DU COURS' }),
+  );
+
   const app = host;
-  app.replaceChildren(top, rail, learnRail, viewport, panel, learnPanel, status);
+  app.replaceChildren(top, rail, learnRail, viewport, sheetGrip, panel, learnPanel, status);
   document.body.append(cineCap, h('div', { class: 'scanlines', 'aria-hidden': 'true' }), h('div', { id: 'print-root' }));
 
   return {
@@ -311,8 +314,18 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
     tabAtlas,
     learnRail,
     learnPanel,
+    sheetGrip,
     btnLearn,
   };
+}
+
+/** phone: a single column, the panel is a sheet under the view (phone.css, same breakpoint) */
+export const PHONE = '(max-width: 719px)';
+
+/** phone: open the panel sheet, or fold it down to its grip (no effect on a wider window) */
+export function setSheet(open: boolean): void {
+  document.body.classList.toggle('sheet-min', !open);
+  document.querySelector('.sheet-grip')?.setAttribute('aria-expanded', String(open));
 }
 
 export { hexId };

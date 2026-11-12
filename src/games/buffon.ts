@@ -2,7 +2,7 @@
 // the odds: estimate the crossing probability 2ℓ/(πd). Level 2, the bet: an interval for the
 // number of crossings out of 100 — narrow pays, missing loses. Level 3: from a real throw, an
 // interval for π. Pure probability, scored against the binomial and the delta method.
-import { fr, type Box, type GameDef, type GameLogic, type RoundResult } from './types';
+import { fr, type Box, type GameDef, type GameLogic, type RoundResult, type TouchKey } from './types';
 
 /** P(a needle crosses a line) for ℓ ≤ d */
 export const pCross = (l: number, d: number): number => (2 * l) / (Math.PI * d);
@@ -93,6 +93,19 @@ class Buffon implements GameLogic {
 
   controls(): string {
     return this.level === 0 ? 'GLISSER SUR LA RÈGLE : TON ESTIMATION · ← → AFFINER' : 'GLISSER LES DEUX BORNES · ← → / ↑ ↓ AFFINER';
+  }
+
+  touchControls(): string {
+    return this.level === 0 ? 'GLISSER SUR LA RÈGLE : TON ESTIMATION · ◀ ▶ : AFFINER' : 'GLISSER LES DEUX BORNES · ◀ ▶ BORNE BASSE · ▼ ▲ BORNE HAUTE';
+  }
+
+  touchKeys(): TouchKey[] {
+    const lr: TouchKey[] = [
+      { label: this.level === 0 ? '◀' : 'MIN ◀', title: 'Affiner vers la gauche', key: 'ArrowLeft', repeat: true },
+      { label: this.level === 0 ? '▶' : 'MIN ▶', title: 'Affiner vers la droite', key: 'ArrowRight', repeat: true },
+    ];
+    if (this.level === 0) return lr;
+    return [...lr, { label: 'MAX ▼', title: 'Baisser la borne haute', key: 'ArrowDown', repeat: true }, { label: 'MAX ▲', title: 'Monter la borne haute', key: 'ArrowUp', repeat: true }];
   }
 
   private ruler(): { x: number; y: number; w: number } {

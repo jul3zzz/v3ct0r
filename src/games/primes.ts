@@ -109,6 +109,10 @@ class PrimeHunt implements GameLogic {
     return 'CLIC SUR UN NOMBRE : TIRER (DÉFINITIF)';
   }
 
+  touchControls(): string {
+    return 'TOUCHE UN NOMBRE : TIRER (DÉFINITIF)';
+  }
+
   private y(it: Falling): number {
     return this.box.y + 10 + ((this.clock - it.t0) / FALL) * (this.box.h - 40);
   }

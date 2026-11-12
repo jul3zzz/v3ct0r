@@ -50,14 +50,15 @@ export interface KeyDoc {
   keys: string[];
 }
 
-export function keymapDialog(docs: KeyDoc[]): Dialog {
-  const d = new Dialog('KEYMAP', { center: true, width: 700 });
-  const grid = h('div', { class: 'keymap' });
+/** the keys of the current tab; `touch`: the gestures and buttons of a touch screen instead */
+export function keymapDialog(docs: KeyDoc[], touch = false): Dialog {
+  const d = new Dialog(touch ? 'GESTES' : 'KEYMAP', { center: true, width: 700 });
+  const grid = h('div', { class: `keymap${touch ? ' touch' : ''}` });
   for (const k of docs) {
     grid.append(h('div', { class: 'row' }, h('span', { text: k.label }), h('span', {}, ...k.keys.map((x) => h('span', { class: 'kbd', text: x })))));
   }
   d.body.append(grid);
-  d.foot.append(h('span', { text: 'SOURIS : GLISSER = ORBITE / DÉPLACER · MOLETTE = ZOOM · DOUBLE-CLIC = RECENTRER' }));
+  d.foot.append(h('span', { text: touch ? 'AVEC UN CLAVIER BRANCHÉ, LES RACCOURCIS CLAVIER MARCHENT AUSSI' : 'SOURIS : GLISSER = ORBITE / DÉPLACER · MOLETTE = ZOOM · DOUBLE-CLIC = RECENTRER' }));
   return d;
 }
 
