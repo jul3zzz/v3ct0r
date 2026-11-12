@@ -1,8 +1,8 @@
-# Installer V3CT0R sur tous les PC d'un établissement
+# Installer V3CT0R Lycée sur tous les PC d'un établissement
 
 Ce guide s'adresse au technicien ou au référent numérique de l'établissement. Chaque kit d'installation en contient une copie adaptée (`LISEZ-MOI.txt`), avec la clé, le nombre de postes et la date de fin de la licence.
 
-Après l'installation, V3CT0R s'ouvre **déjà débloqué pour tous les comptes Windows du poste** : les élèves n'ont ni code à saisir ni compte à créer.
+V3CT0R Lycée est l'app des établissements, distincte de V3CT0R (l'app pour tous) : son propre nom, son dossier, ses données. Après l'installation, elle s'ouvre **déjà débloquée pour tous les comptes Windows du poste** : les élèves n'ont ni code à saisir ni compte à créer.
 
 ## Le kit
 
@@ -10,13 +10,13 @@ Il est créé par l'éditeur avec `npm run school -- licence … --kit` (voir `d
 
 | Fichier | Rôle |
 |---|---|
-| `V3CT0R-Ecole.msi` | l'application (Windows 10 ou 11, 64 bits), installée pour tout le poste (Program Files) |
+| `V3CT0R-Lycee.msi` | V3CT0R Lycée, l’app des établissements (Windows 10 ou 11, 64 bits), installée pour tout le poste (Program Files) |
 | `licence.json` | la clé de la licence ; copiée dans `C:\ProgramData\V3CT0R\licence.json` |
 | `installer.cmd` | installation silencieuse : le MSI, puis `licence.json` (à lancer en administrateur) |
 | `desinstaller.cmd` | désinstallation |
 | `LISEZ-MOI.txt` | ce guide, avec les valeurs de la licence |
 
-Si `V3CT0R-Ecole.msi` manque, il se télécharge sur https://github.com/jul3zzz/v3ct0r/releases/latest/download/V3CT0R-Ecole.msi et se pose à côté de `installer.cmd`.
+Si `V3CT0R-Lycee.msi` manque, il se télécharge sur https://github.com/jul3zzz/v3ct0r/releases/latest/download/V3CT0R-Lycee.msi et se pose à côté de `installer.cmd`.
 
 ## Avant de commencer
 
@@ -32,7 +32,7 @@ Copier le dossier du kit sur le poste (ou le lire depuis un partage), clic droit
 ### B. Stratégie de groupe (domaine Active Directory)
 
 1. Copier le kit sur un partage lisible par les comptes ordinateurs, par exemple `\\serveur\logiciels\v3ct0r`.
-2. Configuration ordinateur > Stratégies > Paramètres du logiciel > **Installation de logiciel** : nouveau package `\\serveur\logiciels\v3ct0r\V3CT0R-Ecole.msi`, mode « Attribué ».
+2. Configuration ordinateur > Stratégies > Paramètres du logiciel > **Installation de logiciel** : nouveau package `\\serveur\logiciels\v3ct0r\V3CT0R-Lycee.msi`, mode « Attribué ».
 3. Configuration ordinateur > Préférences > Paramètres Windows > **Fichiers** :
    - nouveau fichier, source `\\serveur\logiciels\v3ct0r\licence.json` ;
    - destination `C:\ProgramData\V3CT0R\licence.json`, action « Remplacer ».
@@ -48,11 +48,11 @@ Déployer le dossier du kit comme application Win32, en contexte système :
 | désinstallation | `desinstaller.cmd` |
 | détection | le fichier `C:\ProgramData\V3CT0R\licence.json` existe |
 
-Pour installer le MSI seul, sans la licence : `msiexec /i V3CT0R-Ecole.msi /qn /norestart`.
+Pour installer le MSI seul, sans la licence : `msiexec /i V3CT0R-Lycee.msi /qn /norestart`.
 
 ## Vérifier
 
-Ouvrir V3CT0R (bureau ou menu Démarrer) avec un compte élève. La barre du haut doit montrer le logo de l'établissement et LICENCE, et rien ne doit être verrouillé.
+Ouvrir V3CT0R Lycée (bureau ou menu Démarrer) avec un compte élève. La barre du haut doit montrer le logo de l'établissement et LICENCE, et rien ne doit être verrouillé.
 
 Si un écran parle du serveur de licence, revoir le pare-feu (voir « Réseau » plus haut).
 

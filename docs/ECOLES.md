@@ -168,18 +168,17 @@ Une branche et un plan validé par moi pour chaque phase.
     | 1c | `feat/school-admin` | tableau de bord de l'administrateur (page locale, la clé secrète reste dans Node) |
     | 2 à 6 | comme ci-dessus | l'espace proviseur (4) gagne : postes de la licence, nouvelle clé, kit à télécharger |
 
-- Phase 1b (`feat/school-licence`, empilée sur `feat/school-trial`) : code et tests faits le 2026-11-12, rien n'est commité.
+- Phase 1b (`feat/school-licence`, empilée sur `feat/school-trial`) : faite le 2026-11-12 (commit 887de22), puis les deux apps le 2026-11-13.
   - **Fait.**
     - Migration `20261112180000_school_licence.sql` :
       - `school.trial_keys` (nom gardé) avec `kind` (`trial` ou `licence`) et `seats` ;
       - table `school.devices` ;
       - `key_open` / `key_ping` (état `full`), `trial_open` / `trial_ping` en relais ;
       - `admin_key_create`, `admin_key_rotate`, `admin_devices`, `admin_devices_reset`, `admin_report`.
-      - 45 tests pgTAP de plus (94 en tout).
     - App de bureau :
       - `electron/main.cjs` lit `%ProgramData%\V3CT0R\licence.json` et l'empreinte du poste ;
       - `electron/preload.cjs` les donne à la page (`window.v3ct0rDesktop`) ;
-      - nouvelle cible `V3CT0R-Ecole.msi`, pour tout le poste et silencieuse ;
+      - cible MSI pour tout le poste, silencieuse ;
       - `release.yml` la publie et signe si les réglages Azure existent.
     - Licence du poste vérifiée sans carte ni saisie. Écrans d'échec : serveur injoignable (RÉESSAYER), clé refusée, postes complets.
     - Accueil revu :
@@ -190,10 +189,17 @@ Une branche et un plan validé par moi pour chaque phase.
       - COMPTE → type, fin, postes.
     - Script : `licence [--kit]`, `devices [--reset]`, `rotate [--kit]`, `report` avec type et postes. Kit généré par `src/school/kit.ts` hors du dépôt.
     - `docs/DEPLOIEMENT.md` (guide du technicien), ADMIN.md (§1b, §5 signature), RGPD.md (postes).
+  - **Deux apps** (demande du 2026-11-12, plan validé ; réponses : V3CT0R Lycée ne s'ouvre qu'avec une clé, la clé se donne sur le site et l'app la reçoit, « key perso » = la licence de l'établissement, l'offre lycée disparaît une fois V3CT0R choisi sauf avec un lien d'essai) :
+    - éditions `standard` et `lycee` (`src/core/edition.ts`, `.env.lycee`, `electron-builder.lycee.yml`) ;
+    - V3CT0R (`V3CT0R-Setup.exe`, zip) n'a plus rien d'école ;
+    - V3CT0R Lycée (`V3CT0R-Lycee-Setup.exe`, `V3CT0R-Lycee.msi`) demande une clé, sans contournement ;
+    - site sous Windows : TÉLÉCHARGER V3CT0R ou V3CT0R LYCÉE ; la clé est vérifiée par `key_check` (migration `20261113090000_school_editions.sql`, ni visite ni poste), puis OUVRIR V3CT0R LYCÉE (`v3ct0r-lycee://cle/<clé>`) la passe à l'app ;
+    - la carte d'essai d'un lien propose aussi V3CT0R Lycée ;
+    - en tout : 106 tests pgTAP et le smoke du site (http) et de V3CT0R Lycée (file://).
   - **Reste**, à faire par l'utilisateur :
-    - commit et PR ;
-    - migration sur le projet réel ;
+    - fusion de la PR de la phase 1, puis de celle-ci ;
+    - migrations sur le projet réel ;
     - compte Azure Trusted Signing et ses variables et secrets (`docs/ADMIN.md` §5) ;
-    - une release (tag `v*`) pour publier le MSI ;
-    - essai d'installation sur un vrai PC ou une VM (droits administrateur).
+    - une release (tag `v*`) pour publier les trois fichiers ;
+    - essai d'installation sur un vrai PC ou une VM (droits administrateur), et du lien OUVRIR V3CT0R LYCÉE dans un vrai navigateur.
 - Phases 2 à 6 : à faire.

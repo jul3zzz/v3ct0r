@@ -39,6 +39,7 @@ Projet : `dpefjnxejkapgchgcrco`, région UE.
      1. `supabase/migrations/20261108000000_progress.sql` : la table `progress`. Elle peut être relancée sans risque.
      2. `supabase/migrations/20261111120000_school_trial.sql` : écoles, clés d'essai et suivi.
      3. `supabase/migrations/20261112180000_school_licence.sql` : licences, postes. Les builds de la phase 1 continuent de marcher.
+     4. `supabase/migrations/20261113090000_school_editions.sql` : `key_check`, la vérification du site avant de télécharger V3CT0R Lycée.
    - **B. CLI** : la version figée dans `package.json` ; le mot de passe de la base est demandé au `link`.
      ```powershell
      npm run supabase -- login
@@ -69,6 +70,24 @@ npm run school -- trial --school lycee-x --days 30 --label "proviseure, mail du 
 - **La clé n'est affichée qu'une fois** : le serveur n'en garde que l'empreinte (sha256). Copie le lien `https://jul3zzz.github.io/v3ct0r/?essai=<clé>` dans ton mail.
 - Pour l'app de bureau : J'AI UN CODE sur l'écran d'accueil, puis la clé. On peut aussi la saisir dans COMPTE → CODE D'ÉCOLE.
 
+## 1a. Deux apps : V3CT0R et V3CT0R Lycée
+
+| | V3CT0R | V3CT0R Lycée |
+|---|---|---|
+| Pour qui | tout le monde | les établissements |
+| Clé d'école | aucune (ni J'AI UN CODE, ni badge) | **obligatoire** : essai ou licence |
+| Fichiers de la release | `V3CT0R-Setup.exe` (bouton TÉLÉCHARGER), `V3CT0R.zip` | `V3CT0R-Lycee-Setup.exe` (une personne), `V3CT0R-Lycee.msi` (tout un PC, kit d'installation) |
+| Build | `npm run app:win` (fait aussi V3CT0R Lycée) | `npm run app:win:lycee` → `release\lycee\` |
+
+- Chaque app a son nom, son dossier, ses raccourcis et ses données. Une personne qui a les deux a deux progressions, sauf avec un compte.
+- **Sur le site** (Windows) :
+  - l'accueil et le bouton TÉLÉCHARGER proposent les deux ;
+  - pour V3CT0R Lycée, la clé est vérifiée d'abord (`key_check` : ni visite comptée, ni poste pris), puis l'installeur se télécharge ;
+  - un bouton OUVRIR V3CT0R LYCÉE (lien `v3ct0r-lycee://cle/<clé>`) donne la clé à l'app installée. La clé reste aussi affichée, à coller.
+- **Une fois V3CT0R choisi** sur un navigateur, V3CT0R Lycée n'y est plus proposé, sauf avec une clé (lien `?essai=` d'un mail, essai en cours).
+- Le lien d'essai d'un mail ouvre toujours l'essai dans le navigateur. Sur Windows, la carte d'essai propose en plus TÉLÉCHARGER V3CT0R LYCÉE, avec la même clé.
+- La migration `20261113090000_school_editions.sql` ajoute `key_check`.
+
 ## 1b. Vendre une licence et installer les PC de l'établissement
 
 ```powershell
@@ -82,7 +101,7 @@ npm run school -- licence --school lycee-x --seats 30 --until 2027-08-31 --label
 - La clé n'est affichée qu'une fois. Elle marche aussi tapée dans J'AI UN CODE (site, téléphone, zip).
 - `--kit` écrit le kit d'installation dans `Desktop\math\V3CT0R-kits\lycee-x\`, **hors du dépôt** (il contient la clé en clair) :
   - `licence.json`, `installer.cmd`, `desinstaller.cmd`, `LISEZ-MOI.txt` (le guide du technicien, `docs/DEPLOIEMENT.md` avec les valeurs de la licence) ;
-  - `V3CT0R-Ecole.msi`, téléchargé depuis la dernière release. Avant la première release qui le contient, `--msi release\V3CT0R-Ecole.msi` après `npm run app:win`.
+  - `V3CT0R-Lycee.msi`, téléchargé depuis la dernière release. Avant la première release qui le contient, `--msi release\lycee\V3CT0R-Lycee.msi` après `npm run app:win:lycee`.
   - `--out <dossier>` choisit un autre dossier, jamais dans le dépôt.
 - **Envoi** : partager le dossier par un lien (OneDrive…), pas en pièce jointe, car les messageries bloquent les `.cmd`.
 - Le technicien suit `LISEZ-MOI.txt` : poste par poste, GPO ou Intune. Après installation, chaque poste s'ouvre débloqué pour tous ses comptes, sans saisie.

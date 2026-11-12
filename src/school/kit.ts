@@ -1,11 +1,11 @@
 // The installation kit of a school licence (docs/ECOLES.md, phase 1b; docs/DEPLOIEMENT.md): the files
-// the school's technician runs to put V3CT0R on every PC at once, each PC unlocked for all its Windows
+// the school's technician runs to put V3CT0R Lycée (the app of schools) on every PC at once, each PC unlocked for all its Windows
 // accounts by %ProgramData%\V3CT0R\licence.json (read by electron/main.cjs). Written by
 // `npm run school -- licence --kit` next to the MSI of the latest release. Pure, no DOM, imports with
 // `.ts`: shared with tools/school.ts, tested in tests/school-licence.test.ts.
 import { formatCode } from './codes.ts';
 
-export const MSI_NAME = 'V3CT0R-Ecole.msi';
+export const MSI_NAME = 'V3CT0R-Lycee.msi';
 export const MSI_URL = `https://github.com/jul3zzz/v3ct0r/releases/latest/download/${MSI_NAME}`;
 /** where the desktop app reads the licence of the PC (every Windows account) */
 export const LICENCE_PATH = '%ProgramData%\\V3CT0R\\licence.json';
@@ -63,7 +63,7 @@ export function kitFiles(k: KitInput): Record<string, string> {
     ')',
     'rem SYSTEM and Administrators: full control; Users: read (SIDs: the same on every language of Windows)',
     'icacls "%ProgramData%\\V3CT0R\\licence.json" /inheritance:r /grant:r *S-1-5-18:F *S-1-5-32-544:F *S-1-5-32-545:R >nul',
-    `echo ${ascii(`V3CT0R est installé pour tous les utilisateurs de ce poste (licence ${k.school}).`)}`,
+    `echo ${ascii(`V3CT0R Lycée est installé pour tous les utilisateurs de ce poste (licence ${k.school}).`)}`,
     'exit /b 0',
   ]);
 
@@ -79,22 +79,22 @@ export function kitFiles(k: KitInput): Record<string, string> {
     'set "HERE=%~dp0"',
     `msiexec /x "%HERE%${MSI_NAME}" /qn /norestart`,
     'if exist "%ProgramData%\\V3CT0R\\licence.json" del /f /q "%ProgramData%\\V3CT0R\\licence.json"',
-    'echo V3CT0R est desinstalle de ce poste.',
+    'echo V3CT0R Lycee est desinstalle de ce poste.',
     'exit /b 0',
   ]);
 
   const contact = k.contact ? `Une question : ${k.contact}.` : 'Une question : la personne qui vous a envoyé ce kit.';
   const readme = crlf([
-    `V3CT0R · licence ${k.school}`,
+    `V3CT0R Lycée · licence ${k.school}`,
     '='.repeat(Math.min(72, 18 + k.school.length)),
     '',
     `Licence : ${k.seats} poste${k.seats > 1 ? 's' : ''}, jusqu’au ${date(k.endsAt)}.`,
-    'Ce kit installe V3CT0R sur les PC de l’établissement, déjà débloqué pour tous les comptes Windows du poste :',
+    'Ce kit installe V3CT0R Lycée (l’app des établissements) sur les PC, déjà débloquée pour tous les comptes Windows du poste :',
     'personne n’a de code à saisir.',
     contact,
     '',
     'CONTENU',
-    `  ${MSI_NAME}     l’application (Windows 10 ou 11, 64 bits), installée pour tout le poste`,
+    `  ${MSI_NAME}     V3CT0R Lycée (Windows 10 ou 11, 64 bits), installée pour tout le poste`,
     '  licence.json         la clé de la licence, copiée dans %ProgramData%\\V3CT0R',
     '  installer.cmd        installation silencieuse (MSI puis licence.json), à lancer en administrateur',
     '  desinstaller.cmd     désinstallation',
@@ -124,10 +124,10 @@ export function kitFiles(k: KitInput): Record<string, string> {
     '       installation    installer.cmd',
     '       désinstallation desinstaller.cmd',
     '       détection       le fichier C:\\ProgramData\\V3CT0R\\licence.json existe',
-    '     Installation silencieuse seule du MSI : msiexec /i V3CT0R-Ecole.msi /qn /norestart',
+    '     Installation silencieuse seule du MSI : msiexec /i V3CT0R-Lycee.msi /qn /norestart',
     '',
     'VÉRIFIER',
-    '  Ouvrir V3CT0R (bureau ou menu Démarrer) avec un compte élève : la barre du haut montre le logo de',
+    '  Ouvrir V3CT0R Lycée (bureau ou menu Démarrer) avec un compte élève : la barre du haut montre le logo de',
     `  l’établissement et LICENCE, et rien n’est verrouillé. Si un écran parle du serveur, revoir le pare-feu.`,
     '',
     'BON À SAVOIR',

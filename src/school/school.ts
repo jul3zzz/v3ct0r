@@ -7,6 +7,7 @@
 // then exactly as before. Rules and checks: trial.ts (pure, tested).
 import { store } from '../core/settings';
 import { cloud, cloudConfigured } from '../core/cloud';
+import { SCHOOL_MODE } from '../core/edition';
 import { isCode, normCode } from './codes';
 import { accentInk, advance, fromRow, input, isDevice, keyFromSearch, keyLabel, newClock, newDevice, parseTrial, take, trialState, validRoute, visibility, withoutKey, type ActiveClock, type KeySource, type TrialInfo, type TrialRow, type TrialState } from './trial';
 import type { TrialStep } from '../shell/welcome-steps';
@@ -14,7 +15,7 @@ import type { TrialStep } from '../shell/welcome-steps';
 declare global {
   interface Window {
     /** the desktop app (electron/preload.cjs): the licence of this PC and its device id */
-    v3ct0rDesktop?: { machineKey?: string | null; device?: string | null };
+    v3ct0rDesktop?: { edition?: string; machineKey?: string | null; device?: string | null; linkKey?: string | null; onLinkKey?: (cb: (key: string) => void) => void };
   }
 }
 
@@ -28,18 +29,24 @@ const OFFLINE = 'Pas de connexion au serveur';
 
 export type Redeem = { ok: true; state: TrialState } | { ok: false; message: string; offline: boolean };
 
-/** the licence set on this PC by its installer (desktop app), normalized */
-function machineKey(): string | null {
-  const raw = window.v3ct0rDesktop?.machineKey;
+/** a key handed over by the desktop app, normalized (null: none or not a code) */
+function deskKey(raw: unknown): string | null {
   if (typeof raw !== 'string' || raw.length > 64) return null;
   const k = normCode(raw);
   return isCode(k) && k.length >= 8 ? k : null;
 }
 
+/** school keys work here: accounts configured, and the website or V3CT0R Lycée (src/core/edition.ts) */
+const ON = cloudConfigured && SCHOOL_MODE !== 'off';
+/** V3CT0R Lycée: no app without a key */
+const REQUIRED = ON && SCHOOL_MODE === 'required';
+
 export class School {
   info: TrialInfo | null;
-  /** a key from the address, not checked yet */
+  /** a key from the address (website) or from a v3ct0r-lycee:// link (V3CT0R Lycée), not checked yet */
   urlKey: string | null;
+  /** where urlKey comes from */
+  urlSource: KeySource = 'link';
   /** the licence of this PC, not checked yet (checked before the app opens, no card) */
   machineKey: string | null;
   /** trial_open already counted this opening */
@@ -49,8 +56,9 @@ export class School {
   private last: TrialState | null;
 
   constructor() {
-    this.info = cloudConfigured ? parseTrial(store.get<unknown>(KEY, null)) : null;
-    this.urlKey = cloudConfigured ? keyFromSearch(location.search) : null;
+    this.info = ON ? parseTrial(store.get<unknown>(KEY, null)) : null;
+    // the website: ?essai= in the address; V3CT0R Lycée: the key of the link it was opened with
+    this.urlKey = !ON ? null : REQUIRED ? deskKey(window.v3ct0rDesktop?.linkKey) : keyFromSearch(location.search);
     if (location.search.includes('essai=')) {
       try {
         history.replaceState(null, '', withoutKey(location.href));
@@ -60,7 +68,7 @@ export class School {
     }
     // the key of the trial already kept here: no need to check it before the app opens
     if (this.urlKey && this.urlKey === this.info?.key) this.urlKey = null;
-    const mk = cloudConfigured ? machineKey() : null;
+    const mk = REQUIRED ? deskKey(window.v3ct0rDesktop?.machineKey) : null;
     // a licence kept from a PC that no longer has it (kit removed): dropped
     if (this.info?.source === 'machine' && mk !== this.info.key) {
       this.info = null;
@@ -74,7 +82,12 @@ export class School {
   }
 
   get enabled(): boolean {
-    return cloudConfigured;
+    return ON;
+  }
+
+  /** V3CT0R Lycée: a key is needed to open the app */
+  get required(): boolean {
+    return REQUIRED;
   }
 
   state(now = Date.now()): TrialState | null {
@@ -102,7 +115,38 @@ export class School {
     if (this.machineKey) return 'machine';
     if (this.urlKey) return 'key';
     const s = this.state();
-    return s === 'active' ? 'active' : s ? 'expired' : 'none';
+    return s === 'active' ? 'active' : s ? 'expired' : REQUIRED ? 'needed' : 'none';
+  }
+
+  /** whether a key opens V3CT0R now, without keeping it nor taking a seat (the website, before it
+   *  downloads V3CT0R Lycée: key_check) */
+  async check(raw: string): Promise<{ ok: true; key: string; kind: 'trial' | 'licence'; school: string } | { ok: false; message: string }> {
+    const key = normCode(raw);
+    if (!isCode(key) || key.length < 8) return { ok: false, message: 'Code incomplet : vérifie qu’il a été copié en entier' };
+    let row: { state?: string; kind?: string | null; school_name?: string | null } | undefined;
+    try {
+      row = (await cloud.rpc<{ state: string; kind: string | null; school_name: string | null }[]>('key_check', { p_key: key }))?.[0];
+    } catch (e) {
+      return { ok: false, message: (e as Error).message };
+    }
+    const words: Record<string, string> = {
+      unknown: 'Code inconnu : vérifie qu’il a été copié en entier',
+      busy: 'Trop d’essais : réessaie dans une minute',
+      expired: 'Cette clé est terminée : demande-en une nouvelle à ton établissement',
+      disabled: 'Cette clé est arrêtée : demande-en une nouvelle à ton établissement',
+      full: 'Toutes les places de cette licence sont prises',
+    };
+    if (row?.state === 'active' && row.school_name) return { ok: true, key, kind: row.kind === 'licence' ? 'licence' : 'trial', school: row.school_name.slice(0, 80) };
+    return { ok: false, message: words[row?.state ?? ''] ?? 'Réponse inattendue du serveur' };
+  }
+
+  /** V3CT0R Lycée: a v3ct0r-lycee:// link opened while the app runs */
+  onLinkKey(fn: (key: string) => void): void {
+    if (!REQUIRED) return;
+    window.v3ct0rDesktop?.onLinkKey?.((raw) => {
+      const k = deskKey(raw);
+      if (k) fn(k);
+    });
   }
 
   /** the visitor goes on without the key of the address (or of the PC, refused) */

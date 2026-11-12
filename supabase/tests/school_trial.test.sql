@@ -23,7 +23,7 @@ select ok(not has_schema_privilege('service_role', 'school', 'usage'), 'service_
 select is(
   (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and (p.proname like 'trial\_%' or p.proname like 'key\_%' or p.proname like 'admin\_%')),
-  16::bigint, 'sixteen API functions');
+  17::bigint, 'seventeen API functions');
 select is(
   (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
     where n.nspname = 'public' and (p.proname like 'trial\_%' or p.proname like 'key\_%' or p.proname like 'admin\_%')

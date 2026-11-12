@@ -1,7 +1,9 @@
 # Version téléchargeable : à chaque tag v* (ex. git tag v1.1.0 && git push --tags), construit
 # V3CT0R.zip (index.html à ouvrir d'un double-clic + voix + sources) et l'attache à une release,
-# puis l'installeur Windows V3CT0R-Setup.exe (app de bureau, electron-builder.yml) et le paquet
-# V3CT0R-Ecole.msi (installation sur tous les PC d'un établissement, docs/DEPLOIEMENT.md) sur la même release.
+# puis, sur la même release, les deux apps de bureau Windows :
+#   - V3CT0R-Setup.exe : V3CT0R, l'app pour tous (electron-builder.yml) ;
+#   - V3CT0R-Lycee-Setup.exe et V3CT0R-Lycee.msi : V3CT0R Lycée, l'app des établissements, ouverte avec une
+#     clé d'école (electron-builder.lycee.yml ; le MSI va dans le kit d'installation, docs/DEPLOIEMENT.md).
 name: Version téléchargeable
 
 on:
@@ -44,7 +46,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # V3CT0R-Setup.exe and V3CT0R-Ecole.msi (electron-builder.yml). Signed with Azure Trusted Signing
+      # V3CT0R (electron-builder.yml, dist/) and V3CT0R Lycée (electron-builder.lycee.yml, dist-lycee/ built with
+      # --mode lycee: .env.lycee). Both signed with Azure Trusted Signing
       # only when the repository has its variables (AZURE_SIGN_*) and secrets (AZURE_TENANT_ID,
       # AZURE_CLIENT_ID, AZURE_CLIENT_SECRET): docs/ADMIN.md. Without them, unsigned as before.
       # electron-builder is called through node (not npm/npx): no cmd.exe between bash and the arguments.
@@ -65,6 +68,8 @@ jobs:
           fi
           node node_modules/vite/bin/vite.js build
           node node_modules/electron-builder/cli.js --win --publish never "${args[@]}"
+          node node_modules/vite/bin/vite.js build --mode lycee --outDir dist-lycee
+          node node_modules/electron-builder/cli.js --win --publish never -c electron-builder.lycee.yml "${args[@]}"
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
@@ -76,7 +81,7 @@ jobs:
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-      - run: gh release upload "$GITHUB_REF_NAME" release/V3CT0R-Setup.exe release/V3CT0R-Ecole.msi --clobber
+      - run: gh release upload "$GITHUB_REF_NAME" release/V3CT0R-Setup.exe release/lycee/V3CT0R-Lycee-Setup.exe release/lycee/V3CT0R-Lycee.msi --clobber
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}

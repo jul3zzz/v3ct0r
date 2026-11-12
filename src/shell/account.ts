@@ -96,7 +96,7 @@ export function accountDialog(): Dialog {
   const paint = () => {
     d.body.replaceChildren();
     paintAccount();
-    if (cloud.enabled) d.body.append(schoolPart());
+    if (cloud.enabled && school.enabled) d.body.append(schoolPart());
   };
   const paintAccount = () => {
     if (!cloud.enabled) {

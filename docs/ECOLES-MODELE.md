@@ -64,6 +64,12 @@ Modèle validé en phase 0, le 2026-11-11, pour toutes les phases. Le cahier des
 - `admin_devices(p_key_id)` (8 premiers caractères de chaque empreinte), `admin_devices_reset(p_key_id)`.
 - `admin_report()` : le rapport, avec le type et les postes.
 
+### Deux apps (fait : `supabase/migrations/20261113090000_school_editions.sql`)
+
+- `key_check(p_key)` (anonyme) : une ligne, state (`active`, `expired`, `disabled`, `full`, `unknown`, `busy`), kind, school_name, ends_at.
+  - Ni visite comptée, ni place prise : le site s'en sert avant de télécharger V3CT0R Lycée.
+  - Même plafond d'échecs que les autres portes.
+
 ### Phase 2 (comptes)
 
 - **`join_school(p_code)`**, authentifiée : donne le rôle `teacher` ou `principal` dans l'école du code. Maximum 5 échecs par utilisateur et par quart d'heure.

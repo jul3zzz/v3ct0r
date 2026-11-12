@@ -123,7 +123,8 @@ describe('installation kit', () => {
 
   it('four files, the MSI comes from the release', () => {
     expect(Object.keys(files).sort()).toEqual(['LISEZ-MOI.txt', 'desinstaller.cmd', 'installer.cmd', 'licence.json']);
-    expect(MSI_URL).toBe('https://github.com/jul3zzz/v3ct0r/releases/latest/download/V3CT0R-Ecole.msi');
+    expect(MSI_URL).toBe('https://github.com/jul3zzz/v3ct0r/releases/latest/download/V3CT0R-Lycee.msi');
+    expect(files['LISEZ-MOI.txt']).toContain('V3CT0R Lycée');
   });
 
   it('licence.json holds the key the desktop app reads', () => {
@@ -147,18 +148,18 @@ describe('installation kit', () => {
       expect(files[f].split('\r\n').length).toBeGreaterThan(5);
       expect(/[^\r]\n/.test(files[f])).toBe(false);
     }
-    expect(files['installer.cmd']).toContain('V3CT0R est installe pour tous les utilisateurs de ce poste (licence Lycee Emile-Zola).');
+    expect(files['installer.cmd']).toContain('V3CT0R Lycee est installe pour tous les utilisateurs de ce poste (licence Lycee Emile-Zola).');
   });
 
   it('LISEZ-MOI.txt: the three ways, the server to allow, the seats and the end', () => {
     const t = files['LISEZ-MOI.txt'];
     expect(t.startsWith('\ufeff')).toBe(true);
-    for (const s of ['https://dpefjnxejkapgchgcrco.supabase.co (port 443)', 'Installation de logiciel', 'Préférences > Paramètres Windows > Fichiers', 'Intune', 'msiexec /i V3CT0R-Ecole.msi /qn /norestart', '30 postes, jusqu’au 31 août 2027', 'contact@v3ct0r.invalid', 'C:\\ProgramData\\V3CT0R\\licence.json'])
+    for (const s of ['https://dpefjnxejkapgchgcrco.supabase.co (port 443)', 'Installation de logiciel', 'Préférences > Paramètres Windows > Fichiers', 'Intune', 'msiexec /i V3CT0R-Lycee.msi /qn /norestart', '30 postes, jusqu’au 31 août 2027', 'contact@v3ct0r.invalid', 'C:\\ProgramData\\V3CT0R\\licence.json'])
       expect(t).toContain(s);
   });
 
   it('docs/DEPLOIEMENT.md says the same as the kit', () => {
-    for (const s of ['msiexec /i V3CT0R-Ecole.msi /qn /norestart', 'C:\\ProgramData\\V3CT0R\\licence.json', 'installer.cmd', 'desinstaller.cmd', 'Installation de logiciel', 'Intune', 'supabase.co', 'port 443'])
+    for (const s of ['msiexec /i V3CT0R-Lycee.msi /qn /norestart', 'C:\\ProgramData\\V3CT0R\\licence.json', 'installer.cmd', 'desinstaller.cmd', 'Installation de logiciel', 'Intune', 'supabase.co', 'port 443'])
       expect(DEPLOY).toContain(s);
   });
 });

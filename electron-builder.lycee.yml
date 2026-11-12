@@ -1,0 +1,63 @@
+# V3CT0R Lycée, the desktop app of schools (docs/ECOLES.md, « deux apps »): npm run app:win:lycee →
+# release/lycee/V3CT0R-Lycee-Setup.exe and release/lycee/V3CT0R-Lycee.msi. Built from dist-lycee/
+# (npm run build:lycee, VITE_EDITION=lycee): it opens only with a school key (trial or licence), from the
+# PC's licence (installation kit), a v3ct0r-lycee:// link given by the website, or typed.
+# - V3CT0R-Lycee-Setup.exe (website, « TÉLÉCHARGER V3CT0R LYCÉE »): for the current user, no administrator
+#   rights; opens the app at the end, which registers the v3ct0r-lycee:// link.
+# - V3CT0R-Lycee.msi (installation kit, docs/DEPLOIEMENT.md): for every account of the PC (Program Files),
+#   silent with msiexec /i V3CT0R-Lycee.msi /qn, deployable by GPO, Intune, PDQ; a newer MSI upgrades it.
+# Its own appId, name, folder and data (%APPDATA%\V3CT0R Lycée): independent of V3CT0R for everyone.
+appId: io.github.jul3zzz.v3ct0r.lycee
+productName: V3CT0R Lycée
+copyright: © 2026 V3CT0R
+directories:
+  output: release/lycee
+  buildResources: build
+files:
+  - electron/**
+  # the page of V3CT0R Lycée, where electron/main.cjs looks for it (dist/index.html)
+  - from: dist-lycee
+    to: dist
+    filter:
+      - "**/*"
+      - "!**/*.zip"
+  - package.json
+  - "!node_modules/**"
+# read by electron/main.cjs (edition), and the name of the app (folder of its data)
+extraMetadata:
+  name: v3ct0r-lycee
+  productName: V3CT0R Lycée
+  v3ct0rEdition: lycee
+asar: true
+asarUnpack:
+  - dist/courses/**
+electronLanguages:
+  - fr
+  - en-US
+compression: maximum
+win:
+  target:
+    - target: nsis
+      arch: x64
+    - target: msi
+      arch: x64
+  icon: build/icon.ico
+nsis:
+  oneClick: true
+  perMachine: false
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: V3CT0R Lycée
+  runAfterFinish: true
+  deleteAppDataOnUninstall: false
+  artifactName: V3CT0R-Lycee-Setup.exe
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+msi:
+  oneClick: true
+  perMachine: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: V3CT0R Lycée
+  runAfterFinish: false
+  artifactName: V3CT0R-Lycee.msi

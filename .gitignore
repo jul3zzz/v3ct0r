@@ -10,6 +10,10 @@ voice-samples/
 *.log
 release/
 dist-smoke/
+dist-lycee/
+dist-smoke-lycee/
 # school installation kits hold a licence key in clear: written outside the repository (../V3CT0R-kits), never here
 V3CT0R-kits/
 !.env.smoke
+!.env.smoke-lycee
+!.env.lycee
