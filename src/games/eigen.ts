@@ -320,6 +320,11 @@ export const EIGEN: GameDef = {
     'N : déclarer qu’il n’y a aucune direction propre réelle. T : déclarer que toutes les directions le sont.',
     'Réussi si le nombre de directions est juste et chaque verrou à moins de 6° ; le score monte avec la précision.',
   ],
+  touchRules: [
+    'Glisse (ou ↺ ↻) pour orienter v. Toucher : verrouiller sa direction (toucher à nouveau dessus : la retirer). Deux verrous au plus.',
+    'AUCUNE : déclarer qu’il n’y a aucune direction propre réelle. TOUTES : déclarer que toutes les directions le sont.',
+    'Réussi si le nombre de directions est juste et chaque verrou à moins de 6° ; le score monte avec la précision.',
+  ],
   levels: [
     { title: 'Matrices symétriques', brief: 'deux directions, orthogonales', rounds: 5, time: 30 },
     { title: 'Matrices quelconques', brief: 'deux directions, obliques, λ négatives', rounds: 5, time: 30 },
