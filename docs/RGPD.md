@@ -20,11 +20,17 @@ Il décrit les traitements tels qu'ils sont codés. Il ne remplace ni l'avis d'u
 | Visiteur sans compte (site, zip, app de bureau) | progression, notes, réglages | son appareil seulement | utiliser l'app | — (rien n'est transmis) | jusqu'à ce qu'il efface les données du navigateur |
 | Particulier avec un compte | e-mail, mot de passe (haché par Supabase Auth), journal de connexion de Supabase Auth (dont l'adresse IP), progression et notes synchronisées (table `progress`) | Supabase (UE) | retrouver sa progression sur plusieurs appareils | exécution du service demandé | tant que le compte existe ; durée d'inactivité avant suppression : *à décider* |
 | Personne qui ouvre un lien d'essai | **par clé** : date de première ouverture, nombre d'ouvertures, temps actif, dernière visite. Aucun nom, e-mail, adresse IP ni identifiant d'appareil | Supabase (UE), `school.trial_keys` | suivi et relance de l'essai | intérêt légitime (prospection d'établissements) | proposition : 12 mois après la fin de l'essai sans suite, *à décider* |
+| Établissement sous licence (PC du kit d'installation, ou clé tapée) | **par clé**, comme un essai ; et, pour compter les postes, **par appareil** une empreinte de 32 octets avec ses dates de première et dernière ouverture (`school.devices`). PC : sha256 de l'identifiant d'installation Windows (`MachineGuid`) préfixé par l'app, qui ne quitte jamais le poste. Navigateur : un nombre aléatoire gardé par ce navigateur. Aucun nom, compte ni adresse IP | Supabase (UE) | respecter le nombre de postes de la licence ; suivi d'usage pour l'établissement | exécution du contrat de licence | jusqu'à la fin de la licence ; supprimée avec la clé, ou par `devices --reset` |
 | Toi (admin) | une note par clé (`label` : à qui elle a été remise) | Supabase (UE) | suivi commercial | intérêt légitime | même durée que la clé |
 
 Détails sur l'essai :
 - **Données pseudonymes.** Chaque clé est remise à un contact identifié : ses chiffres d'usage se rattachent donc à une personne. L'écran d'essai l'annonce : « Pendant l'essai, V3CT0R compte les ouvertures et le temps passé avec cette clé, rien d'autre. »
 - **Contre les tentatives.** Un compteur global d'échecs par minute est gardé une heure, sans aucune donnée personnelle.
+- **Postes d'une licence.**
+  - L'empreinte d'un PC désigne une machine de l'établissement, pas un élève : plusieurs comptes Windows partagent la même empreinte.
+  - Le rapport ne montre que ses 8 premiers caractères.
+  - Le carton de la licence l'annonce : « Avec la licence, V3CT0R compte les ouvertures et le temps passé avec cette clé, rien d'autre ».
+  - Le LISEZ-MOI du kit le précise au technicien.
 - **Journaux de Supabase.** L'API de Supabase journalise les requêtes (dont l'adresse IP) pendant une durée qui dépend du plan (7 jours en Pro). V3CT0R ne les lit pas et ne les stocke pas ailleurs.
 
 ## Phases suivantes (principes déjà décidés)
@@ -49,7 +55,7 @@ Pour l'instant, tout se fait à la main :
 - **Chiffrement** : TLS entre l'app et Supabase.
 - **Tables de progression** : RLS, chacun ne lit et n'écrit que sa ligne.
 - **Tables des écoles** : schéma non exposé par l'API, RLS sans policy, accès par des fonctions qui contrôlent les droits.
-- **Clés d'essai** : stockées hachées (sha256), jamais en clair.
+- **Clés d'essai et de licence** : stockées hachées (sha256), jamais en clair. La clé d'une licence est en clair sur les PC de l'établissement (lisible, pas modifiable par les élèves) : une clé copiée se remplace (`rotate`).
 - **Clé secrète Supabase** : seulement dans `.env.local` sur le poste de l'admin. Elle n'est jamais dans le dépôt, le build ou le zip, et le smoke le vérifie.
 
 ## Ouvert

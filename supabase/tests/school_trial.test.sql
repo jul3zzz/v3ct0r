@@ -14,18 +14,19 @@ insert into school.trial_keys (school_id, key_hash, ends_at, label, disabled) va
 
 -- ── structure ──────────────────────────────────────────────────────────
 select ok((select bool_and(c.relrowsecurity) from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'school' and c.relkind = 'r'), 'RLS is on for every school table');
-select is((select count(*) from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'school' and c.relkind = 'r'), 3::bigint, 'three school tables');
+-- counts of the whole schema (phase 1 + 1b: school_licence.test.sql)
+select is((select count(*) from pg_class c join pg_namespace n on n.oid = c.relnamespace where n.nspname = 'school' and c.relkind = 'r'), 4::bigint, 'four school tables');
 select is((select count(*) from pg_policies where schemaname = 'school'), 0::bigint, 'no policy: everything is denied');
 select ok(not has_schema_privilege('anon', 'school', 'usage'), 'anon has no usage on schema school');
 select ok(not has_schema_privilege('authenticated', 'school', 'usage'), 'authenticated has no usage on schema school');
 select ok(not has_schema_privilege('service_role', 'school', 'usage'), 'service_role goes through the admin functions only');
 select is(
   (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-    where n.nspname = 'public' and (p.proname like 'trial\_%' or p.proname like 'admin\_%')),
-  9::bigint, 'nine API functions');
+    where n.nspname = 'public' and (p.proname like 'trial\_%' or p.proname like 'key\_%' or p.proname like 'admin\_%')),
+  16::bigint, 'sixteen API functions');
 select is(
   (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-    where n.nspname = 'public' and (p.proname like 'trial\_%' or p.proname like 'admin\_%')
+    where n.nspname = 'public' and (p.proname like 'trial\_%' or p.proname like 'key\_%' or p.proname like 'admin\_%')
       and (not p.prosecdef or not ('search_path=""' = any(coalesce(p.proconfig, '{}'))))),
   0::bigint, 'every API function is security definer with an empty search_path');
 select ok(not has_function_privilege('anon', 'public.admin_trial_report()', 'execute'), 'anon cannot execute admin functions');

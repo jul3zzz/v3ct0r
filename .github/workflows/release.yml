@@ -1,6 +1,7 @@
 # Version téléchargeable : à chaque tag v* (ex. git tag v1.1.0 && git push --tags), construit
 # V3CT0R.zip (index.html à ouvrir d'un double-clic + voix + sources) et l'attache à une release,
-# puis l'installeur Windows V3CT0R-Setup.exe (app de bureau, electron-builder.yml) sur la même release.
+# puis l'installeur Windows V3CT0R-Setup.exe (app de bureau, electron-builder.yml) et le paquet
+# V3CT0R-Ecole.msi (installation sur tous les PC d'un établissement, docs/DEPLOIEMENT.md) sur la même release.
 name: Version téléchargeable
 
 on:
@@ -43,12 +44,39 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: npm run app:win
+      # V3CT0R-Setup.exe and V3CT0R-Ecole.msi (electron-builder.yml). Signed with Azure Trusted Signing
+      # only when the repository has its variables (AZURE_SIGN_*) and secrets (AZURE_TENANT_ID,
+      # AZURE_CLIENT_ID, AZURE_CLIENT_SECRET): docs/ADMIN.md. Without them, unsigned as before.
+      # electron-builder is called through node (not npm/npx): no cmd.exe between bash and the arguments.
+      - name: Build the Windows installers
+        shell: bash
+        run: |
+          args=()
+          if [ -n "$AZURE_SIGN_ENDPOINT" ]; then
+            args=(
+              "-c.win.azureSignOptions.endpoint=$AZURE_SIGN_ENDPOINT"
+              "-c.win.azureSignOptions.codeSigningAccountName=$AZURE_SIGN_ACCOUNT"
+              "-c.win.azureSignOptions.certificateProfileName=$AZURE_SIGN_PROFILE"
+              "-c.win.azureSignOptions.publisherName=$AZURE_SIGN_PUBLISHER"
+            )
+            echo "signing: Azure Trusted Signing ($AZURE_SIGN_ACCOUNT / $AZURE_SIGN_PROFILE)"
+          else
+            echo "signing: none (no AZURE_SIGN_ENDPOINT variable)"
+          fi
+          node node_modules/vite/bin/vite.js build
+          node node_modules/electron-builder/cli.js --win --publish never "${args[@]}"
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
           VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
-      - run: gh release upload "$GITHUB_REF_NAME" release/V3CT0R-Setup.exe --clobber
+          AZURE_SIGN_ENDPOINT: ${{ vars.AZURE_SIGN_ENDPOINT }}
+          AZURE_SIGN_ACCOUNT: ${{ vars.AZURE_SIGN_ACCOUNT }}
+          AZURE_SIGN_PROFILE: ${{ vars.AZURE_SIGN_PROFILE }}
+          AZURE_SIGN_PUBLISHER: ${{ vars.AZURE_SIGN_PUBLISHER }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      - run: gh release upload "$GITHUB_REF_NAME" release/V3CT0R-Setup.exe release/V3CT0R-Ecole.msi --clobber
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}

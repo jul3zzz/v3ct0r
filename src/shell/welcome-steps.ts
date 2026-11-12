@@ -33,16 +33,17 @@ export const INSTALL_STEPS: Record<MobilePlatform, string[]> = {
   ],
 };
 
-export type WelcomeStep = 'download' | 'account' | 'trial' | 'trial-ended';
+export type WelcomeStep = 'download' | 'account' | 'trial' | 'machine' | 'trial-ended';
 
-/** the school trial on this device (src/school/school.ts): a key to check (from ?essai=), one
- *  running, one ended or stopped, or none */
-export type TrialStep = 'none' | 'key' | 'active' | 'expired';
+/** the school key on this device (src/school/school.ts): the licence set on this PC by its installer
+ *  to check (desktop app), a key to check (from ?essai=), one running, one ended, stopped or without a
+ *  seat, or none */
+export type TrialStep = 'none' | 'machine' | 'key' | 'active' | 'expired';
 
 /**
- * - a school trial (docs/ECOLES.md), only when accounts are configured (the server checks keys):
- *   a key to check comes first and alone (no download offer); an ended trial blocks the app; a
- *   running one needs no account;
+ * - a school key (docs/ECOLES.md), only when accounts are configured (the server checks keys): the
+ *   licence of the PC, then a key from the address, come first and alone (no download offer); an
+ *   ended key blocks the app; a running trial or licence needs no account;
  * - the download offer: on the website only, until answered, and not in the installed app;
  * - the account: required everywhere (website and downloaded version) when accounts are configured
  *   in the build, until this device has signed in once (its session is kept, offline too);
@@ -52,6 +53,7 @@ export type TrialStep = 'none' | 'key' | 'active' | 'expired';
 export function welcomeSteps(o: { online: boolean; answered: boolean; configured: boolean; signedIn: boolean; skip: boolean; installed?: boolean; trial?: TrialStep }): WelcomeStep[] {
   const trial = o.configured ? (o.trial ?? 'none') : 'none';
   if (trial === 'expired') return ['trial-ended'];
+  if (trial === 'machine') return ['machine'];
   if (trial === 'key') return ['trial'];
   if (o.skip || trial === 'active') return [];
   const out: WelcomeStep[] = [];

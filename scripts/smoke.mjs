@@ -815,11 +815,14 @@ current = 'narrow';
   await np.close();
 }
 
-// school trial (docs/ECOLES.md, phase 1). The default theme stays black and white (checked on
-// the main page, no trial). The trial runs on dist-smoke/ (npm run build:smoke: accounts configured
-// with a fake server, .env.smoke), whose server is simulated with page.route (no network): a key in the address → the school's card → its start route, every
-// lock open, badge and accent; an ended trial → the blocking screen (contact, new key field);
-// a new key reopens the app; an unknown key → « Clé refusée », then CONTINUER SANS CLÉ.
+// school keys (docs/ECOLES.md, phases 1 and 1b). The default theme stays black and white (checked on
+// the main page, no key). The keys run on dist-smoke/ (npm run build:smoke: accounts configured with a
+// fake server, .env.smoke), whose server is simulated with page.route (key_open / key_ping, no network):
+// a key in the address → the school's card → its start route, every lock open, badge and accent; an
+// ended trial → the blocking screen (contact, new key field); a new key reopens the app; an unknown key
+// → « Clé refusée », then CONTINUER SANS CLÉ. Then the licence set on a PC by the installation kit
+// (window.v3ct0rDesktop, as electron/preload.cjs gives it): no card, LICENCE, the notice of the last
+// days; every seat taken → blocking screen; the server out of reach → RÉESSAYER, or go on without it.
 current = 'school';
 {
   const theme = await page.evaluate(() => {
@@ -839,27 +842,32 @@ current = 'school';
     const surl = pathToFileURL(schoolFile).href;
     const KEY = 'AAAAABBBBBCCCCCDDDDD';
     const LOGO = `data:image/svg+xml;base64,${Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#2255cc"/><path d="M3 7 5 2 7 7z" fill="#fff"/></svg>').toString('base64')}`;
-    const srv = { state: 'active', opens: 0, pings: 0 };
+    const srv = { state: 'active', kind: 'trial', seats: 0, used: 0, days: 20, offline: false, opens: 0, pings: 0, devices: new Set() };
     const row = (key) =>
       key === KEY
-        ? { state: srv.state, school_name: 'Lycée Smoke', logo: LOGO, accent: '#2255cc', start_route: '#/learn/riemann', ends_at: new Date(Date.now() + (srv.state === 'expired' ? -1 : 20) * 86_400_000).toISOString(), server_now: new Date().toISOString() }
-        : { state: 'unknown', school_name: null, logo: null, accent: null, start_route: null, ends_at: null, server_now: new Date().toISOString() };
-    // a browser context of its own: the trial kept by these pages never reaches the other pages
-    const schoolPage = async () => {
+        ? { state: srv.state, kind: srv.kind, school_name: 'Lycée Smoke', logo: LOGO, accent: '#2255cc', start_route: '#/learn/riemann', ends_at: new Date(Date.now() + (srv.state === 'expired' ? -1 : srv.days) * 86_400_000 - 3_600_000).toISOString(), seats: srv.seats, seats_used: srv.used, server_now: new Date().toISOString() }
+        : { state: 'unknown', kind: null, school_name: null, logo: null, accent: null, start_route: null, ends_at: null, seats: null, seats_used: null, server_now: new Date().toISOString() };
+    // a browser context of its own: the key kept by these pages never reaches the other pages;
+    // `desktop`: what electron/preload.cjs hands the page (the licence of the PC, its device id)
+    const schoolPage = async (desktop = null) => {
       const ctx = await browser.newContext({ viewport: { width: 1400, height: 850 } });
       const p = await ctx.newPage();
-      await p.addInitScript(() => {
+      await p.addInitScript((d) => {
         localStorage.setItem('vector-math.e2e', 'true');
         localStorage.setItem('vector-math.intro.seen', 'true');
-      });
+        if (d) Object.defineProperty(window, 'v3ct0rDesktop', { value: Object.freeze(d) });
+      }, desktop);
       p.on('pageerror', (e) => errors.push(`[école] pageerror: ${e.message}`));
-      p.on('console', (m) => m.type() === 'error' && errors.push(`[école] console.error: ${m.text()}`));
-      await p.route('**/rest/v1/rpc/trial_open', (r) => {
+      p.on('console', (m) => m.type() === 'error' && !(srv.offline && /ERR_FAILED|Failed to load resource/.test(m.text())) && errors.push(`[école] console.error: ${m.text()}`));
+      await p.route('**/rest/v1/rpc/key_open', (r) => {
+        if (srv.offline) return r.abort('internetdisconnected');
         srv.opens++;
-        const k = JSON.parse(r.request().postData() || '{}').p_key;
-        return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([row(k)]) });
+        const a = JSON.parse(r.request().postData() || '{}');
+        if (a.p_device) srv.devices.add(a.p_device);
+        return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([row(a.p_key)]) });
       });
-      await p.route('**/rest/v1/rpc/trial_ping', (r) => {
+      await p.route('**/rest/v1/rpc/key_ping', (r) => {
+        if (srv.offline) return r.abort('internetdisconnected');
         srv.pings++;
         return r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify([{ state: srv.state, ends_at: row(KEY).ends_at, server_now: new Date().toISOString() }]) });
       });
@@ -933,7 +941,46 @@ current = 'school';
     const after = await sp.evaluate(() => ({ ...window.__vm.school(), badge: getComputedStyle(document.querySelector('.sc-badge')).display }));
     const refusedOk = refused === 'Clé refusée' && after.state === null && after.badge === 'none' && after.accent === '#fff';
     if (!refusedOk) errors.push(`[école] clé inconnue ${JSON.stringify({ refused, ...after })}`);
-    features.push(`ÉCOLE carte ${startOk ? 'ok' : 'KO'} · vue de départ + verrous + badge + accent ${runOk ? 'ok' : 'KO'} · badge téléphone ${phoneOk ? 'ok' : 'KO'} · fin d’essai ${endedOk ? 'ok' : 'KO'} · nouvelle clé ${reopened === 'active' ? 'ok' : 'KO'} · clé inconnue ${refusedOk ? 'ok' : 'KO'} · thème par défaut ${themeOk ? 'ok' : 'KO'} (${srv.opens} trial_open simulés)`);
+    const trialOpens = srv.opens;
+    // 5. the licence set on the PC by the installation kit: checked with no card, every lock open,
+    //    LICENCE in the badge, the PC's device id sent for the seats, the notice of the last 3 days
+    await ctx.close();
+    Object.assign(srv, { state: 'active', kind: 'licence', seats: 30, used: 3, days: 3, opens: 0 });
+    const DEVICE = 'a'.repeat(64);
+    ({ ctx, p: sp } = await schoolPage({ machineKey: 'aaaaa-bbbbb-ccccc-ddddd', device: DEVICE }));
+    await boot(surl);
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    await sp.waitForTimeout(3000);
+    const lic = await sp.evaluate(() => ({ ...window.__vm.school(), card: !!document.querySelector('.wl-card'), badge: document.querySelector('.sc-badge')?.textContent ?? '', toast: document.querySelector('.toast')?.textContent ?? '' }));
+    if (shots) await sp.screenshot({ path: join(shots, 'school__5-licence.png') });
+    const licOk = lic.state === 'active' && lic.kind === 'licence' && lic.source === 'machine' && lic.seats === '3/30' && !lic.card && lic.badge.includes('LICENCE') && lic.badge.includes('J-3') && /LA LICENCE SE TERMINE DANS 3 JOURS/.test(lic.toast) && srv.devices.has(DEVICE) && srv.opens === 1;
+    if (!licOk) errors.push(`[école] licence du poste ${JSON.stringify({ ...lic, opens: srv.opens, devices: [...srv.devices].map((d) => d.slice(0, 8)) })}`);
+    // 6. every seat of the licence taken by other PCs: the blocking screen says so
+    await ctx.close();
+    Object.assign(srv, { state: 'full', used: 30, days: 200 });
+    ({ ctx, p: sp } = await schoolPage({ machineKey: 'aaaaa-bbbbb-ccccc-ddddd', device: 'b'.repeat(64) }));
+    await boot(surl);
+    await sp.waitForSelector('.wl-card.sc-card input.sc-input', { timeout: 15000 });
+    const full = await sp.evaluate(() => document.querySelector('.sc-card')?.textContent ?? '');
+    if (shots) await sp.screenshot({ path: join(shots, 'school__6-full.png') });
+    const fullOk = full.includes('POSTES COMPLETS') && full.includes('30 postes') && full.includes('référent numérique');
+    if (!fullOk) errors.push(`[école] postes complets : ${full.slice(0, 160)}`);
+    // 7. the server out of reach on the first opening of a PC: RÉESSAYER, or go on without the licence
+    await ctx.close();
+    Object.assign(srv, { state: 'active', offline: true });
+    ({ ctx, p: sp } = await schoolPage({ machineKey: 'aaaaa-bbbbb-ccccc-ddddd', device: 'c'.repeat(64) }));
+    await boot(surl);
+    await sp.waitForSelector('.wl-card.sc-card button', { timeout: 15000 });
+    await sp.waitForFunction(() => /RÉESSAYER/.test(document.querySelector('.wl-card')?.textContent ?? ''), null, { timeout: 15000 });
+    const off = await sp.evaluate(() => document.querySelector('.wl-card')?.textContent ?? '');
+    if (shots) await sp.screenshot({ path: join(shots, 'school__7-offline.png') });
+    await sp.locator('.wl-card button', { hasText: 'CONTINUER SANS LA LICENCE' }).click();
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    const offAfter = await sp.evaluate(() => window.__vm.school().state);
+    const offOk = off.includes('Serveur de licence injoignable') && off.includes('référent numérique') && offAfter === null;
+    if (!offOk) errors.push(`[école] serveur injoignable : ${JSON.stringify({ card: off.slice(0, 120), after: offAfter })}`);
+    srv.offline = false;
+    features.push(`ÉCOLE carte ${startOk ? 'ok' : 'KO'} · vue de départ + verrous + badge + accent ${runOk ? 'ok' : 'KO'} · badge téléphone ${phoneOk ? 'ok' : 'KO'} · fin d’essai ${endedOk ? 'ok' : 'KO'} · nouvelle clé ${reopened === 'active' ? 'ok' : 'KO'} · clé inconnue ${refusedOk ? 'ok' : 'KO'} · thème par défaut ${themeOk ? 'ok' : 'KO'} (${trialOpens} key_open simulés) · LICENCE DU POSTE sans carte + avis J-3 ${licOk ? 'ok' : 'KO'} · postes complets ${fullOk ? 'ok' : 'KO'} · serveur injoignable ${offOk ? 'ok' : 'KO'}`);
     await ctx.close();
   }
 }

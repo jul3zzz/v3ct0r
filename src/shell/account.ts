@@ -7,6 +7,7 @@ import { Dialog, toast } from './overlays';
 import { cloud } from '../core/cloud';
 import { school } from '../school/school';
 import { codeForm } from './school-ui';
+import { seatsLine } from '../school/trial';
 import './account.css';
 
 const when = (t: number) => (t ? new Date(t).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : 'jamais');
@@ -82,13 +83,13 @@ export function accountDialog(): Dialog {
     return h(
       'div',
       { class: 'sc-or' },
-      info ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'ESSAI' }), h('span', { class: 'v', text: `${info.school} · ${school.active ? school.until() : 'terminé'}` })) : null,
+      info ? h('div', { class: 'ro' }, h('span', { class: 'k', text: info.kind === 'licence' ? 'LICENCE' : 'ESSAI' }), h('span', { class: 'v', text: `${info.school} · ${school.active ? school.until() : school.state() === 'full' ? 'postes complets' : info.kind === 'licence' ? 'terminée' : 'terminé'}${seatsLine(info) ? ` · ${seatsLine(info)}` : ''}${info.source === 'machine' ? ' · licence du poste' : ''}` })) : null,
       codeForm(
         () => {
           toast('CLÉ ACCEPTÉE — RECHARGEMENT', 1400);
           setTimeout(() => location.reload(), 1200);
         },
-        { label: 'CODE D’ÉCOLE (CLÉ D’ESSAI)', focus: false },
+        { label: 'CODE D’ÉCOLE (CLÉ D’ESSAI OU DE LICENCE)', focus: false },
       ),
     );
   };

@@ -1,6 +1,9 @@
-# Windows installer: npm run app:win → release/V3CT0R-Setup.exe
-# One click, no administrator rights: installs for the current user, puts V3CT0R on the desktop and in
-# the Start menu, then opens it. Uninstall from Windows settings (Applications).
+# Windows installers: npm run app:win → release/V3CT0R-Setup.exe and release/V3CT0R-Ecole.msi
+# - V3CT0R-Setup.exe (the TÉLÉCHARGER button): one click, no administrator rights, installs for the
+#   current user, puts V3CT0R on the desktop and in the Start menu, then opens it.
+# - V3CT0R-Ecole.msi (schools, docs/DEPLOIEMENT.md): for every account of the PC (Program Files),
+#   silent with msiexec /i V3CT0R-Ecole.msi /qn, deployable by GPO, Intune, PDQ; a newer MSI upgrades it.
+# Uninstall from Windows settings (Applications). Signing: release.yml (Azure Trusted Signing, when set up).
 appId: io.github.jul3zzz.v3ct0r
 productName: V3CT0R
 copyright: © 2026 V3CT0R
@@ -26,7 +29,17 @@ win:
   target:
     - target: nsis
       arch: x64
+    - target: msi
+      arch: x64
   icon: build/icon.ico
+msi:
+  oneClick: true
+  perMachine: true
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: V3CT0R
+  runAfterFinish: false
+  artifactName: V3CT0R-Ecole.msi
 nsis:
   oneClick: true
   perMachine: false

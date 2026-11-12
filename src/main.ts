@@ -13,7 +13,8 @@ import { music } from './core/music';
 import { cloud, cloudConfigured } from './core/cloud';
 import { trialEnded, welcome } from './shell/welcome';
 import { school } from './school/school';
-import { paintBadge } from './shell/school-ui';
+import { paintBadge, warnLastDays } from './shell/school-ui';
+import { toast } from './shell/overlays';
 import { setupPwa } from './shell/pwa';
 // last: the phone layout overrides the wider-window rules of every stylesheet imported above
 import './hud/phone.css';
@@ -103,6 +104,8 @@ async function main(): Promise<void> {
   });
   app.start();
   school.start();
+  // the last 7 days of a trial or a licence: one notice a day, after the start-up messages
+  setTimeout(() => warnLastDays(toast), 2500);
   window.__vm = {
     views: () => app!.allViews().map(([m, v]) => `${m.id}/${v.id}`),
     go: (id) => app!.goId(id),
