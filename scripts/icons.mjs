@@ -22,6 +22,15 @@ const render = async (n) => {
 const pngs = [];
 for (const n of SIZES) pngs.push(await render(n));
 writeFileSync('build/icon.png', await render(512));
+// the website installed on a phone (PWA, public/manifest.webmanifest): 192 and 512 px, a « maskable » 512 px
+// whose logo stays inside the safe circle (80 %), and the 180 px icon of the iPhone home screen
+mkdirSync('public/icons', { recursive: true });
+writeFileSync('public/icons/icon-192.png', await render(192));
+writeFileSync('public/icons/icon-512.png', await render(512));
+writeFileSync('public/icons/apple-touch-icon.png', await render(180));
+await page.setViewportSize({ width: 512, height: 512 });
+await page.setContent(`<!doctype html><style>html,body{margin:0;background:#000}body{display:grid;place-items:center;width:512px;height:512px}svg{display:block;width:410px;height:410px}</style>${SVG}`);
+writeFileSync('public/icons/icon-maskable-512.png', await page.screenshot({ type: 'png', clip: { x: 0, y: 0, width: 512, height: 512 } }));
 await browser.close();
 
 // ICO with PNG entries (Windows Vista and later)
@@ -50,4 +59,4 @@ const uri = `data:image/svg+xml,${encodeURIComponent(SMALL.replace(/\s*\n\s*/g, 
 const next = html.replace(/<link rel="icon" href="[^"]*" \/>/, `<link rel="icon" href="${uri}" />`);
 if (next === html && !html.includes(uri)) throw new Error('index.html: <link rel="icon" …/> not found');
 writeFileSync('index.html', next);
-console.log(`build/icon.ico (${SIZES.join(', ')} px) · build/icon.png (512 px) · favicon index.html`);
+console.log(`build/icon.ico (${SIZES.join(', ')} px) · build/icon.png (512 px) · public/icons (PWA : 192, 512, maskable, apple-touch 180) · favicon index.html`);

@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, text, line, marker } from '../../gfx/plot2d';
 import { fmt, fmtInt, fmtSci } from '../../hud/dom';
 import { DIGITS } from '../../data/digits';
@@ -59,7 +59,8 @@ export const eView: VizDef = {
             }
           }
         }
-        fr.set(80, 140, W - 420, H - 290);
+        if (W < NARROW_VIEW) fr.set(...narrowPlot(W, H, 3));
+        else fr.set(80, 140, W - 420, H - 290);
         if (st.mode === 'interest') {
           const n = STEPS[st.i];
           fr.world(0, 1, 0.9, 2.85);

@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, text } from '../../gfx/plot2d';
 import { fmt, fmtInt } from '../../hud/dom';
 import { rng } from '../fractals/common';
@@ -84,8 +84,11 @@ export const cltView: VizDef = {
         const g = ctx.g;
         const W = ctx.width;
         const H = ctx.height;
-        main.set(80, 150, W - 420, H - 300).world(-4, 4, 0, 0.55);
-        main.box(g, 'HISTOGRAMME DE Zₙ ET DENSITÉ DE GAUSS', false);
+        // narrow view (phone): the histogram full width, the starting law small in its top right corner
+        const narrow = W < NARROW_VIEW;
+        if (narrow) main.set(...narrowPlot(W, H, 2)).world(-4, 4, 0, 0.55);
+        else main.set(80, 150, W - 420, H - 300).world(-4, 4, 0, 0.55);
+        main.box(g, narrow ? 'Zₙ ET DENSITÉ DE GAUSS' : 'HISTOGRAMME DE Zₙ ET DENSITÉ DE GAUSS', false);
         const bw = 8 / BINS;
         for (let b = 0; b < BINS; b++) {
           const dens = st.hist[b] / Math.max(1, st.count) / bw;
@@ -100,7 +103,9 @@ export const cltView: VizDef = {
         main.axes(g, { xName: 'z' });
         main.plot(g, (z) => Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI), { color: INK.fg });
         // inset: the starting distribution
-        inset.set(W - 300, 150, 240, 140).world(D.range[0], D.range[1], 0, D.id === 'exp' ? 1.1 : D.id === 'bimodal' ? 2.8 : 1.3);
+        if (narrow) inset.set(main.x + main.w - 104, main.y + 24, 96, 56);
+        else inset.set(W - 300, 150, 240, 140);
+        inset.world(D.range[0], D.range[1], 0, D.id === 'exp' ? 1.1 : D.id === 'bimodal' ? 2.8 : 1.3);
         inset.box(g, 'LOI DE DÉPART');
         if (D.id === 'bern' || D.id === 'die') {
           const pts = D.id === 'bern' ? [[0, 0.8], [1, 0.2]] : [1, 2, 3, 4, 5, 6].map((k) => [k, 1 / 6]);

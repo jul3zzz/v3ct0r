@@ -3,7 +3,7 @@ import type { Formula, ModuleDef, Quality, QualitySetting, VizContext, VizDef, V
 import { settings, saveSettings } from './settings';
 import { sfx } from './audio';
 import { music } from './music';
-import { buildLayout, type Layout } from '../shell/layout';
+import { buildLayout, setSheet, type Layout } from '../shell/layout';
 import { ViewportHud } from '../shell/viewport-hud';
 import { UI } from '../hud/ui';
 import { h, setText } from '../hud/dom';
@@ -30,10 +30,12 @@ import { StoryProgress, storyState, type StoryState } from '../story/progress';
 import { ACTS, CHAPTERS, chapterById } from '../story/data';
 import { chapterDialog, journalDialog, type StoryHooks } from '../story/ui';
 import { CAMERA } from '../gfx/panzoom';
+import { doubleTap, touchScreen } from './touch';
 import { CalcPanel } from '../shell/calc';
 import { NotesPanel } from '../shell/notes';
 import { cloud } from './cloud';
 import { accountDialog, reloadAfterSync } from '../shell/account';
+import { installDialog } from '../shell/install';
 import { DL_KEY, INSTALLER_URL, downloadKind, type DownloadKind } from '../shell/welcome-steps';
 
 /** pseudo-module hosting LEARN's own views (course tree, empty stage) */
@@ -112,6 +114,37 @@ export const KEYS: KeyDoc[] = [
   { label: 'Calculatrice et raccourcis de caractères', keys: ['='] },
   { label: 'Carnet de notes', keys: ['N'] },
   { label: 'Fermer / quitter', keys: ['Échap'] },
+];
+
+/** touch screen: AIDE lists the gestures and buttons instead of the keys (the keys still work with a keyboard) */
+export const TOUCH_KEYS: KeyDoc[] = [
+  { label: 'Tourner une vue 3D', keys: ['1 DOIGT', 'GLISSER'] },
+  { label: 'Zoomer', keys: ['2 DOIGTS', 'PINCER'] },
+  { label: 'Déplacer', keys: ['2 DOIGTS', 'GLISSER'] },
+  { label: 'Recentrer la vue', keys: ['DOUBLE TAP'] },
+  { label: 'Modules et vues', keys: ['≡ MODULES'] },
+  { label: 'Réglages de la vue', keys: ['POIGNÉE SOUS LA VUE'] },
+  { label: 'Leçon, formule, PNG, REC, pause', keys: ['BOUTONS DE LA FEUILLE'] },
+  { label: 'Palette, son, musique, calculatrice, notes', keys: ['2ᵉ LIGNE DE LA BARRE'] },
+  { label: 'Tuto, parcours, défi, ciné', keys: ['≡ MODULES', 'EN BAS'] },
+];
+export const TOUCH_LEARN_KEYS: KeyDoc[] = [
+  { label: 'Faire tourner le graphe', keys: ['1 DOIGT', 'GLISSER'] },
+  { label: 'Zoomer dans le graphe', keys: ['2 DOIGTS', 'PINCER'] },
+  { label: 'Choisir un cours, un chapitre, un énoncé', keys: ['TAP'] },
+  { label: 'L’ouvrir', keys: ['DOUBLE TAP'] },
+  { label: 'Liste, recherche, filtres', keys: ['≡ COURS'] },
+  { label: 'Détails, lecture, fiche PDF', keys: ['POIGNÉE SOUS LA VUE'] },
+  { label: 'Leçons-jeux', keys: ['BOUTONS SOUS LE JEU'] },
+];
+export const TOUCH_ATLAS_KEYS: KeyDoc[] = [
+  { label: 'Diriger le vaisseau', keys: ['PAD', 'EN BAS À GAUCHE'] },
+  { label: 'Viser', keys: ['GLISSER SUR LA VUE'] },
+  { label: 'Avancer, boost, freiner', keys: ['AVANCER', 'BOOST', 'FREIN'] },
+  { label: 'Monter, descendre', keys: ['▲', '▼'] },
+  { label: 'Entrer dans la cible', keys: ['LA CARTE', 'ENTRER'] },
+  { label: 'Quitter le système', keys: ['RETOUR'] },
+  { label: 'Menus classiques', keys: ['MENUS'] },
 ];
 
 export class App {
@@ -209,7 +242,11 @@ export class App {
         option: (label) => uiOption(label),
         camera: () => CAMERA.current,
       },
-      mountViz: (viz) => this.mount(LEARN_MOD, viz, false, false),
+      mountViz: (viz) => {
+        // phone: a course (written or video, mounted on a blank view) and a game take the whole height; the graph keeps the sheet open
+        setSheet(viz.id !== 'blank' && !viz.id.startsWith('game-'));
+        this.mount(LEARN_MOD, viz, false, false);
+      },
       openExplorer: (view) => this.openExplorer(view),
       fullscreen: () => this.fullscreen(),
       setCrumbs: (parts) => this.L.crumbs.replaceChildren(...parts.flatMap((p, i) => (i ? [h('span', { text: '▸' }), h('span', { class: i === parts.length - 1 ? 'hi' : '', text: p })] : [h('span', { text: p })]))),
@@ -302,6 +339,8 @@ export class App {
       journal: () => this.openJournal(),
     });
     layout.overlay.addEventListener('pointerdown', () => (this.lastTouch = performance.now()));
+    // touch screen: a double tap on the view is its double click (recenter, return home, open a graph node)
+    doubleTap(layout.overlay);
     // narrow window: a press in the view closes the rail drawer
     layout.viewport.addEventListener('pointerdown', () => this.toggleRail(false));
     void host;
@@ -497,6 +536,7 @@ export class App {
     this.L.tabExplore.setAttribute('aria-selected', String(mode === 'explore'));
     this.L.tabAtlas.setAttribute('aria-selected', String(mode === 'atlas'));
     this.toggleRail(false);
+    setSheet(true);
     this.L.btnRail.replaceChildren(icon('menu'), h('span', { text: mode === 'learn' ? 'COURS' : 'MODULES' }));
     if (cur === 'learn') this.learn.leave();
     if (cur === 'atlas') this.atlas.leave();
@@ -1206,7 +1246,7 @@ export class App {
 
   /** size of the zip, for the way in (« 6,4 Mo »); the installer is on GitHub (no size: cross-origin) */
   async downloadSize(): Promise<string | null> {
-    if (!location.hostname.endsWith('github.io') || downloadKind(navigator.userAgent) === 'installer') return null;
+    if (!location.hostname.endsWith('github.io') || downloadKind(navigator.userAgent, navigator.maxTouchPoints) !== 'zip') return null;
     try {
       const r = await fetch(this.downloadUrl(), { method: 'HEAD' });
       const n = Number(r.headers.get('content-length') ?? 0);
@@ -1229,7 +1269,13 @@ export class App {
     // « non » to the offer of the way in: a download icon stays in the status bar
     this.L.sbDownload.style.display = online && store.get<string | null>(DL_KEY, null) === 'no' ? '' : 'none';
     if (!online) return;
-    if (downloadKind(navigator.userAgent) === 'installer') {
+    // a phone or a tablet: install the website on the home screen (PWA tutorial)
+    if (downloadKind(navigator.userAgent, navigator.maxTouchPoints) === 'mobile') {
+      b.title = b.ariaLabel = 'Installer V3CT0R sur ce téléphone : une icône sur l’écran d’accueil, plein écran, hors ligne';
+      b.replaceChildren(icon('download'), h('span', { text: 'INSTALLER' }));
+      return;
+    }
+    if (downloadKind(navigator.userAgent, navigator.maxTouchPoints) === 'installer') {
       b.title = b.ariaLabel = 'Télécharger V3CT0R pour Windows : l’installeur met l’app sur le bureau, hors ligne (V3CT0R-Setup.exe)';
       return;
     }
@@ -1243,7 +1289,11 @@ export class App {
   }
 
   /** Windows: the installer (V3CT0R on the desktop and in the Start menu); elsewhere, or on request, the zip */
-  downloadApp(kind: DownloadKind = downloadKind(navigator.userAgent)): void {
+  downloadApp(kind: DownloadKind = downloadKind(navigator.userAgent, navigator.maxTouchPoints)): void {
+    if (kind === 'mobile') {
+      this.openDialog(installDialog());
+      return;
+    }
     const a = document.createElement('a');
     a.href = kind === 'installer' ? INSTALLER_URL : this.downloadUrl();
     a.download = kind === 'installer' ? 'V3CT0R-Setup.exe' : 'V3CT0R.zip';
@@ -1266,7 +1316,8 @@ export class App {
       this.dialog.close();
       return;
     }
-    this.openDialog(keymapDialog(this.atlas.active ? ATLAS_KEYS : this.learn.active ? LEARN_KEYS : KEYS));
+    if (touchScreen()) this.openDialog(keymapDialog(this.atlas.active ? TOUCH_ATLAS_KEYS : this.learn.active ? TOUCH_LEARN_KEYS : TOUCH_KEYS, true));
+    else this.openDialog(keymapDialog(this.atlas.active ? ATLAS_KEYS : this.learn.active ? LEARN_KEYS : KEYS));
   }
 
   private commands(): Command[] {
@@ -1296,7 +1347,8 @@ export class App {
     act('scan', 'Scanlines on/off', () => this.toggleScan(), 'crt');
     act('keymap', 'Raccourcis clavier', () => this.openKeymap(), 'aide help');
     if (location.protocol.startsWith('http')) {
-      act('download', downloadKind(navigator.userAgent) === 'installer' ? 'Installer V3CT0R sur Windows (app de bureau)' : 'Télécharger V3CT0R (version hors ligne)', () => this.downloadApp(), 'télécharger installer installeur app bureau windows exe hors ligne offline');
+      act('download', { installer: 'Installer V3CT0R sur Windows (app de bureau)', mobile: 'Installer V3CT0R sur ce téléphone (Android, iPhone, iPad)', zip: 'Télécharger V3CT0R (version hors ligne)' }[downloadKind(navigator.userAgent, navigator.maxTouchPoints)], () => this.downloadApp(), 'télécharger installer installeur app bureau windows exe hors ligne offline téléphone android iphone ipad écran d’accueil');
+      act('install-phone', 'Installer V3CT0R sur un téléphone (Android, iPhone) : le tuto', () => this.downloadApp('mobile'), 'téléphone mobile android iphone ipad installer écran d’accueil pwa application');
       act('download-zip', 'Télécharger la version zip (tous systèmes, sans installation)', () => this.downloadApp('zip'), 'télécharger zip index.html mac linux portable hors ligne');
     }
     act('account', 'Compte : connexion et synchro de la progression', () => this.openAccount(), 'compte connexion inscription créer email mot de passe synchroniser cloud');
@@ -1412,6 +1464,7 @@ export class App {
     on(L.btnAccount, () => this.openAccount());
     on(L.btnDownload, () => this.downloadApp());
     on(L.btnRail, () => this.toggleRail());
+    on(L.sheetGrip, () => setSheet(document.body.classList.contains('sheet-min')));
     on(L.sbDownload, () => this.downloadApp());
     on(L.btnScan, () => this.toggleScan());
     on(L.btnHelp, () => this.openKeymap());

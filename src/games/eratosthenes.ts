@@ -3,7 +3,7 @@
 // angle at the centre of the Earth between the two towns; with their distance, it gives the
 // circumference. The player measures the angle by aligning an arm from the top of the gnomon to
 // the tip of its shadow.
-import { type Box, type GameDef, type GameLogic, type RoundResult, fr } from './types';
+import { type Box, type GameDef, type GameLogic, type RoundResult, type TouchKey, fr } from './types';
 
 export interface Site {
   label: string;
@@ -64,12 +64,31 @@ class Eratosthenes implements GameLogic {
     return 'GLISSER DANS LE ZOOM : POINTER LE BRAS SUR LE BOUT DE L’OMBRE · ← → AJUSTER (MAJ : FIN) · ⏎ VALIDER';
   }
 
+  touchControls(): string {
+    return 'GLISSER DANS LE ZOOM : POINTER LE BRAS SUR LE BOUT DE L’OMBRE · ◀ ▶ AJUSTER (◁ ▷ : FIN)';
+  }
+
+  touchKeys(): TouchKey[] {
+    return [
+      { label: '◀', title: 'Ajuster vers la gauche', key: 'ArrowLeft', repeat: true },
+      { label: '◁', title: 'Ajuster finement vers la gauche', key: 'ArrowLeft', shift: true, repeat: true },
+      { label: '▷', title: 'Ajuster finement vers la droite', key: 'ArrowRight', shift: true, repeat: true },
+      { label: '▶', title: 'Ajuster vers la droite', key: 'ArrowRight', repeat: true },
+    ];
+  }
+
   /** zoom inset geometry: gnomon foot, height, and the magnification of the angle */
   private inset(): { fx: number; fy: number; hgt: number; zoom: number } {
     const b = this.box;
     // small angles are magnified so that they stay measurable (the scale is shown)
     const zoom = this.level === 0 ? 1 : this.level === 1 ? 3 : 2;
+    // narrow play area (phone): the gnomon on the left, the readouts under the ground
+    if (this.narrow) return { fx: b.x + b.w * 0.2, fy: b.y + b.h - 110, hgt: Math.min(b.h * 0.5, 240), zoom };
     return { fx: b.x + b.w * 0.6, fy: b.y + b.h - 70, hgt: Math.min(b.h - 140, 300), zoom };
+  }
+
+  private get narrow(): boolean {
+    return this.box.w > 1 && this.box.w < 520;
   }
 
   /** screen angle of a real angle (degrees → radians, magnified) */
@@ -86,7 +105,7 @@ class Eratosthenes implements GameLogic {
   pointer(type: 'move' | 'down' | 'up' | 'wheel', x: number, y: number): void {
     const I = this.inset();
     const tipY = I.fy - I.hgt;
-    if (type === 'down' && x > this.box.x + this.box.w * 0.42) this.dragging = true;
+    if (type === 'down' && (this.narrow ? y > tipY - 20 : x > this.box.x + this.box.w * 0.42)) this.dragging = true;
     if (type === 'up') this.dragging = false;
     if ((type === 'down' || type === 'move') && this.dragging && y > tipY + 4) {
       const a = Math.atan2(x - I.fx, y - tipY);
@@ -118,10 +137,11 @@ class Eratosthenes implements GameLogic {
     g.save();
     g.font = '12px "JetBrains Mono", monospace';
     g.textBaseline = 'middle';
-    // left: the planet in cross-section, the two places, the angle at the centre (not to scale)
-    const R = Math.min(box.w * 0.18, box.h * 0.32);
-    const cx = box.x + box.w * 0.22;
-    const cy = box.y + box.h * 0.55;
+    // left (narrow: top right): the planet in cross-section, the two places, the angle at the centre (not to scale)
+    const narrow = this.narrow;
+    const R = narrow ? Math.min(box.w * 0.15, 52) : Math.min(box.w * 0.18, box.h * 0.32);
+    const cx = box.x + box.w * (narrow ? 0.74 : 0.22);
+    const cy = narrow ? box.y + R + 54 : box.y + box.h * 0.55;
     g.strokeStyle = 'rgba(255,255,255,0.8)';
     g.beginPath();
     g.arc(cx, cy, R, 0, Math.PI * 2);
@@ -208,14 +228,18 @@ class Eratosthenes implements GameLogic {
     g.arc(I.fx, tipY, 40, Math.PI / 2 - am, Math.PI / 2);
     g.stroke();
     g.textAlign = 'left';
-    g.font = '16px "JetBrains Mono", monospace';
+    // the readouts: next to the arm, or (narrow) under the ground line, smaller
+    const rx = narrow ? box.x + 14 : I.fx + 50;
+    const ry = narrow ? I.fy + 44 : tipY + 20;
+    const lh = narrow ? 16 : 20;
+    g.font = narrow ? '14px "JetBrains Mono", monospace' : '16px "JetBrains Mono", monospace';
     g.fillStyle = '#fff';
-    g.fillText(`θ mesuré = ${fr(this.arm, 2)}°`, I.fx + 50, tipY + 20);
-    g.font = '12px "JetBrains Mono", monospace';
+    g.fillText(`θ mesuré = ${fr(this.arm, 2)}°`, rx, ry);
+    g.font = narrow ? '11px "JetBrains Mono", monospace' : '12px "JetBrains Mono", monospace';
     g.fillStyle = 'rgba(255,255,255,0.75)';
-    g.fillText(`tour estimé = 360° / θ × ${s.dist.toLocaleString('fr-FR')} = ${Math.round(circumference(this.arm, s.dist)).toLocaleString('fr-FR')} ${s.unit}`, I.fx + 50, tipY + 44);
-    if (I.zoom > 1) g.fillText(`zoom ×${I.zoom} sur la tangente de l’angle`, I.fx + 50, tipY + 64);
-    if (phase === 'reveal') g.fillText(`angle vrai ${fr(s.angle, 3)}° · un ${Math.round(360 / s.angle)}ᵉ de cercle environ`, I.fx + 50, tipY + 84);
+    g.fillText(`tour estimé = 360° / θ × ${s.dist.toLocaleString('fr-FR')} = ${Math.round(circumference(this.arm, s.dist)).toLocaleString('fr-FR')} ${s.unit}`, rx, ry + lh + (narrow ? 2 : 4));
+    if (I.zoom > 1) g.fillText(`zoom ×${I.zoom} sur la tangente de l’angle`, rx, ry + 2 * lh + (narrow ? 2 : 4));
+    if (phase === 'reveal') g.fillText(`angle vrai ${fr(s.angle, 3)}° · un ${Math.round(360 / s.angle)}ᵉ de cercle environ`, rx, ry + 3 * lh + (narrow ? 2 : 4));
     g.restore();
   }
 }

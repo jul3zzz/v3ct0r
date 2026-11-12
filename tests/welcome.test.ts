@@ -1,12 +1,37 @@
 import { describe, expect, it } from 'vitest';
-import { downloadKind, welcomeSteps } from '../src/shell/welcome-steps';
+import { INSTALL_STEPS, SITE_URL, downloadKind, mobilePlatform, welcomeSteps } from '../src/shell/welcome-steps';
+
+const UA = {
+  windows: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140.0 Safari/537.36 Edg/140.0',
+  mac: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15',
+  linux: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140.0 Safari/537.36',
+  android: 'Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 Chrome/140.0 Mobile Safari/537.36',
+  iphone: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 Version/18.1 Mobile/15E148 Safari/604.1',
+};
 
 describe('what TÉLÉCHARGER gives', () => {
-  it('Windows: the installer (desktop app); other systems: the zip', () => {
-    expect(downloadKind('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/140.0 Safari/537.36 Edg/140.0')).toBe('installer');
-    expect(downloadKind('Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 Version/18.0 Safari/605.1.15')).toBe('zip');
-    expect(downloadKind('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/140.0 Safari/537.36')).toBe('zip');
-    expect(downloadKind('Mozilla/5.0 (Linux; Android 15) AppleWebKit/537.36 Chrome/140.0 Mobile Safari/537.36')).toBe('zip');
+  it('Windows: the installer (desktop app); macOS and Linux: the zip', () => {
+    expect(downloadKind(UA.windows)).toBe('installer');
+    expect(downloadKind(UA.mac)).toBe('zip');
+    expect(downloadKind(UA.linux)).toBe('zip');
+  });
+
+  it('a phone or a tablet: the steps to install the website as an app', () => {
+    expect(downloadKind(UA.android)).toBe('mobile');
+    expect(downloadKind(UA.iphone)).toBe('mobile');
+    // iPadOS asks for the desktop site: a Mac user agent, but a touch screen
+    expect(downloadKind(UA.mac, 5)).toBe('mobile');
+    expect(mobilePlatform(UA.android)).toBe('android');
+    expect(mobilePlatform(UA.iphone)).toBe('ios');
+    expect(mobilePlatform(UA.mac, 5)).toBe('ios');
+    expect(mobilePlatform(UA.mac)).toBeNull();
+    expect(mobilePlatform(UA.windows)).toBeNull();
+  });
+
+  it('the install steps: Android (Chrome menu) and iPhone / iPad (Safari, Partager), on the real site', () => {
+    expect(INSTALL_STEPS.android.join(' ')).toMatch(/Chrome.*⋮.*Installer l’application/);
+    expect(INSTALL_STEPS.ios.join(' ')).toMatch(/Safari.*Partager.*Sur l’écran d’accueil.*Ajouter/);
+    expect(SITE_URL).toBe('https://jul3zzz.github.io/v3ct0r/');
   });
 });
 
@@ -20,6 +45,10 @@ describe('way in (download offer, required account)', () => {
   it('the download offer is asked once, and only on the website', () => {
     expect(welcomeSteps({ ...base, answered: true })).toEqual(['account']);
     expect(welcomeSteps({ ...base, online: false })).toEqual(['account']);
+  });
+
+  it('the app installed on a phone (PWA) does not offer to install it again', () => {
+    expect(welcomeSteps({ ...base, installed: true })).toEqual(['account']);
   });
 
   it('downloaded version: the account is required too', () => {

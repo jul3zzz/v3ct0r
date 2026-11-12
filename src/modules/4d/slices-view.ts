@@ -223,8 +223,12 @@ export const slicesView: VizDef = {
       const H = ctx.height;
       const bw = 236;
       const bh = 128;
-      const x0 = W - bw - 26;
-      const y0 = H - bh - 70;
+      // narrow view (phone): the inset goes to the top right, and only when the view is tall enough
+      // (sheet folded) not to cover the slice
+      const narrow = W < 560;
+      if (narrow && H < 560) return;
+      const x0 = W - bw - (narrow ? 10 : 26);
+      const y0 = narrow ? 96 : H - bh - 70;
       g.fillStyle = 'rgba(0,0,0,0.72)';
       g.fillRect(x0, y0, bw, bh);
       g.strokeStyle = INK.f20;

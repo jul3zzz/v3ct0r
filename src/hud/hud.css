@@ -90,6 +90,7 @@ body.chrome-off .topbar, body.chrome-off .rail, body.chrome-off .panel, body.chr
 .tb-btn { display: inline-flex; align-items: center; gap: 6px; height: 20px; padding: 0 7px; border: var(--line-mid); color: var(--fg-80); letter-spacing: 0.08em; font-size: var(--fs-xs); transition: background var(--t-fast), color var(--t-fast); }
 .tb-btn:hover { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 .tb-btn.on { color: var(--fg); border-color: var(--fg-60); }
+.tb-btn.on:hover { color: var(--bg); border-color: var(--fg); }
 .rec-dot { display: none; align-items: center; gap: 6px; color: var(--fg); }
 body.recording .rec-dot { display: inline-flex; }
 .rec-dot i { width: 7px; height: 7px; background: var(--fg); animation: blink 1s steps(1) infinite; }
@@ -330,6 +331,11 @@ body.chrome-off .vp-title { display: none; }
 .keymap .row { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-bottom: var(--line-dash); }
 .keymap .row span:first-child { color: var(--fg-80); text-transform: uppercase; letter-spacing: 0.06em; }
 .keymap .row span:last-child { display: flex; gap: 4px; }
+/* touch screen: gestures, longer than keys (one column, the chips wrap) */
+.keymap.touch { grid-template-columns: 1fr; }
+.keymap.touch .row { align-items: center; }
+.keymap.touch .row > span:last-child { flex-wrap: wrap; justify-content: flex-end; }
+.keymap.touch .kbd { white-space: nowrap; }
 
 .sigma { position: absolute; z-index: 7; right: 26px; bottom: 52px; width: min(480px, 70%); padding: 12px 14px; background: var(--bg); border: var(--line-mid); pointer-events: auto; animation: fade-in var(--t) var(--ease); }
 .sigma-head { display: flex; justify-content: space-between; color: var(--fg-70); font-size: var(--fs-xs); letter-spacing: var(--track-caps); margin-bottom: 6px; }
@@ -477,6 +483,14 @@ body.touring .vp-hint { display: none; }
 @media (max-width: 1640px) { .topbar .meta > :not(.rec-dot) { display: none; } }
 @media (max-width: 1400px) { .topbar .tb-btn:not(.tb-dl):not(.rail-toggle) > span { display: none; } }
 @media (max-width: 1000px) { .topbar .tb-btn > span { display: none; } .topbar .crumbs { display: none; } }
+/* the tool buttons sit in the bar itself; below 1200 px they form a strip that shrinks and scrolls sideways
+   rather than being cut off by the edge of the window (768 px: SCAN and AIDE stay reachable) */
+.tb-tools { display: contents; }
+@media (max-width: 1199px) {
+  .tb-tools { display: flex; align-items: center; gap: 14px; min-width: 0; padding: 4px 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+  .tb-tools::-webkit-scrollbar { display: none; }
+  .tb-tools > .tb-btn { flex: none; }
+}
 
 /* narrow window (< 1200 px): the rail (modules, or LEARN courses) becomes a drawer over the view, opened by
    the MODULES button, so that the view keeps at least ~630 px (the 2D views are drawn for that). */

@@ -4,9 +4,11 @@
 import type { VizContext, VizDef, VizInstance } from '../core/types';
 import { sfx } from '../core/audio';
 import { store } from '../core/settings';
-import { grade, rng, type Box, type GameDef, type GameLogic, type RoundResult } from './types';
+import { grade, rng, type Box, type GameDef, type GameLogic, type RoundResult, type TouchKey } from './types';
 import { hashText } from '../learn/script';
 import { music } from '../core/music';
+import { h } from '../hud/dom';
+import { touchScreen } from '../core/touch';
 import briefs from './briefs.json';
 
 export interface GameScores {
@@ -69,6 +71,15 @@ export class GameRun implements VizInstance {
   private last: RoundResult | null = null;
   private record = false;
   private box: Box = { x: 0, y: 0, w: 1, h: 1 };
+  /** touch screen: the bar of buttons under the play area (start, validate, the game's own keys…) */
+  private touch = touchScreen();
+  private bar: HTMLElement | null = null;
+  private barSig = '';
+  private barStop: (() => void)[] = [];
+  /** where the level rows of the briefing start (drawBrief, used by the clicks too) */
+  private rowsTop = -1;
+  /** the prompt of the round, cut in lines that fit the width */
+  private promptLines: string[] = [];
 
   constructor(
     private ctx: VizContext,
@@ -92,6 +103,13 @@ export class GameRun implements VizInstance {
     ctx.listen(ctx.input, 'pointermove', ptr('move'));
     ctx.listen(ctx.input, 'pointerdown', ptr('down'));
     ctx.listen(ctx.input, 'pointerup', ptr('up'));
+    // a touch taken over by the system (a scroll, a call) ends like a release
+    ctx.listen(ctx.input, 'pointercancel', ptr('up'));
+    if (this.touch) {
+      this.bar = h('div', { class: 'game-touch', role: 'toolbar', 'aria-label': 'Commandes du jeu' });
+      ctx.input.parentElement!.append(this.bar);
+      ctx.onDispose(() => (this.releaseBar(), this.bar?.remove()));
+    }
     ctx.listen(
       ctx.input,
       'wheel',
@@ -249,7 +267,8 @@ export class GameRun implements VizInstance {
     this.clock += dt;
     const W = this.ctx.width;
     const H = this.ctx.height;
-    this.box = { x: 28, y: 92, w: W - 56, h: H - 140 };
+    this.paintBar();
+    this.layoutPlay(W, H);
     if (this.phase === 'play') {
       this.left -= dt;
       this.logic.tick?.(dt);
@@ -271,7 +290,111 @@ export class GameRun implements VizInstance {
     g.restore();
   }
 
+  // ── touch screen: the bar of buttons ───────────────────────────────────
+
+  private barHeight(): number {
+    return this.bar ? this.bar.offsetHeight : 0;
+  }
+
+  /** let go of the held buttons (and stop their repeats) before the bar changes */
+  private releaseBar(): void {
+    for (const stop of this.barStop.splice(0)) stop();
+  }
+
+  /** the buttons of the phase: start / back, the game's own keys and validate, next round, replay */
+  private paintBar(): void {
+    const bar = this.bar;
+    if (!bar) return;
+    const keys = this.phase === 'play' ? (this.logic.touchKeys?.() ?? []) : [];
+    const sig = `${this.phase}|${this.level}|${this.round}|${keys.map((k) => k.label).join(',')}`;
+    if (sig === this.barSig) return;
+    this.barSig = sig;
+    this.releaseBar();
+    const btn = (label: string, title: string, cls = '') => h('button', { type: 'button', class: `gt-b${cls}`, title, 'aria-label': title, text: label });
+    const tap = (label: string, title: string, fn: () => void, cls = '') => {
+      const b = btn(label, title, cls);
+      b.addEventListener('click', fn);
+      return b;
+    };
+    const send = (k: TouchKey, down: boolean) => {
+      const e = new KeyboardEvent(down ? 'keydown' : 'keyup', { key: k.key, code: k.code ?? '', shiftKey: !!k.shift });
+      if (down) this.logic.key?.(e);
+      else this.logic.keyUp?.(e);
+    };
+    const gameKey = (k: TouchKey) => {
+      const b = btn(k.label, k.title ?? k.label, ' gk');
+      if (!k.hold && !k.repeat) {
+        b.addEventListener('click', () => (send(k, true), send(k, false)));
+        return b;
+      }
+      let timer = 0;
+      let on = false;
+      const stop = () => {
+        if (!on) return;
+        on = false;
+        clearTimeout(timer);
+        clearInterval(timer);
+        b.classList.remove('on');
+        if (k.hold) send(k, false);
+      };
+      b.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        b.setPointerCapture(e.pointerId);
+        on = true;
+        b.classList.add('on');
+        send(k, true);
+        if (k.repeat) timer = window.setTimeout(() => (timer = window.setInterval(() => send(k, true), 60)), 320);
+      });
+      for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture'] as const) b.addEventListener(ev, stop);
+      this.barStop.push(stop);
+      return b;
+    };
+    const home = () => this.hooks.home();
+    const n = this.def.levels.length;
+    const L = this.def.levels[this.level];
+    let kids: HTMLElement[];
+    if (this.phase === 'brief') kids = [tap('◂ RETOUR', 'Retour à LEARN', home), tap(`▶ COMMENCER LE NIVEAU ${this.level + 1}`, 'Commencer le niveau choisi', () => this.begin(this.level), ' go')];
+    else if (this.phase === 'play') kids = [...keys.map(gameKey), tap('✕', 'Abandonner la partie', () => this.setPhase('brief')), tap('✓ VALIDER', 'Valider', () => this.confirm(), ' go')];
+    else if (this.phase === 'reveal') kids = [tap(this.round + 1 < L.rounds ? '▶ MANCHE SUIVANTE' : '▶ RÉSULTAT', 'Continuer', () => this.confirm(), ' go')];
+    else kids = [tap('◂ RETOUR', 'Retour à LEARN', home), tap('↻ REJOUER', 'Rejouer ce niveau', () => this.begin(this.level)), ...(this.level + 1 < n ? [tap(`NIVEAU ${this.level + 2} ▶`, 'Niveau suivant', () => this.begin(this.level + 1), ' go')] : [])];
+    bar.replaceChildren(...kids);
+  }
+
   // ── drawing ────────────────────────────────────────────────────────────
+
+  /** the play area and the prompt lines. Narrow screen: small margins, the prompt on up to three lines;
+   *  touch screen: room for the bar of buttons. A wide window keeps the 28 px margins and one line. */
+  private layoutPlay(W: number, H: number): void {
+    const narrow = W < 560;
+    const prompt = this.phase === 'play' || this.phase === 'reveal' ? this.logic.prompt() : '';
+    if (narrow) {
+      this.ctx.g.font = this.font(12);
+      this.promptLines = this.lines(this.ctx.g, prompt, W - 28).slice(0, 3);
+    } else this.promptLines = [prompt];
+    const M = narrow ? 12 : 28;
+    const top = narrow ? 50 + this.promptLines.length * 16 + 6 : 92;
+    const bottom = this.touch ? this.barHeight() + 44 : 48;
+    this.box = { x: M, y: top, w: W - 2 * M, h: Math.max(80, H - top - bottom) };
+  }
+
+  /** words cut in lines no wider than maxW (with the current font) */
+  private lines(g: CanvasRenderingContext2D, text: string, maxW: number): string[] {
+    const out: string[] = [];
+    for (const w of text.split(/\s+/).filter(Boolean)) {
+      const t = out.length ? `${out[out.length - 1]} ${w}` : w;
+      if (out.length && g.measureText(t).width <= maxW) out[out.length - 1] = t;
+      else out.push(w);
+    }
+    return out;
+  }
+
+  /** the text, cut with an ellipsis so that it fits maxW */
+  private fit(g: CanvasRenderingContext2D, text: string, maxW: number): string {
+    if (g.measureText(text).width <= maxW) return text;
+    let t = text;
+    while (t.length > 1 && g.measureText(`${t}…`).width > maxW) t = t.slice(0, -1);
+    return `${t.trimEnd()}…`;
+  }
 
   private font(px: number, display = false): string {
     return display ? `${px}px Michroma, sans-serif` : `${px}px "JetBrains Mono", ui-monospace, monospace`;
@@ -322,32 +445,71 @@ export class GameRun implements VizInstance {
 
   private levelRows(): Box[] {
     const W = this.ctx.width;
-    const x = Math.max(28, W / 2 - 300);
-    return this.def.levels.map((_, i) => ({ x, y: this.ctx.height * 0.52 + i * 46, w: Math.min(600, W - 56), h: 38 }));
+    const x = Math.max(W < 560 ? 14 : 28, W / 2 - 300);
+    const top = this.rowsTop >= 0 ? this.rowsTop : this.ctx.height * 0.52;
+    return this.def.levels.map((_, i) => ({ x, y: top + i * 46, w: Math.min(600, W - 2 * x), h: 38 }));
   }
 
   private drawBrief(g: CanvasRenderingContext2D, W: number, H: number): void {
     const d = this.def;
     const cx = W / 2;
+    const narrow = W < 560;
     g.textAlign = 'center';
     g.textBaseline = 'middle';
-    g.fillStyle = 'rgba(255,255,255,0.55)';
-    g.font = this.font(11);
-    g.fillText(`LEÇON-JEU · ${d.module.toUpperCase()} · ≈ ${d.minutes} MIN`, cx, H * 0.14);
-    g.fillStyle = '#fff';
-    g.font = this.font(Math.round(Math.min(40, W / 22)), true);
-    g.fillText(this.decode(up(d.title), this.phaseAt), cx, H * 0.21);
-    g.font = this.font(13);
-    g.fillStyle = 'rgba(255,255,255,0.75)';
-    g.fillText(d.subtitle, cx, H * 0.27);
-    // mission, typed in
-    g.font = this.font(13);
-    g.fillStyle = 'rgba(255,255,255,0.9)';
     // the text types in with the voice when it plays, on its own clock otherwise
     const v = this.voice;
     const p = v && !v.paused && v.duration > 0 ? Math.min(1, (v.currentTime / v.duration) * 1.08) : v && v.ended ? 1 : Math.min(1, (this.clock - this.phaseAt - 0.5) / 2.2);
     const shown = d.brief.slice(0, Math.max(0, Math.floor(p * d.brief.length)));
-    this.wrap(g, shown, cx, H * 0.34, Math.min(760, W - 80), 20);
+    if (!narrow) {
+      this.rowsTop = -1;
+      g.fillStyle = 'rgba(255,255,255,0.55)';
+      g.font = this.font(11);
+      g.fillText(`LEÇON-JEU · ${d.module.toUpperCase()} · ≈ ${d.minutes} MIN`, cx, H * 0.14);
+      g.fillStyle = '#fff';
+      g.font = this.font(Math.round(Math.min(40, W / 22)), true);
+      g.fillText(this.decode(up(d.title), this.phaseAt), cx, H * 0.21);
+      g.font = this.font(13);
+      g.fillStyle = 'rgba(255,255,255,0.75)';
+      g.fillText(d.subtitle, cx, H * 0.27);
+      // mission, typed in
+      g.font = this.font(13);
+      g.fillStyle = 'rgba(255,255,255,0.9)';
+      this.wrap(g, shown, cx, H * 0.34, Math.min(760, W - 80), 20);
+    } else {
+      // narrow screen: everything in lines that fit, the levels right under the mission
+      const maxW = W - 40;
+      let y = Math.max(34, H * 0.07);
+      g.fillStyle = 'rgba(255,255,255,0.55)';
+      g.font = this.font(10);
+      g.fillText(this.fit(g, `LEÇON-JEU · ${d.module.toUpperCase()} · ≈ ${d.minutes} MIN`, maxW), cx, y);
+      y += 26;
+      const title = up(d.title);
+      let fs = Math.round(Math.min(26, W / 15));
+      g.font = this.font(fs, true);
+      while (fs > 13 && g.measureText(title).width > maxW) g.font = this.font(--fs, true);
+      g.fillStyle = '#fff';
+      for (const l of this.lines(g, title, maxW)) {
+        g.fillText(this.decode(l, this.phaseAt), cx, y);
+        y += Math.round(fs * 1.4);
+      }
+      g.font = this.font(12);
+      g.fillStyle = 'rgba(255,255,255,0.75)';
+      for (const l of this.lines(g, d.subtitle, maxW)) {
+        g.fillText(l, cx, y);
+        y += 17;
+      }
+      y += 8;
+      // the mission keeps the room it will need once typed, and gives way to the levels on a short screen
+      g.fillStyle = 'rgba(255,255,255,0.9)';
+      const rows = d.levels.length * 46;
+      const room = H - y - rows - (this.touch ? this.barHeight() + 18 : 46);
+      const full = this.lines(g, d.brief, maxW);
+      const max = Math.max(1, Math.floor(room / 17));
+      const part = this.lines(g, shown, maxW).slice(0, max);
+      if (full.length > max && part.length === max) part[max - 1] = this.fit(g, `${part[max - 1]} …`, maxW);
+      part.forEach((l, i) => g.fillText(l, cx, y + i * 17));
+      this.rowsTop = y + Math.min(full.length, max) * 17 + 10;
+    }
     // levels
     const sc = scoresOf(d.id, d.levels.length);
     this.levelRows().forEach((r, i) => {
@@ -360,10 +522,10 @@ export class GameRun implements VizInstance {
       g.fillStyle = sel ? '#000' : '#fff';
       g.textAlign = 'left';
       g.font = this.font(12);
-      g.fillText(`${i + 1} · ${L.title}`, r.x + 12, r.y + 13);
+      g.fillText(this.fit(g, `${i + 1} · ${L.title}`, r.w - 56), r.x + 12, r.y + 13);
       g.font = this.font(10);
       g.fillStyle = sel ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.6)';
-      g.fillText(`${L.brief} · ${L.rounds} manches · ${L.time} s`, r.x + 12, r.y + 28);
+      g.fillText(this.fit(g, `${L.brief} · ${L.rounds} manches · ${L.time} s`, r.w - 56), r.x + 12, r.y + 28);
       g.textAlign = 'right';
       g.font = this.font(18, true);
       const b = sc.best[i];
@@ -373,7 +535,8 @@ export class GameRun implements VizInstance {
     g.textAlign = 'center';
     g.font = this.font(11);
     g.fillStyle = `rgba(255,255,255,${0.55 + 0.35 * Math.sin(this.clock * 4)})`;
-    g.fillText(`⏎ COMMENCER LE NIVEAU ${this.level + 1} · 1–${d.levels.length} CHOISIR · ÉCHAP RETOUR`, cx, H - 28);
+    // touch screen: the bar says it (COMMENCER, RETOUR)
+    if (!this.touch) g.fillText(`⏎ COMMENCER LE NIVEAU ${this.level + 1} · 1–${d.levels.length} CHOISIR · ÉCHAP RETOUR`, cx, H - 28);
     this.frame(g, 14, 14, W - 28, H - 28, 0.35);
   }
 
@@ -384,52 +547,69 @@ export class GameRun implements VizInstance {
     // play area
     this.logic.draw(g, b, this.clock, this.phase === 'reveal' ? 'reveal' : 'play');
     this.frame(g, b.x, b.y, b.w, b.h, 0.4);
-    // top bar: level, round, score, timer
+    const narrow = W < 560;
+    const M = narrow ? 12 : 28;
+    // top bar: level, round, score, timer (narrow screen: on two lines)
     g.textBaseline = 'middle';
     g.textAlign = 'left';
     g.fillStyle = 'rgba(255,255,255,0.6)';
     g.font = this.font(10);
-    g.fillText(`${up(d.title)} · NIVEAU ${this.level + 1} · ${up(L.title)}`, 28, 22);
-    g.textAlign = 'right';
     const total = this.results.reduce((s, x) => s + x.score, 0);
-    g.fillText(`MANCHE ${this.round + 1}/${L.rounds} · SCORE ${total}`, W - 28, 22);
+    const head = `${up(d.title)} · NIVEAU ${this.level + 1} · ${up(L.title)}`;
+    const count = `MANCHE ${this.round + 1}/${L.rounds} · SCORE ${total}`;
+    if (narrow) g.fillText(this.fit(g, head, W - 2 * M), M, 14);
+    else g.fillText(head, 28, 22);
+    g.textAlign = 'right';
+    g.fillText(count, W - M, narrow ? 27 : 22);
     const tl = Math.max(0, this.left) / L.time;
+    const ty = narrow ? 36 : 34;
     g.strokeStyle = 'rgba(255,255,255,0.35)';
-    g.strokeRect(28.5, 34.5, W - 57, 5);
+    g.strokeRect(M + 0.5, ty + 0.5, W - 2 * M - 1, 5);
     g.fillStyle = tl < 0.25 && this.phase === 'play' ? `rgba(255,255,255,${0.5 + 0.5 * Math.sin(this.clock * 16)})` : '#fff';
-    g.fillRect(29, 35, (W - 58) * (this.phase === 'play' ? tl : 0), 4);
+    g.fillRect(M + 1, ty + 1, (W - 2 * M - 2) * (this.phase === 'play' ? tl : 0), 4);
     // prompt
     g.textAlign = 'center';
     g.fillStyle = '#fff';
-    g.font = this.font(14);
-    // long prompts shrink to fit the width (never below 10 px)
-    const prompt = this.logic.prompt();
-    let fs = 14;
-    g.font = this.font(fs);
-    while (fs > 10 && g.measureText(prompt).width > W - 60) g.font = this.font(--fs);
-    g.fillText(prompt, W / 2, 64);
-    // controls
+    if (narrow) {
+      g.font = this.font(12);
+      this.promptLines.forEach((l, i) => g.fillText(l, W / 2, 58 + i * 16));
+    } else {
+      // long prompts shrink to fit the width (never below 10 px)
+      const prompt = this.promptLines[0] ?? '';
+      let fs = 14;
+      g.font = this.font(fs);
+      while (fs > 10 && g.measureText(prompt).width > W - 60) g.font = this.font(--fs);
+      g.fillText(prompt, W / 2, 64);
+    }
+    // controls (touch screen: in taps and drags, above the bar of buttons)
     g.font = this.font(10);
     g.fillStyle = 'rgba(255,255,255,0.45)';
-    g.fillText(this.phase === 'play' ? `${this.logic.controls()} · ⏎ VALIDER · ÉCHAP ABANDONNER` : '⏎ MANCHE SUIVANTE', W / 2, H - 22);
+    const ctl = this.phase === 'play' ? (this.touch ? (this.logic.touchControls?.() ?? this.logic.controls()) : `${this.logic.controls()} · ⏎ VALIDER · ÉCHAP ABANDONNER`) : this.touch ? '' : '⏎ MANCHE SUIVANTE';
+    if (narrow || this.touch) {
+      const cy = H - 22 - (this.touch ? this.barHeight() : 0);
+      const ls = this.lines(g, ctl, W - 2 * M).slice(0, 2);
+      ls.forEach((l, i) => g.fillText(l, W / 2, cy - (ls.length - 1 - i) * 13));
+    } else g.fillText(ctl, W / 2, H - 22);
     // reveal banner
     if (this.phase === 'reveal' && this.last) {
       const r = this.last;
       const a = Math.min(1, (this.clock - this.phaseAt) / 0.25);
-      g.font = this.font(11);
-      const bw = Math.min(W - 60, Math.max(560, g.measureText(r.detail).width + 40));
+      g.font = this.font(narrow ? 10 : 11);
+      const bw = narrow ? W - 2 * M : Math.min(W - 60, Math.max(560, g.measureText(r.detail).width + 40));
+      const dl = narrow ? this.lines(g, r.detail, bw - 20) : [r.detail];
+      const bh = 40 + dl.length * 14;
       const bx = W / 2 - bw / 2;
       const by = b.y + 14;
       g.fillStyle = `rgba(0,0,0,${0.85 * a})`;
-      g.fillRect(bx, by, bw, 54);
+      g.fillRect(bx, by, bw, bh);
       g.strokeStyle = `rgba(255,255,255,${a})`;
-      g.strokeRect(bx + 0.5, by + 0.5, bw - 1, 53);
+      g.strokeRect(bx + 0.5, by + 0.5, bw - 1, bh - 1);
       g.fillStyle = r.ok ? '#fff' : 'rgba(255,255,255,0.85)';
       g.font = this.font(16, true);
       g.fillText(r.ok ? `✓ RÉUSSI  +${r.score}` : `✕ RATÉ  +${r.score}`, W / 2, by + 18);
-      g.font = this.font(11);
+      g.font = this.font(narrow ? 10 : 11);
       g.fillStyle = 'rgba(255,255,255,0.8)';
-      g.fillText(r.detail, W / 2, by + 39);
+      dl.forEach((l, i) => g.fillText(l, W / 2, by + 39 + i * 14));
     }
   }
 
@@ -471,11 +651,12 @@ export class GameRun implements VizInstance {
     });
     g.font = this.font(12);
     g.fillStyle = '#fff';
-    g.fillText('LE THÉORÈME DERRIÈRE LE JEU EST DANS LE PANNEAU →', cx, H * 0.52 + 140);
+    // phone (phone.css): the panel is the sheet under the view, DÉTAILS DU COURS
+    g.fillText(W < 560 ? 'LE THÉORÈME : DÉTAILS DU COURS ↓' : 'LE THÉORÈME DERRIÈRE LE JEU EST DANS LE PANNEAU →', cx, H * 0.52 + 140);
     g.font = this.font(11);
     g.fillStyle = `rgba(255,255,255,${0.55 + 0.35 * Math.sin(this.clock * 4)})`;
     const next = this.level + 1 < d.levels.length ? ` · → NIVEAU ${this.level + 2}` : '';
-    g.fillText(`⏎ REJOUER${next} · ÉCHAP RETOUR`, cx, H - 28);
+    if (!this.touch) g.fillText(`⏎ REJOUER${next} · ÉCHAP RETOUR`, cx, H - 28);
     this.frame(g, 14, 14, W - 28, H - 28, 0.35);
   }
 

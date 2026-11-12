@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, text, line, marker, hatch } from '../../gfx/plot2d';
 import { fmt } from '../../hud/dom';
 import { DIGITS } from '../../data/digits';
@@ -40,7 +40,11 @@ export const ln2View: VizDef = {
         const W = ctx.width;
         const H = ctx.height;
         const half = (W - 420) / 2;
-        area.set(80, 160, half - 40, H - 320).world(0, 3, 0, 1.4);
+        // narrow view (phone): the area above the series
+        const nb = W < NARROW_VIEW ? narrowPlot(W, H, 3) : null;
+        const nh = nb ? (nb[3] - 34) / 2 : 0;
+        if (nb) area.set(nb[0], nb[1], nb[2], nh).world(0, 3, 0, 1.4);
+        else area.set(80, 160, half - 40, H - 320).world(0, 3, 0, 1.4);
         area.box(g, 'AIRE SOUS 1/x ENTRE 1 ET 2', false);
         area.axes(g, { xName: 'x', yName: 'y' });
         const p = new Path2D();
@@ -53,7 +57,8 @@ export const ln2View: VizDef = {
         g.stroke(p);
         area.plot(g, (x) => 1 / x, { x0: 0.72 });
         text(g, `AIRE = ln 2 = ${fmt(Math.LN2, 5)}`, area.sx(1.05), area.sy(0.25), { color: INK.fg });
-        ser.set(80 + half + 20, 160, half - 20, H - 320).world(0, 41, 0.45, 1.05);
+        if (nb) ser.set(nb[0], nb[1] + nh + 34, nb[2], nh).world(0, 41, 0.45, 1.05);
+        else ser.set(80 + half + 20, 160, half - 20, H - 320).world(0, 41, 0.45, 1.05);
         ser.box(g, 'SÉRIE ALTERNÉE vs Σ 1/(k·2ᵏ)', false);
         ser.axes(g, { xName: 'n', xTicks: 8 });
         line(g, ser.x, ser.sy(Math.LN2), ser.x + ser.w, ser.sy(Math.LN2), INK.f40, [4, 4]);
