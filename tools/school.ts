@@ -183,7 +183,7 @@ async function writeKit(slug: string, k: { key: string; school: string; seats: n
       writeFileSync(msi, new Uint8Array(await r.arrayBuffer()));
       msiNote = `${MSI_NAME} téléchargé depuis la dernière release`;
     } catch {
-      msiNote = `${MSI_NAME} absent : publier une release (tag v*) puis relancer, ou --msi release/${MSI_NAME} après npm run app:win`;
+      msiNote = `${MSI_NAME} absent : publier une release (tag v*) puis relancer, ou --msi release/lycee/${MSI_NAME} après npm run app:win:lycee`;
     }
   }
   console.log(`\n  Kit d’installation : ${dir}\n  ${msiNote}.`);
