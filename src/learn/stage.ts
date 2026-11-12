@@ -32,6 +32,21 @@ export const SLOTS: Record<string, [number, number, number, number]> = {
   full: [0.03, 0.05, 0.97, 0.8],
 };
 
+/** the same slots on a portrait stage (phone): west above east, the four corners one under the other, every
+ *  slot as wide as the screen; the bottom fifth stays for the subtitles */
+export const PORTRAIT_SLOTS: Record<string, [number, number, number, number]> = {
+  c: [0.04, 0.12, 0.96, 0.74],
+  n: [0.04, 0.04, 0.96, 0.36],
+  s: [0.04, 0.5, 0.96, 0.8],
+  w: [0.04, 0.04, 0.96, 0.41],
+  e: [0.04, 0.43, 0.96, 0.8],
+  nw: [0.04, 0.04, 0.96, 0.22],
+  ne: [0.04, 0.23, 0.96, 0.41],
+  sw: [0.04, 0.43, 0.96, 0.61],
+  se: [0.04, 0.62, 0.96, 0.8],
+  full: [0.03, 0.04, 0.97, 0.8],
+};
+
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
 const ease = (x: number) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 const num = (s: string | undefined, d: number): number => {
@@ -990,9 +1005,9 @@ export class Stage {
 
   private onFonts = (): void => this.resize();
 
-  /** stage-local rectangle of a slot */
+  /** stage-local rectangle of a slot (a portrait stage, on a phone, stacks the left and right slots) */
   rect(slot: string): DOMRect {
-    const f = SLOTS[slot] ?? SLOTS.c;
+    const f = (this.h > this.w ? PORTRAIT_SLOTS[slot] : undefined) ?? SLOTS[slot] ?? SLOTS.c;
     return new DOMRect(f[0] * this.w, f[1] * this.h, (f[2] - f[0]) * this.w, (f[3] - f[1]) * this.h);
   }
 

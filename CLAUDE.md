@@ -11,6 +11,7 @@ Architecture et contrat `VizDef` : voir README.md.
 - Voix off LEARN : `npm run voice:list` (voix du compte, crédits ; gratuit) · `npm run voice -- --dry-run` (estimation, rien n'est envoyé) ; ne lancer `--yes` qu'avec l'accord explicite de l'utilisateur (coût en crédits). La clé est dans `.env` (ELEVENLABS_API_KEY) : ne jamais la lire, l'afficher ni la demander dans le chat.
 - Vidéos YouTube des vues : `npm run videos:check` (réseau, oEmbed) ; `-- --write` met à jour titres, chaînes et durées.
 - Décimales : `npm run digits` (BigInt, double vérification) ; polices : `npm run fonts` (réseau, rare).
+- PWA : `npm run pwa` (http, service worker, hors ligne ; inclus dans `npm run check`) ; un fichier ajouté à dist/ est gardé hors ligne tout seul (plugin `pwa` de vite.config.ts).
 
 ## Règles
 - DA stricte : noir #000 / blanc #FFF (opacités de blanc), lignes 1px ; jamais de text-transform sur les libellés (casse des symboles).
@@ -35,4 +36,5 @@ Architecture et contrat `VizDef` : voir README.md.
 - Fichiers contenant des backslashes (LaTeX, GLSL, regex) : écrire avec Write/Edit, jamais via un heredoc Bash.
 - Logo « orbite et vecteur » (choix de l'utilisateur, 2026-11-08) : maîtres `src/assets/logo/v3ct0r-icon.svg` et `v3ct0r-icon-small.svg` (≤ 24 px, traits épaissis) ; le symbole de l'app (`src/hud/logo.ts`) reprend la même géométrie : changer les deux, puis `npm run icons`.
 - App de bureau (`electron/main.cjs`, `electron-builder.yml`) : charge `dist/index.html` en file://, liens externes vers le navigateur, pas de menu. `release.yml` construit l'installeur sur Windows à chaque tag `v*` ; le bouton TÉLÉCHARGER (Windows) pointe vers `releases/latest/download/V3CT0R-Setup.exe` : ne pas renommer ce fichier. Installeur non signé (avertissement SmartScreen au 1er lancement).
+- Téléphone (< 720 px, `src/hud/phone.css` importé en dernier) : feuille sous la vue (`setSheet`) ; une vue 2D étroite (< 560 px) se met en page par `narrowPlot` (`gfx/frame2d.ts`) ; une commande clavier d'un jeu a son bouton tactile (`GameLogic.touchKeys`) ; le smoke vérifie 375×812 au doigt.
 - Interface en français ; code, identifiants et commentaires en anglais.

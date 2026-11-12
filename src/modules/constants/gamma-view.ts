@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, text, line } from '../../gfx/plot2d';
 import { fmt } from '../../hud/dom';
 import { DIGITS } from '../../data/digits';
@@ -41,9 +41,11 @@ export const gammaView: VizDef = {
         const W = ctx.width;
         const H = ctx.height;
         const n = st.n;
-        fr.set(80, 150, W - 160, H - 300).world(-0.4, Math.min(n + 1.6, 14), 0, 1.15);
+        const narrow = W < NARROW_VIEW;
+        if (narrow) fr.set(...narrowPlot(W, H, 3)).world(-0.4, Math.min(n + 1.6, 8), 0, 1.15);
+        else fr.set(80, 150, W - 160, H - 300).world(-0.4, Math.min(n + 1.6, 14), 0, 1.15);
         fr.box(g, 'ESCALIER 1/⌊x⌋ ET COURBE 1/x', false);
-        fr.axes(g, { xName: 'x', yName: 'y', xTicks: 12 });
+        fr.axes(g, { xName: 'x', yName: 'y', xTicks: narrow ? 6 : 12 });
         // unit square target
         g.strokeStyle = INK.f60;
         g.setLineDash([3, 3]);
@@ -76,7 +78,7 @@ export const gammaView: VizDef = {
           total += 1 / k - Math.log((k + 1) / k);
         }
         line(g, fr.sx(0), fr.sy(1 - GAMMA), fr.sx(1) + 30, fr.sy(1 - GAMMA), INK.f40, [2, 3]);
-        text(g, `γ ≈ ${fmt(GAMMA, 4)} DE L’AIRE DU CARRÉ`, fr.sx(1) + 36, fr.sy(1 - GAMMA) + 4, { color: INK.f80 });
+        text(g, narrow ? `γ ≈ ${fmt(GAMMA, 4)}` : `γ ≈ ${fmt(GAMMA, 4)} DE L’AIRE DU CARRÉ`, fr.sx(1) + 36, fr.sy(1 - GAMMA) + 4, { color: INK.f80 });
         let Hn = 0;
         for (let k = 1; k <= n; k++) Hn += 1 / k;
         roH.set(fmt(total, 8));

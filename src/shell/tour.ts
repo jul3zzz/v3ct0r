@@ -2,7 +2,7 @@ import { h, setText } from '../hud/dom';
 import { icon } from '../hud/deco';
 import { typewriter } from '../hud/fx';
 import { sfx } from '../core/audio';
-import { NARROW } from './layout';
+import { NARROW, PHONE, setSheet } from './layout';
 
 /** What a tour step can do to the app. */
 export interface TourApi {
@@ -217,6 +217,8 @@ export class TourPlayer {
     const target = step.highlight ? (document.querySelector(step.highlight) as HTMLElement | null) : null;
     // narrow window: what the step points at is in the rail drawer → open it
     if (target?.closest('#app > .rail') && matchMedia(NARROW).matches && !document.body.classList.contains('rail-open')) document.body.classList.add('rail-open');
+    // phone: it is in the folded panel sheet → open the sheet
+    if (target?.closest('#app > .panel') && matchMedia(PHONE).matches && document.body.classList.contains('sheet-min')) setSheet(true);
     if (target && target.offsetParent !== null) {
       const b = target.getBoundingClientRect();
       this.hl.style.display = 'block';

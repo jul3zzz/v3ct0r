@@ -1,0 +1,13 @@
+/* « Installer sur ton téléphone » (shell/install.ts): black, white, white opacities, 1px lines */
+.in { color: var(--fg-80); font-size: var(--fs-sm); line-height: 1.6; }
+.in-tabs { display: flex; border: var(--line); margin-bottom: 12px; }
+.in-tab { flex: 1; padding: 7px 6px; font-size: var(--fs-xs); letter-spacing: var(--track-caps); color: var(--fg-60); }
+.in-tab + .in-tab { border-left: var(--line); }
+.in-tab[aria-selected='true'] { background: var(--fg); color: var(--bg); }
+.in-steps { margin: 0 0 12px; padding: 0; list-style: none; counter-reset: in; }
+.in-steps li { counter-increment: in; display: grid; grid-template-columns: 26px 1fr; gap: 8px; padding: 7px 0; border-bottom: var(--line-dash); }
+.in-steps li::before { content: counter(in); display: grid; place-items: center; width: 22px; height: 22px; border: var(--line-mid); color: var(--fg); font-size: var(--fs-xs); }
+.in-native { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 0 0 10px; }
+.in-native:empty { display: none; }
+.in-dim { color: var(--fg-60); font-size: var(--fs-xs); margin: 0; }
+.in-done { color: var(--fg); margin: 0; }

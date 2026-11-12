@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, text, line, hatch } from '../../gfx/plot2d';
 import { fmt } from '../../hud/dom';
 import { DIGITS } from '../../data/digits';
@@ -79,11 +79,16 @@ export const sqrt2View: VizDef = {
         const g = ctx.g;
         const W = ctx.width;
         const H = ctx.height;
+        // narrow view (phone): no room kept on the right, the figures fill the width
+        const narrow = W < NARROW_VIEW;
+        const RW = narrow ? 40 : 400;
+        proofBox.style.right = narrow ? '14px' : '330px';
+        proofBox.style.fontSize = narrow ? '11px' : '12px';
         if (st.mode === 'diag') {
           proofBox.textContent = '';
-          const u = Math.min((W - 400) / 3.6, (H - 260) / 3.6);
-          const ox = 60 + (W - 400 - 3.6 * u) / 2 + 1.3 * u;
-          const oy = 130 + (H - 260 - 3.6 * u) / 2 + 1.3 * u;
+          const u = Math.min((W - RW) / 3.6, (H - (narrow ? 210 : 260)) / 3.6);
+          const ox = (narrow ? 20 : 60) + (W - RW - 3.6 * u) / 2 + 1.3 * u;
+          const oy = (narrow ? 92 : 130) + (H - (narrow ? 210 : 260) - 3.6 * u) / 2 + 1.3 * u;
           const P = (x: number, y: number): [number, number] => [ox + x * u, oy + (1 - y) * u];
           const k = Math.min(1, st.t / 1.5);
           const sq = (pts: [number, number][], fill: boolean) => {
@@ -104,7 +109,7 @@ export const sqrt2View: VizDef = {
           text(g, '1', ...P(0.5, -0.08), { align: 'center', color: INK.f60 });
           text(g, '1', ...P(1.08, 0.5), { color: INK.f60 });
           text(g, '√2', ...P(0.42, 0.6), { color: INK.fg, size: 14 });
-          if (st.t > 3.2) text(g, 'AIRE 1 + 1 = 2  =  AIRE DU CARRÉ SUR LA DIAGONALE', ox - 1.3 * u, oy + 2.45 * u, { color: INK.f80 });
+          if (st.t > 3.2) text(g, narrow ? 'AIRE 1 + 1 = 2 = CARRÉ DE LA DIAGONALE' : 'AIRE 1 + 1 = 2  =  AIRE DU CARRÉ SUR LA DIAGONALE', ox - 1.3 * u, oy + 2.45 * u, { color: INK.f80 });
           if (st.t > 7) st.t = 0;
           s1('d² = 1² + 1²');
           s2(`d = ${ref.slice(0, 14).replace('.', ',')}…`);
@@ -119,8 +124,8 @@ export const sqrt2View: VizDef = {
           const pairs: [number, number][] = [[17, 12], [7, 5], [3, 2], [1, 1]];
           const level = Math.min(pairs.length - 1, Math.floor(st.t / 4) % pairs.length);
           const [p, q] = pairs[level];
-          const size = Math.min(W - 400, H - 330);
-          fr.set(60 + (W - 400 - size) / 2, 110, size, size).world(0, p, 0, p);
+          const size = Math.max(60, Math.min(W - RW, H - (narrow ? 300 : 330)));
+          fr.set((narrow ? 20 : 60) + (W - RW - size) / 2, narrow ? 92 : 110, size, size).world(0, p, 0, p);
           const rect = (x0: number, y0: number, s: number, fill: number) => {
             const path = new Path2D();
             path.rect(fr.sx(x0), fr.sy(y0 + s), fr.sx(s) - fr.sx(0), fr.sy(0) - fr.sy(s));
@@ -144,9 +149,9 @@ export const sqrt2View: VizDef = {
           if (st.t > 16) st.t = 0;
         } else {
           proofBox.textContent = '';
-          const left = 60;
-          let y = 140;
-          text(g, 'HÉRON / NEWTON : xₙ₊₁ = (xₙ + 2/xₙ) / 2,  x₀ = 1', left, y, { color: INK.f80, size: 12 });
+          const left = narrow ? 16 : 60;
+          let y = narrow ? 100 : 140;
+          text(g, narrow ? 'HÉRON : xₙ₊₁ = (xₙ + 2/xₙ) / 2, x₀ = 1' : 'HÉRON / NEWTON : xₙ₊₁ = (xₙ + 2/xₙ) / 2,  x₀ = 1', left, y, { color: INK.f80, size: 12 });
           y += 26;
           const shown = Math.min(iters.length, 1 + Math.floor(st.t / 0.9));
           for (let i = 0; i < shown; i++) {
@@ -154,15 +159,15 @@ export const sqrt2View: VizDef = {
             let ok = 0;
             while (ok < s.length && s[ok] === ref[ok]) ok++;
             const correct = Math.max(0, ok - 2);
-            const vis = s.slice(0, Math.min(60, s.length));
+            const vis = s.slice(0, Math.min(narrow ? Math.floor((W - left - 52) / 6.2) : 60, s.length));
             text(g, `x${i + 1}`.padEnd(5), left, y, { color: INK.f40 });
             const head = vis.slice(0, Math.min(vis.length, ok));
             text(g, head.replace('.', ','), left + 40, y, { color: INK.fg });
             g.font = '400 10px "JetBrains Mono", monospace';
             const wHead = g.measureText(head).width;
             text(g, vis.slice(head.length), left + 40 + wHead, y, { color: INK.f20 });
-            text(g, `${correct} DÉCIMALES EXACTES`, W - 360, y, { align: 'right', color: INK.f60 });
-            const bw = Math.min(W - 520, (correct / 1200) * (W - 520));
+            text(g, `${correct} DÉCIMALES EXACTES`, narrow ? W - 16 : W - 360, narrow ? y + 16 : y, { align: 'right', color: INK.f60, size: narrow ? 9 : undefined });
+            const bw = narrow ? Math.min(W - 140, (correct / 1200) * (W - 140)) : Math.min(W - 520, (correct / 1200) * (W - 520));
             g.fillStyle = INK.f40;
             g.fillRect(left + 40, y + 6, Math.max(1, bw), 2);
             y += 34;

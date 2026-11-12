@@ -11,6 +11,8 @@ import { store } from '../core/settings';
 import { cloud } from '../core/cloud';
 import { accountForm } from './account';
 import { DL_KEY, downloadKind, welcomeSteps } from './welcome-steps';
+import { installPanel } from './install';
+import { installedApp } from './pwa';
 import './welcome.css';
 
 export { DL_KEY };
@@ -25,7 +27,7 @@ export interface WelcomeHooks {
 }
 
 export function welcome(hooks: WelcomeHooks): Promise<void> {
-  const steps = welcomeSteps({ online: isOnline(), answered: store.get<string | null>(DL_KEY, null) !== null, configured: cloud.enabled, signedIn: !!cloud.email, skip: store.get<boolean>('e2e', false) });
+  const steps = welcomeSteps({ online: isOnline(), answered: store.get<string | null>(DL_KEY, null) !== null, configured: cloud.enabled, signedIn: !!cloud.email, skip: store.get<boolean>('e2e', false), installed: installedApp() });
   if (!steps.length) return Promise.resolve();
   return new Promise((resolve) => {
     const card = h('div', { class: 'wl-card frame solid', role: 'dialog', 'aria-modal': 'true' });
@@ -66,6 +68,25 @@ export function welcome(hooks: WelcomeHooks): Promise<void> {
         store.set(DL_KEY, 'no');
         next();
       });
+      // a phone or a tablet: the website goes on the home screen (PWA), the steps right here
+      if (downloadKind(navigator.userAgent, navigator.maxTouchPoints) === 'mobile') {
+        const ok = btn('C’EST FAIT', 'play', () => {
+          store.set(DL_KEY, 'yes');
+          next();
+        }, true);
+        const later = btn('PLUS TARD, CONTINUER ICI', 'play', () => {
+          store.set(DL_KEY, 'no');
+          next();
+        });
+        card.replaceChildren(
+          ...head(`V3CT0R · 1 / ${steps.length}`, 'Installer V3CT0R sur ton téléphone ?'),
+          h('p', { text: 'Installé sur l’écran d’accueil, V3CT0R s’ouvre comme une app, en plein écran et même sans internet : les 46 vues, l’ATLAS, les cours, les jeux et le mode histoire, avec les voix.' }),
+          installPanel(),
+          h('p', { class: 'wl-dim', text: 'Plus tard : le bouton INSTALLER de la barre du haut redonne ces étapes.' }),
+          h('div', { class: 'wl-btns' }, ok, later),
+        );
+        return;
+      }
       const installer = downloadKind(navigator.userAgent) === 'installer';
       const size = h('span', { class: 'wl-dim', text: installer ? 'installeur Windows' : 'zip' });
       if (!installer) void hooks.size().then((s) => s && (size.textContent = `zip · ${s}`));

@@ -74,8 +74,10 @@ body.learn .tour:not(.cross), body.learn .term { display: none; }
 .lx { position: absolute; left: 0; top: 0; right: 0; bottom: var(--bar); pointer-events: none !important; overflow: hidden; }
 .lx-marks { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .lx-obj { position: absolute; color: var(--fg); }
-.lx-eq { display: grid; place-items: center; transform-origin: center; }
-.lx-eq > .lx-eq-in { grid-area: 1 / 1; transform: scale(var(--k, 1)); transform-origin: center; font-size: 26px; white-space: nowrap; }
+.lx-eq { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); place-items: center; transform-origin: center; }
+/* a formula wider than its slot stays centred (unsafe: not pushed to the left edge), so that its scale
+   (--k, stage.ts) shrinks it inside the slot */
+.lx-eq > .lx-eq-in { grid-area: 1 / 1; justify-self: unsafe center; align-self: unsafe center; transform: scale(var(--k, 1)); transform-origin: center; font-size: 26px; white-space: nowrap; }
 .lx-eq.sz-sm > .lx-eq-in { font-size: 18px; }
 .lx-eq.sz-md > .lx-eq-in { font-size: 22px; }
 .lx-eq.sz-lg > .lx-eq-in { font-size: 34px; }
@@ -249,6 +251,13 @@ body.learn .tour:not(.cross), body.learn .term { display: none; }
 
 /* leçons-jeux */
 .game-input { cursor: crosshair; }
+/* touch screen: the bar of buttons under the play area (games/engine.ts) */
+.game-touch { position: absolute; left: 0; right: 0; bottom: 0; z-index: 7; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 8px 10px; border-top: var(--line); background: rgb(0 0 0 / 0.85); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.game-touch:empty { display: none; }
+.gt-b { min-width: 44px; height: 38px; padding: 0 10px; border: var(--line-mid); color: var(--fg); font-size: var(--fs-xs); letter-spacing: 0.08em; white-space: nowrap; touch-action: none; }
+.gt-b.go { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.gt-b.on, .gt-b:active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.gt-b.go:active { background: var(--fg-70); }
 .lp .game-thm { position: relative; margin-top: 6px; }
 .lr-course.lr-game .ic { font-size: 9px; }
 .lp .game-thm .katex-display { font-size: 0.86em; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }

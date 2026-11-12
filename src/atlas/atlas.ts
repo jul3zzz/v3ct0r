@@ -8,6 +8,7 @@ import './atlas.css';
 import { h } from '../hud/dom';
 import type { VizContext, VizDef, VizInstance } from '../core/types';
 import { store } from '../core/settings';
+import { touchScreen } from '../core/touch';
 import { buildAtlas, GALAXY, SYSTEM, type AtlasBody, type AtlasInput, type AtlasTarget, type AtlasUniverse, type Vec3 } from './world';
 import { Dust, Trail, emblem, galaxy, lineMat, rng, ship, starField } from './objects';
 import { AtlasAudio } from './audio';
@@ -148,6 +149,13 @@ class AtlasRun implements VizInstance {
   private boosting = false;
   private keys = new Set<string>();
   private mouse = { dx: 0, dy: 0 };
+  /** touch screen: the steering pad (−1…1 on each axis) and the buttons (buildTouch) */
+  private touch = touchScreen();
+  private stick = { x: 0, y: 0 };
+  private tpad: HTMLElement | null = null;
+  private tBack: HTMLButtonElement | null = null;
+  private tJournal: HTMLButtonElement | null = null;
+  private tCompass: HTMLButtonElement | null = null;
   /** Ctrl gauche held: the cursor is free (click a tab, a button) and does not steer the ship */
   private freeMouse = false;
   /** the mouse was captured when Ctrl gauche was pressed: capture it again on release */
@@ -216,7 +224,7 @@ class AtlasRun implements VizInstance {
     ctx.listen(window, 'pointerdown', () => this.freeMouse && (this.freeClicked = true), { capture: true });
     ctx.listen(ctx.input, 'click', () => {
       this.audio.wake();
-      if (this.freeMouse) return;
+      if (this.freeMouse || this.touch) return;
       if (document.pointerLockElement !== ctx.input) void (ctx.input.requestPointerLock?.() as unknown as Promise<void> | undefined)?.catch?.(() => undefined);
     });
     // mouse aim, like a plane: moving the mouse turns the camera, the ship banks round to follow.
@@ -227,10 +235,32 @@ class AtlasRun implements VizInstance {
       this.mouse.dx += e.movementX;
       this.mouse.dy += e.movementY;
     });
+    // touch: a finger dragged over the view aims, like the mouse; the card of the target enters it
+    let drag: { id: number; x: number; y: number } | null = null;
+    ctx.listen(ctx.input, 'pointerdown', (e: PointerEvent) => {
+      if (e.pointerType !== 'touch' || drag) return;
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY };
+      ctx.input.setPointerCapture(e.pointerId);
+      this.audio.wake();
+    });
+    ctx.listen(ctx.input, 'pointermove', (e: PointerEvent) => {
+      if (!drag || e.pointerId !== drag.id) return;
+      this.mouse.dx += (e.clientX - drag.x) * 1.6;
+      this.mouse.dy += (e.clientY - drag.y) * 1.6;
+      drag.x = e.clientX;
+      drag.y = e.clientY;
+    });
+    for (const ev of ['pointerup', 'pointercancel'] as const) ctx.listen(ctx.input, ev, (e: PointerEvent) => drag?.id === e.pointerId && (drag = null));
+    if (this.touch) {
+      this.card.classList.add('tap');
+      this.card.addEventListener('click', () => (this.audio.wake(), this.enterTarget()));
+      this.buildTouch();
+    }
     ctx.onDispose(() => {
       if (document.pointerLockElement === ctx.input) document.exitPointerLock();
       ctx.input.classList.remove('atlas-input');
       this.card.remove();
+      this.tpad?.remove();
       this.audio.dispose();
       this.save();
       atlas.persist();
@@ -244,9 +274,83 @@ class AtlasRun implements VizInstance {
       });
     });
     if (!store.get('atlas.help', false)) {
-      this.say(`PILOTE : ${this.keyset()} · ${this.labels.KeyQ}/${this.labels.KeyE} MONTER/DESCENDRE · MAJ BOOST · ⏎ ENTRER`, 7);
+      this.say(this.touch ? 'PAD : DIRIGER · GLISSER SUR LA VUE : VISER · AVANCER, BOOST, ▲ ▼ · TOUCHE LA CARTE OU ENTRER' : `PILOTE : ${this.keyset()} · ${this.labels.KeyQ}/${this.labels.KeyE} MONTER/DESCENDRE · MAJ BOOST · ⏎ ENTRER`, 7);
       store.set('atlas.help', true);
     }
+  }
+
+  /** touch screen: a steering pad (bottom left), the throttle, height and ENTRER (bottom right), the menus
+   *  (top left); held buttons set the same keys as the keyboard, so the flight code is shared */
+  private buildTouch(): void {
+    const btn = (label: string, title: string) => h('button', { type: 'button', class: 'at-b', title, 'aria-label': title, text: label });
+    const hold = (label: string, title: string, code: string) => {
+      const b = btn(label, title);
+      const off = () => {
+        b.classList.remove('on');
+        this.keys.delete(code);
+      };
+      b.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        b.setPointerCapture(e.pointerId);
+        b.classList.add('on');
+        this.keys.add(code);
+        this.audio.wake();
+      });
+      for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture'] as const) b.addEventListener(ev, off);
+      return b;
+    };
+    const tap = (label: string, title: string, fn: () => void) => {
+      const b = btn(label, title);
+      b.addEventListener('click', () => (this.audio.wake(), fn()));
+      return b;
+    };
+    const knob = h('i');
+    const pad = h('div', { class: 'at-stick', 'aria-label': 'Diriger le vaisseau' }, knob);
+    let sid = -1;
+    const steer = (e: PointerEvent) => {
+      const r = pad.getBoundingClientRect();
+      let x = ((e.clientX - r.left) / r.width) * 2 - 1;
+      let y = ((e.clientY - r.top) / r.height) * 2 - 1;
+      x = Math.max(-1, Math.min(1, x * 1.2));
+      y = Math.max(-1, Math.min(1, y * 1.2));
+      this.stick = { x, y };
+      knob.style.transform = `translate(${(x * r.width * 0.36).toFixed(1)}px, ${(y * r.height * 0.36).toFixed(1)}px)`;
+    };
+    const release = () => {
+      sid = -1;
+      this.stick = { x: 0, y: 0 };
+      knob.style.transform = '';
+    };
+    pad.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      sid = e.pointerId;
+      pad.setPointerCapture(e.pointerId);
+      this.audio.wake();
+      steer(e);
+    });
+    pad.addEventListener('pointermove', (e) => e.pointerId === sid && steer(e));
+    for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture'] as const) pad.addEventListener(ev, (e) => e.pointerId === sid && release());
+    this.tBack = tap('RETOUR', 'Quitter le système (Échap)', () => this.level === 'system' && !this.warp && !this.land && this.warpTo(null));
+    this.tJournal = tap('JOURNAL', 'Journal de bord (J)', () => this.atlas.host.journal?.());
+    this.tCompass = tap('COMPAS', 'Compas d’Euclide (X)', () => this.compass());
+    this.tpad = h(
+      'div',
+      { class: 'atlas-touch' },
+      h('div', { class: 'at-top' }, tap('MENUS', 'Menus classiques (Tab)', () => this.atlas.host.menus()), this.tBack, this.tJournal, this.tCompass),
+      pad,
+      h('div', { class: 'at-pad' }, hold('▲', 'Monter (E)', 'KeyE'), hold('AVANCER', 'Avancer (Z)', 'KeyW'), hold('▼', 'Descendre (A)', 'KeyQ'), hold('BOOST', 'Avancer en boost (Maj)', 'TouchBoost'), hold('FREIN', 'Freiner, reculer (S)', 'KeyS'), tap('ENTRER', 'Entrer dans la cible (Entrée)', () => this.enterTarget())),
+    );
+    this.ctx.input.parentElement!.append(this.tpad);
+    this.paintTouch();
+  }
+
+  /** the touch buttons that depend on where the ship is */
+  private paintTouch(): void {
+    if (!this.tpad) return;
+    const story = this.uni?.id === 'story';
+    this.tBack!.hidden = this.level !== 'system';
+    this.tJournal!.hidden = !story;
+    this.tCompass!.hidden = !(story && this.hasPart('compas'));
   }
 
   // ── input ──────────────────────────────────────────────────────────────
@@ -326,6 +430,7 @@ class AtlasRun implements VizInstance {
     this.items = [];
     this.target = null;
     this.paintCard();
+    this.paintTouch();
     this.scene.fog = this.level === 'galaxy' ? new THREE.Fog(0x000000, 420, 1900) : new THREE.Fog(0x000000, 260, 1250);
     if (this.level === 'galaxy') this.buildGalaxy(unis);
     else this.buildSystem(uni!);
@@ -648,12 +753,14 @@ class AtlasRun implements VizInstance {
 
   private fly(dt: number, lvl: (typeof FLIGHT)['galaxy']): void {
     const k = this.keys;
-    const fwd = k.has('KeyW') ? 1 : 0;
+    // TouchBoost: the BOOST button of a touch screen, forward and boost at once
+    const fwd = k.has('KeyW') || k.has('TouchBoost') ? 1 : 0;
     const brake = k.has('KeyS') ? 1 : 0;
-    const turn = (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0) - (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0);
-    const pitchIn = (k.has('ArrowDown') ? 1 : 0) - (k.has('ArrowUp') ? 1 : 0);
+    // the touch pad steers like the mouse: right turns right, up raises the nose
+    const turn = Math.max(-1, Math.min(1, (k.has('KeyA') || k.has('ArrowLeft') ? 1 : 0) - (k.has('KeyD') || k.has('ArrowRight') ? 1 : 0) - this.stick.x));
+    const pitchIn = Math.max(-1, Math.min(1, (k.has('ArrowDown') ? 1 : 0) - (k.has('ArrowUp') ? 1 : 0) - this.stick.y));
     const up = (k.has('KeyE') ? 1 : 0) - (k.has('KeyQ') ? 1 : 0);
-    const boost = (k.has('ShiftLeft') || k.has('ShiftRight') || k.has('Space')) && fwd > 0;
+    const boost = (k.has('ShiftLeft') || k.has('ShiftRight') || k.has('Space') || k.has('TouchBoost')) && fwd > 0;
     if (boost && !this.boosting) this.audio.boost();
     this.boosting = boost;
     // steering: the mouse (and Q/D, ↑/↓) move the aim; the ship chases it at a plane's turn rate,
@@ -737,7 +844,9 @@ class AtlasRun implements VizInstance {
     this.card.hidden = !t;
     if (!t) return;
     const stateText = t.kind === 'universe' ? 'SYSTÈME' : t.state === 'locked' ? '◇ VERROUILLÉE' : t.state === 'done' ? '✓ VALIDÉE' : t.state === 'construction' ? '▲ EN CONSTRUCTION' : '● DISPONIBLE';
-    const action = t.kind === 'universe' ? '⏎ VITESSE LUMIÈRE' : t.kind === 'gate' ? '⏎ LANCER L’INTRO (30 S)' : t.kind === 'station' ? '⏎ ACCOSTER : LEÇON-JEU' : t.state === 'locked' ? 'VERROUILLÉE' : t.target.type === 'course' ? (t.state === 'construction' ? '⏎ VOIR LE PLAN' : '⏎ ENTRER EN COURS') : '⏎ ATTERRIR';
+    const keyed = t.kind === 'universe' ? '⏎ VITESSE LUMIÈRE' : t.kind === 'gate' ? '⏎ LANCER L’INTRO (30 S)' : t.kind === 'station' ? '⏎ ACCOSTER : LEÇON-JEU' : t.state === 'locked' ? 'VERROUILLÉE' : t.target.type === 'course' ? (t.state === 'construction' ? '⏎ VOIR LE PLAN' : '⏎ ENTRER EN COURS') : '⏎ ATTERRIR';
+    // touch: the card itself is the button
+    const action = this.touch ? keyed.replace('⏎', '▶') : keyed;
     this.card.replaceChildren(
       h('div', { class: 'ac-top' }, h('span', { text: t.code }), h('span', { class: 'st', text: stateText })),
       h('div', { class: 'ac-title', text: t.title }),
@@ -891,9 +1000,11 @@ class AtlasRun implements VizInstance {
     g.font = font(10);
     g.fillText(`X ${this.pos.x.toFixed(0).padStart(5)}  Y ${this.pos.y.toFixed(0).padStart(4)}  Z ${this.pos.z.toFixed(0).padStart(5)}`, 16, 36);
 
+    // touch screen: the gauge and the radar sit above the touch controls (atlas.css: 124 px pad + margins)
+    const lift = this.touch ? 156 : 0;
     // speed gauge
     const gx = 16;
-    const gy = H - 46;
+    const gy = H - 46 - lift;
     g.fillStyle = white(0.6);
     g.fillText(this.boosting ? 'VITESSE · BOOST' : 'VITESSE', gx, gy - 12);
     g.strokeStyle = white(0.4);
@@ -904,9 +1015,9 @@ class AtlasRun implements VizInstance {
     g.fillText(`${(Math.abs(this.speed) / (this.level === 'galaxy' ? 500 : 230)).toFixed(2)} c`, gx + 190, gy + 4);
 
     // radar (top view around the ship, heading up)
-    const R = 54;
+    const R = this.touch && W < 520 ? 40 : 54;
     const rx = W - R - 18;
-    const ry = H - R - 18;
+    const ry = H - R - 18 - lift;
     g.strokeStyle = white(0.35);
     g.beginPath();
     g.arc(rx, ry, R, 0, Math.PI * 2);
@@ -947,19 +1058,29 @@ class AtlasRun implements VizInstance {
     g.font = font(10);
     g.fillStyle = white(0.45);
     const hint = this.uni?.id === 'story' ? `J JOURNAL${this.hasPart('compas') ? ' · X COMPAS' : ''} · ÉCHAP QUITTER` : this.level === 'system' ? 'ÉCHAP QUITTER LE SYSTÈME' : 'TAB MENUS CLASSIQUES';
-    g.fillText(`${this.keyset()} PILOTER · ${this.labels.KeyQ}/${this.labels.KeyE} MONTER/DESCENDRE · MAJ BOOST · SOURIS DIRIGER (CLIC : CAPTURER · CTRL GAUCHE : LIBRE) · ⏎ ENTRER · ${hint}`, W / 2, H - 14);
+    // (touch: the buttons say it all)
+    if (!this.touch) g.fillText(`${this.keyset()} PILOTER · ${this.labels.KeyQ}/${this.labels.KeyE} MONTER/DESCENDRE · MAJ BOOST · SOURIS DIRIGER (CLIC : CAPTURER · CTRL GAUCHE : LIBRE) · ⏎ ENTRER · ${hint}`, W / 2, H - 14);
 
-    // message
+    // message: one line, or several on a narrow screen
     if (this.msg && this.msg.until > this.clock) {
       const a = Math.min(1, (this.msg.until - this.clock) / 0.5);
       g.font = font(12);
-      const w = g.measureText(this.msg.text).width + 28;
+      const lines: string[] = [];
+      for (const word of this.msg.text.split(' ')) {
+        const last = lines.length ? lines[lines.length - 1] : null;
+        if (last !== null && g.measureText(`${last} ${word}`).width <= W - 52) lines[lines.length - 1] = `${last} ${word}`;
+        else lines.push(word);
+      }
+      const w = Math.min(W - 24, Math.max(...lines.map((l) => g.measureText(l).width)) + 28);
+      const hh = 10 + lines.length * 16;
+      // touch: under the menus and the card, above the controls
+      const top = this.touch ? H - lift - 70 - hh : 54;
       g.fillStyle = `rgba(0,0,0,${0.75 * a})`;
-      g.fillRect(W / 2 - w / 2, 54, w, 26);
+      g.fillRect(W / 2 - w / 2, top, w, hh);
       g.strokeStyle = white(0.6 * a);
-      g.strokeRect(W / 2 - w / 2 + 0.5, 54.5, w - 1, 25);
+      g.strokeRect(W / 2 - w / 2 + 0.5, top + 0.5, w - 1, hh - 1);
       g.fillStyle = white(a);
-      g.fillText(this.msg.text, W / 2, 67.5);
+      lines.forEach((l, i) => g.fillText(l, W / 2, top + 13 + i * 16));
     }
 
     // light speed

@@ -2,7 +2,7 @@
 // step the player chooses the new side between x and N/x; the best choice is their mean (Heron's
 // method, a reconstruction of how the scribe of YBC 7289 may have found √2 = 1;24,51,10). Level 3
 // works on a box x × x × N/x² towards ∛N: the best point is then (2x + N/x²)/3 — Newton's method.
-import { type Box, type GameDef, type GameLogic, type RoundResult, fr } from './types';
+import { type Box, type GameDef, type GameLogic, type RoundResult, type TouchKey, fr } from './types';
 
 /** x in base 60 with `places` sexagesimal places, rounded: √2 → "1;24,51,10" */
 export function sexagesimal(x: number, places = 3): string {
@@ -129,9 +129,28 @@ class Babylon implements GameLogic {
     return 'GLISSER SUR LA RÈGLE : NOUVEAU CÔTÉ · ← → AJUSTER (MAJ : FIN) · ⏎ VALIDER L’ÉTAPE';
   }
 
-  /** the ruler, in the right half of the box */
+  touchControls(): string {
+    return 'GLISSER SUR LA RÈGLE : NOUVEAU CÔTÉ · ◀ ▶ AJUSTER (◁ ▷ : FIN) · VALIDER L’ÉTAPE';
+  }
+
+  touchKeys(): TouchKey[] {
+    return [
+      { label: '◀', title: 'Ajuster vers la gauche', key: 'ArrowLeft', repeat: true },
+      { label: '◁', title: 'Ajuster finement vers la gauche', key: 'ArrowLeft', shift: true, repeat: true },
+      { label: '▷', title: 'Ajuster finement vers la droite', key: 'ArrowRight', shift: true, repeat: true },
+      { label: '▶', title: 'Ajuster vers la droite', key: 'ArrowRight', repeat: true },
+    ];
+  }
+
+  /** a narrow play area (phone): the ruler and the history on top, the rectangle under them */
+  private get narrow(): boolean {
+    return this.box.w > 1 && this.box.w < 520;
+  }
+
+  /** the ruler, in the right half of the box (narrow: across the top) */
   private ruler(): { x0: number; x1: number; y: number } {
     const b = this.box;
+    if (this.narrow) return { x0: b.x + 24, x1: b.x + b.w - 24, y: b.y + 104 };
     return { x0: b.x + b.w * 0.52, x1: b.x + b.w - 30, y: b.y + b.h * 0.42 };
   }
 
@@ -193,9 +212,10 @@ class Babylon implements GameLogic {
     g.save();
     g.font = '12px "JetBrains Mono", monospace';
     g.textBaseline = 'middle';
-    // left: the rectangle (or the side view of the box) and the square it should become
-    const areaW = box.w * 0.44;
-    const areaH = box.h * 0.78;
+    // left (narrow: bottom): the rectangle (or the side view of the box) and the square it should become
+    const narrow = this.narrow;
+    const areaW = box.w * (narrow ? 0.5 : 0.44);
+    const areaH = narrow ? Math.max(60, box.h - 330) : box.h * 0.78;
     const s = Math.min(areaW / Math.max(this.x, root * 1.05), areaH / Math.max(other, root * 1.05));
     const ox = box.x + 24;
     const oy = box.y + box.h - 40;
@@ -217,7 +237,7 @@ class Babylon implements GameLogic {
     g.restore();
     g.textAlign = 'left';
     g.fillStyle = 'rgba(255,255,255,0.55)';
-    g.fillText(cube ? `vue de côté : base x × x, hauteur ${n}/x² ; en pointillés, le cube de volume ${n}` : `en pointillés : le carré d’aire ${n}`, ox, box.y + 14);
+    g.fillText(cube ? (narrow ? `de côté · en pointillés : le cube de volume ${n}` : `vue de côté : base x × x, hauteur ${n}/x² ; en pointillés, le cube de volume ${n}`) : `en pointillés : le carré d’aire ${n}`, ox, box.y + 14);
     // right: the ruler from min to max of the two sides
     const R = this.ruler();
     const lo = this.lo();

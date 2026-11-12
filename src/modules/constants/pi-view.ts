@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, line, text } from '../../gfx/plot2d';
 import { fmt, fmtInt, fmtSci } from '../../hud/dom';
 import { DIGITS } from '../../data/digits';
@@ -74,11 +74,24 @@ export const piView: VizDef = {
         const g = ctx.g;
         const W = ctx.width;
         const H = ctx.height;
-        const size = Math.min(W - 360, H - 200);
-        fr.set(60 + (W - 360 - size) / 2, 120 + (H - 200 - size) / 2, size, size);
-        // digit stream column on the right
-        text(g, 'DÉCIMALES DE π', W - 270, 130, { size: 9, color: INK.f40 });
-        stream.draw(g, W - 270, 140, 240, H - 340, dt);
+        if (W < NARROW_VIEW) {
+          // narrow view (phone): the square on top, the decimals under it when the view is tall enough
+          const size = Math.max(80, Math.min(W - 48, H - 200));
+          fr.set((W - size) / 2, 88, size, size);
+          const sy = 88 + size + 26;
+          const sh = H - sy - 96;
+          if (sh > 26) {
+            text(g, 'DÉCIMALES DE π', 24, sy - 8, { size: 9, color: INK.f40 });
+            stream.draw(g, 24, sy, W - 48, sh, dt);
+          }
+        } else {
+          const size = Math.min(W - 360, H - 200);
+          fr.set(60 + (W - 360 - size) / 2, 120 + (H - 200 - size) / 2, size, size);
+          // digit stream column on the right
+          text(g, 'DÉCIMALES DE π', W - 270, 130, { size: 9, color: INK.f40 });
+          stream.draw(g, W - 270, 140, 240, H - 340, dt);
+        }
+        const size = fr.w;
         const R = (fr.sx(1) - fr.sx(0));
         const cx = fr.sx(0);
         const cy = fr.sy(0);

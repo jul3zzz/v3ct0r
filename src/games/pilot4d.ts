@@ -1,7 +1,7 @@
 // PILOTE 4D: bring a tesseract onto a target silhouette by turning it in the planes of ℝ⁴ that
 // contain the 4th axis (XW, YW, ZW), with held keys. One plane at level 1, two at level 2, three
 // at level 3 — where the order of the turns matters: rotations of ℝ⁴ do not commute.
-import { fr, type Box, type GameDef, type GameLogic, type RoundResult } from './types';
+import { fr, type Box, type GameDef, type GameLogic, type RoundResult, type TouchKey } from './types';
 
 export type M4 = number[]; // 4×4, row-major
 export type Plane = [number, number];
@@ -102,6 +102,21 @@ class Pilot4D implements GameLogic {
 
   controls(): string {
     return `${this.planes.map((p) => `${KEY_LABEL[p]} : ${p}`).join(' · ')} · MAJ : PRÉCISION · LE VERROU SE FAIT TOUT SEUL SOUS 1 %`;
+  }
+
+  touchControls(): string {
+    return 'MAINTIENS − / + D’UN PLAN POUR TOURNER · PRÉCIS : LENTEMENT · LE VERROU SE FAIT TOUT SEUL SOUS 1 %';
+  }
+
+  /** one button per sense of rotation of each active plane, held like its key, and PRÉCIS for Maj */
+  touchKeys(): TouchKey[] {
+    return [
+      ...this.planes.flatMap((p) => [
+        { label: `${p} −`, title: `Plan ${p}, sens −`, key: '', code: KEYS[p][0], hold: true },
+        { label: `${p} +`, title: `Plan ${p}, sens +`, key: '', code: KEYS[p][1], hold: true },
+      ]),
+      { label: 'PRÉCIS', title: 'Rotation lente (Maj)', key: 'Shift', code: 'ShiftLeft', hold: true },
+    ];
   }
 
   key(e: KeyboardEvent): boolean {

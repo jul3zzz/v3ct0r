@@ -1,7 +1,7 @@
 // CHASSEUR DE DIRECTIONS PROPRES: a 2 × 2 matrix deforms the plane. Turn the probe v with the
 // mouse, watch Av, and lock the directions where Av stays on the line of v. Traps at level 3:
 // a shear has a single direction, a rotation none, a homothety all of them.
-import { fr, type Box, type GameDef, type GameLogic, type RoundResult } from './types';
+import { fr, type Box, type GameDef, type GameLogic, type RoundResult, type TouchKey } from './types';
 
 export interface Mat2 {
   a: number;
@@ -139,6 +139,19 @@ class EigenHunt implements GameLogic {
 
   controls(): string {
     return 'SOURIS : ORIENTER v · CLIC : VERROUILLER / RETIRER · N : AUCUNE · T : TOUTES';
+  }
+
+  touchControls(): string {
+    return 'GLISSER : ORIENTER v · TOUCHER : VERROUILLER / RETIRER · AUCUNE / TOUTES : TA RÉPONSE';
+  }
+
+  touchKeys(): TouchKey[] {
+    return [
+      { label: '↺', title: 'Tourner v à gauche', key: 'ArrowLeft', repeat: true },
+      { label: '↻', title: 'Tourner v à droite', key: 'ArrowRight', repeat: true },
+      { label: 'AUCUNE', title: 'Aucune direction propre (N)', key: 'n' },
+      { label: 'TOUTES', title: 'Toutes les directions (T)', key: 't' },
+    ];
   }
 
   private apply(x: number, y: number): [number, number] {

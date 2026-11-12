@@ -25,3 +25,25 @@ body.atlas .viewport { background: #000; }
 .atlas-card .ac-go.off { background: transparent; color: var(--fg-60); border: var(--line); }
 @keyframes atlas-card-in { from { opacity: 0; transform: translate(12px, -50%); } }
 @media (prefers-reduced-motion: reduce) { .atlas-card { animation: none; } }
+/* touch screen: the card is the button that enters the target */
+.atlas-card.tap { pointer-events: auto; cursor: pointer; }
+
+/* touch screen (atlas.ts buildTouch): steering pad bottom left, throttle and ENTRER bottom right, menus top left */
+.atlas-touch { position: absolute; inset: 0; z-index: 4; pointer-events: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.atlas-touch > * { pointer-events: auto; }
+.at-top { position: absolute; left: 12px; top: 48px; display: flex; gap: 6px; }
+.at-stick { position: absolute; left: 14px; bottom: 16px; width: 124px; height: 124px; border: var(--line-mid); background: rgb(0 0 0 / 0.4); touch-action: none; }
+.at-stick::before, .at-stick::after { content: ''; position: absolute; background: var(--fg-20); }
+.at-stick::before { left: 50%; top: 10px; bottom: 10px; width: 1px; }
+.at-stick::after { top: 50%; left: 10px; right: 10px; height: 1px; }
+.at-stick i { position: absolute; left: 50%; top: 50%; width: 30px; height: 30px; margin: -15px 0 0 -15px; border: 1px solid var(--fg); background: var(--bg); pointer-events: none; }
+.at-pad { position: absolute; right: 12px; bottom: 16px; display: grid; grid-template-columns: 52px 92px; gap: 6px; }
+.at-b { height: 36px; padding: 0 8px; border: var(--line-mid); background: rgb(0 0 0 / 0.55); color: var(--fg); font-size: var(--fs-xs); letter-spacing: var(--track-caps); touch-action: none; }
+.at-b.on, .at-b:active { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.at-top .at-b { height: 28px; }
+.at-b[hidden] { display: none; }
+@media (max-width: 719px) {
+  .atlas-card { left: 12px; right: 12px; top: 84px; width: auto; transform: none; animation-name: atlas-card-in-m; }
+  .atlas-card .ac-sub { -webkit-line-clamp: 2; }
+}
+@keyframes atlas-card-in-m { from { opacity: 0; } }

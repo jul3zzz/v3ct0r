@@ -41,6 +41,36 @@ export const compareView: VizDef = {
         const H = ctx.height;
         const list = CONSTANTS.filter((c) => active.has(c.id));
         if (!list.length) return;
+        // narrow view (phone): one line per constant (symbol, value, continued fraction), the graph under them
+        if (W < 560) {
+          const top = 64;
+          const rh = 20;
+          list.forEach((c, i) => {
+            const y = top + i * rh;
+            const cf = cfOf(c.id, 7);
+            text(g, c.sym, 14, y + 14, { size: 14, family: DISPLAY, color: INK.fg });
+            text(g, c.digits.slice(0, 11).replace('.', ','), 62, y + 13, { size: 11, color: INK.f80 });
+            text(g, `[${cf[0]}; ${cf.slice(1).join(',')}…]`, W - 14, y + 13, { size: 9, color: INK.f60, align: 'right' });
+            line(g, 14, y + rh, W - 14, y + rh, INK.f10);
+          });
+          const gy = top + list.length * rh + 34;
+          graph.set(44, gy, W - 60, Math.max(60, H - gy - 34)).world(1, 60, -16, 0.5);
+          graph.box(g, 'CONVERGENCE · log₁₀ |ERREUR| SELON n', false);
+          graph.axes(g, { xName: 'n', yName: 'log₁₀ ε', xTicks: 6, yTicks: 4 });
+          list.forEach((c, i) => {
+            g.strokeStyle = i % 2 ? INK.f60 : INK.fg;
+            g.setLineDash(i % 3 === 1 ? [3, 3] : i % 3 === 2 ? [1, 3] : []);
+            g.beginPath();
+            for (let n = 1; n <= 60; n++) {
+              const e = Math.abs(c.approx(n) - c.value);
+              const p: [number, number] = [graph.sx(n), graph.sy(Math.max(-16, Math.log10(Math.max(1e-17, e))))];
+              n > 1 ? g.lineTo(...p) : g.moveTo(...p);
+            }
+            g.stroke();
+            g.setLineDash([]);
+          });
+          return;
+        }
         const top = 120;
         const colsH = Math.max(180, (H - top) * 0.52);
         const cw = (W - 60) / list.length;

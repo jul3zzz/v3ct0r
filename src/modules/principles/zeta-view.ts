@@ -1,5 +1,5 @@
 import type { VizDef } from '../../core/types';
-import { Frame2D } from '../../gfx/frame2d';
+import { Frame2D, NARROW_VIEW, narrowPlot } from '../../gfx/frame2d';
 import { INK, text, line, marker } from '../../gfx/plot2d';
 import { fmt } from '../../hud/dom';
 
@@ -92,7 +92,11 @@ export const zetaView: VizDef = {
         const W = ctx.width;
         const H = ctx.height;
         const ps = Math.min(W * 0.5, H - 200);
-        plane.set(60, 120, ps * (5 / 4.4), ps).world(-1.5, 3.5, -2.2, 2.2);
+        // narrow view (phone): the plane of ζ(s) above the graph of |ζ|
+        const nb = W < NARROW_VIEW ? narrowPlot(W, H, 3) : null;
+        const nph = nb ? Math.max(50, Math.min(nb[2] * (4.4 / 5), (nb[3] - 34) * 0.55)) : 0;
+        if (nb) plane.set(nb[0] + (nb[2] - nph * (5 / 4.4)) / 2, nb[1], nph * (5 / 4.4), nph).world(-1.5, 3.5, -2.2, 2.2);
+        else plane.set(60, 120, ps * (5 / 4.4), ps).world(-1.5, 3.5, -2.2, 2.2);
         plane.box(g, 'PLAN DE ζ(s)', false);
         plane.axes(g, { xName: 'RE', yName: 'IM' });
         const k = Math.min(samples.length - 1, Math.floor((st.T / st.max) * 6000));
@@ -113,8 +117,9 @@ export const zetaView: VizDef = {
         marker(g, plane.sx(zr), plane.sy(zi), 6, true);
         // |ζ| along t
         const mx = plane.x + plane.w + 50;
-        mod.set(mx, 120, W - mx - 330, ps).world(0, st.max, 0, 4);
-        mod.box(g, '|ζ(σ + it)| — ZÉROS SUR LA DROITE CRITIQUE', false);
+        if (nb) mod.set(nb[0], nb[1] + nph + 34, nb[2], Math.max(40, nb[3] - nph - 34)).world(0, st.max, 0, 4);
+        else mod.set(mx, 120, W - mx - 330, ps).world(0, st.max, 0, 4);
+        mod.box(g, nb ? '|ζ(σ + it)|' : '|ζ(σ + it)| — ZÉROS SUR LA DROITE CRITIQUE', false);
         mod.axes(g, { xName: 't', yName: '|ζ|', xTicks: 6 });
         g.strokeStyle = INK.f60;
         g.beginPath();

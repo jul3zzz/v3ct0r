@@ -25,8 +25,24 @@ export interface GameLevel {
   time: number;
 }
 
+/** touch screen: an on-screen button for what only the keyboard does; it sends `key` (and `code`, Maj with
+ *  `shift`) to key(). `hold`: pressed until released (keyUp); `repeat`: sent again while it is held. */
+export interface TouchKey {
+  label: string;
+  title?: string;
+  key: string;
+  code?: string;
+  shift?: boolean;
+  hold?: boolean;
+  repeat?: boolean;
+}
+
 /** The mechanics of one game; the shell (engine.ts) runs briefing, rounds, timer, scores. */
 export interface GameLogic {
+  /** touch screen: the buttons that stand for keyboard-only controls (engine.ts draws them under the play area) */
+  touchKeys?(): TouchKey[];
+  /** touch screen: what the fingers do, one line (default: controls()) */
+  touchControls?(): string;
   /** prepare round k (0-based) of a level; r: seeded random */
   start(level: number, round: number, r: () => number): void;
   /** instruction shown above the play area (may contain the current function, ε…) */

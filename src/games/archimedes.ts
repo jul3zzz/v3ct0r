@@ -3,7 +3,7 @@
 // of sides is two means (Pfaff's form of Archimedes' recurrence): the new circumscribed perimeter
 // is the HARMONIC mean of the old two, the new inscribed one the GEOMETRIC mean of the old inscribed
 // and the new circumscribed. Level 3 adds Archimedes' care: every value rounded outwards.
-import { type Box, type GameDef, type GameLogic, type RoundResult, fr } from './types';
+import { type Box, type GameDef, type GameLogic, type RoundResult, type TouchKey, fr } from './types';
 
 export type Mean = 'A' | 'G' | 'H';
 export const mean = (m: Mean, a: number, b: number): number => (m === 'A' ? (a + b) / 2 : m === 'G' ? Math.sqrt(a * b) : (2 * a * b) / (a + b));
@@ -91,6 +91,18 @@ class Archimedes implements GameLogic {
 
   controls(): string {
     return this.pending === 'rP' || this.pending === 'rp' ? '↑ ARRONDI SUPÉRIEUR · ↓ ARRONDI INFÉRIEUR (OU CLIC)' : 'TOUCHES 1 · 2 · 3 (OU CLIC) : CHOISIR LA MOYENNE';
+  }
+
+  touchControls(): string {
+    return this.pending === 'rP' || this.pending === 'rp' ? 'CHOISIS L’ARRONDI : SUPÉRIEUR OU INFÉRIEUR' : 'TOUCHE UNE MOYENNE POUR LA CHOISIR';
+  }
+
+  touchKeys(): TouchKey[] {
+    if (this.pending !== 'rP' && this.pending !== 'rp') return [];
+    return [
+      { label: '▲ SUPÉRIEUR', title: 'Arrondi supérieur', key: 'ArrowUp' },
+      { label: '▼ INFÉRIEUR', title: 'Arrondi inférieur', key: 'ArrowDown' },
+    ];
   }
 
   /** the two numbers the pending mean is taken of */
@@ -181,19 +193,33 @@ class Archimedes implements GameLogic {
     return false;
   }
 
+  /** a narrow play area (phone): the buttons one under the other, the table under the circle */
+  private get narrow(): boolean {
+    return this.box.w > 1 && this.box.w < 520;
+  }
+
   private buttons(): { label: string; act: () => void; x: number; y: number; w: number; h: number }[] {
     const b = this.box;
+    const narrow = this.narrow;
     const y = b.y + b.h - 48;
     if (this.pending === 'rP' || this.pending === 'rp') {
+      if (narrow) {
+        const w = b.w - 32;
+        return [
+          { label: '↑ arrondi supérieur', act: () => this.chooseRound(true), x: b.x + 16, y: b.y + b.h - 92, w, h: 36 },
+          { label: '↓ arrondi inférieur', act: () => this.chooseRound(false), x: b.x + 16, y: b.y + b.h - 48, w, h: 36 },
+        ];
+      }
       const w = 220;
       return [
         { label: '↑ arrondi supérieur', act: () => this.chooseRound(true), x: b.x + b.w / 2 - w - 8, y, w, h: 36 },
         { label: '↓ arrondi inférieur', act: () => this.chooseRound(false), x: b.x + b.w / 2 + 8, y, w, h: 36 },
       ];
     }
-    const w = Math.min(300, (b.w - 60) / 3);
     const [a, c] = this.pair();
     const names = { A: 'arithmétique (a+b)/2', G: 'géométrique √(ab)', H: 'harmonique 2ab/(a+b)' };
+    if (narrow) return this.order.map((m, i) => ({ label: `${i + 1} · ${names[m]} = ${fr(mean(m, a, c), 6)}`, act: () => this.chooseMean(m), x: b.x + 16, y: b.y + b.h - 136 + i * 44, w: b.w - 32, h: 36 }));
+    const w = Math.min(300, (b.w - 60) / 3);
     return this.order.map((m, i) => ({ label: `${i + 1} · ${names[m]} = ${fr(mean(m, a, c), 6)}`, act: () => this.chooseMean(m), x: b.x + 20 + i * (w + 10), y, w, h: 36 }));
   }
 
@@ -225,10 +251,11 @@ class Archimedes implements GameLogic {
     g.save();
     g.font = '12px "JetBrains Mono", monospace';
     g.textBaseline = 'middle';
-    // left: circle, inscribed and circumscribed polygons
-    const R = Math.min(box.w * 0.2, (box.h - 110) * 0.45);
+    // left (narrow: top): circle, inscribed and circumscribed polygons
+    const narrow = this.narrow;
+    const R = narrow ? Math.min(46, box.w * 0.16) : Math.min(box.w * 0.2, (box.h - 110) * 0.45);
     const cx = box.x + 30 + R * 1.2;
-    const cy = box.y + 20 + R * 1.2;
+    const cy = box.y + (narrow ? 12 : 20) + R * 1.2;
     const poly = (n: number, rad: number, dash: boolean) => {
       g.setLineDash(dash ? [3, 3] : []);
       g.beginPath();
@@ -253,14 +280,18 @@ class Archimedes implements GameLogic {
     poly(n, R / Math.cos(Math.PI / n), true);
     g.fillStyle = 'rgba(255,255,255,0.6)';
     g.textAlign = 'center';
-    g.fillText(`${this.n} côtés · diamètre 1`, cx, cy + R * 1.25 + 10);
-    // right: the table and the interval
-    const tx = box.x + box.w * 0.48;
-    let ty = box.y + 20;
+    if (narrow) {
+      g.textAlign = 'left';
+      g.fillText(`${this.n} côtés`, cx + R * 1.35, cy - 8);
+      g.fillText('diamètre 1', cx + R * 1.35, cy + 10);
+    } else g.fillText(`${this.n} côtés · diamètre 1`, cx, cy + R * 1.25 + 10);
+    // right (narrow: under the circle): the table and the interval
+    const tx = narrow ? box.x + 14 : box.x + box.w * 0.48;
+    let ty = narrow ? cy + R * 1.25 + 18 : box.y + 20;
     g.textAlign = 'left';
     g.fillStyle = 'rgba(255,255,255,0.55)';
     g.fillText('côtés      inscrit pₙ     circonscrit Pₙ', tx, ty);
-    for (const row of this.rows.slice(-8)) {
+    for (const row of this.rows.slice(narrow ? -5 : -8)) {
       ty += 18;
       g.fillStyle = '#fff';
       g.fillText(`${String(row.n).padEnd(9)}  ${fr(row.p, 6).padEnd(12)}  ${fr(row.P, 6)}`, tx, ty);
@@ -273,9 +304,9 @@ class Archimedes implements GameLogic {
     // the interval [p, P] on a ruler; π shown at the reveal
     const lo = Math.min(this.p, Math.PI) - 0.02 * (this.P - this.p + 1e-9);
     const hi = Math.max(this.P, Math.PI) + 0.02 * (this.P - this.p + 1e-9);
-    const rx0 = tx;
+    const rx0 = narrow ? box.x + 24 : tx;
     const rx1 = box.x + box.w - 30;
-    const ry = box.y + box.h - 104;
+    const ry = box.y + box.h - (narrow ? (this.pending === 'rP' || this.pending === 'rp' ? 128 : 172) : 104);
     const X = (v: number) => rx0 + ((v - lo) / (hi - lo)) * (rx1 - rx0);
     g.strokeStyle = 'rgba(255,255,255,0.5)';
     g.beginPath();
@@ -298,14 +329,17 @@ class Archimedes implements GameLogic {
       if (this.level === 0) {
         g.textAlign = 'left';
         g.fillStyle = 'rgba(255,255,255,0.75)';
-        g.fillText(`Archimède : 3 + 10/71 = ${fr(3 + 10 / 71, 5)} < π < 3 + 1/7 = ${fr(3 + 1 / 7, 5)}`, rx0, ry - 40);
+        if (narrow) {
+          g.fillText(`Archimède : 3 + 10/71 = ${fr(3 + 10 / 71, 5)}`, rx0, ry - 52);
+          g.fillText(`< π < 3 + 1/7 = ${fr(3 + 1 / 7, 5)}`, rx0, ry - 36);
+        } else g.fillText(`Archimède : 3 + 10/71 = ${fr(3 + 10 / 71, 5)} < π < 3 + 1/7 = ${fr(3 + 1 / 7, 5)}`, rx0, ry - 40);
       }
     }
     if (this.clock < this.flash.until) {
       g.textAlign = 'left';
       g.fillStyle = '#fff';
-      g.font = '14px "JetBrains Mono", monospace';
-      g.fillText(this.flash.text, box.x + 20, box.y + box.h - 66);
+      g.font = narrow ? '12px "JetBrains Mono", monospace' : '14px "JetBrains Mono", monospace';
+      g.fillText(this.flash.text, box.x + (narrow ? 14 : 20), narrow ? ry - 44 : box.y + box.h - 66);
       g.font = '12px "JetBrains Mono", monospace';
     }
     if (phase === 'play' && !this.finished)
