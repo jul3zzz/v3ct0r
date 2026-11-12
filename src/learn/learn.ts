@@ -27,6 +27,7 @@ import { music } from '../core/music';
 import { GAMES, gameById } from '../games/registry';
 import { gameViz, scoresOf, type GameRun } from '../games/engine';
 import { grade, type GameDef } from '../games/types';
+import { touchScreen } from '../core/touch';
 
 export interface LearnHost {
   viewport: HTMLElement;
@@ -578,7 +579,7 @@ export class Learn {
         h('div', { class: 'sec-title', text: 'MISSION' }),
         rich(def.brief, 'rich'),
         h('div', { class: 'sec-title', text: 'RÈGLES' }),
-        h('ul', { class: 'lp-ref' }, ...def.rules.map((r) => h('li', {}, rich(r, 'inl rich')))),
+        h('ul', { class: 'lp-ref' }, ...((touchScreen() && def.touchRules) || def.rules).map((r) => h('li', {}, rich(r, 'inl rich')))),
         h('div', { class: 'sec-title', text: 'LE THÉORÈME EN JEU' }),
         unlocked
           ? h('div', { class: 'lx-box game-thm' }, h('div', { class: 'lx-box-head' }, h('span', { class: 'kd', text: STATEMENT_LABEL[th.kind] }), h('span', { class: 'tt', text: th.title })), rich(th.body, 'rich'))

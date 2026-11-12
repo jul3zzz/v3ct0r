@@ -368,6 +368,11 @@ export const ARCHIMEDES: GameDef = {
     'Niveau 3 : chaque nouvelle valeur est arrondie à 6 décimales, vers le haut (↑) ou vers le bas (↓). Un mauvais arrondi peut rendre une borne fausse (−30 points). Avec 4 décimales seulement, même des arrondis prudents finiraient par croiser π : la précision des calculs limite celle du résultat.',
     'Score = choix justes / choix à faire. Réussi à partir de 60.',
   ],
+  touchRules: [
+    'Touche une moyenne pour la choisir. L’ordre des choix change à chaque fois. Un mauvais choix est corrigé et compté comme erreur.',
+    'Niveau 3 : chaque nouvelle valeur est arrondie à 6 décimales, vers le haut (▲ SUPÉRIEUR) ou vers le bas (▼ INFÉRIEUR). Un mauvais arrondi peut rendre une borne fausse (−30 points). Avec 4 décimales seulement, même des arrondis prudents finiraient par croiser π : la précision des calculs limite celle du résultat.',
+    'Score = choix justes / choix à faire. Réussi à partir de 60.',
+  ],
   levels: [
     { title: 'L’hexagone', brief: '6 → 96 côtés, 4 doublements', rounds: 3, time: 60 },
     { title: 'Le carré', brief: '4 → 256 côtés, 6 doublements', rounds: 3, time: 60 },

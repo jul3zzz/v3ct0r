@@ -328,6 +328,11 @@ export const MANDEL: GameDef = {
     'La manche se termine dès que la bonne période est trouvée. Score : de 100 à 20, selon le temps pris et les sondes fausses (−10 chacune).',
     'Piste : le bourgeon attaché au cardioïde à l’angle interne a/q a la période q ; plus q est grand, plus il est petit.',
   ],
+  touchRules: [
+    'Toucher (sans glisser) : sonder c — l’orbite de 0 se dessine et sa période s’affiche. Glisser : déplacer. Deux doigts : zoomer. VUE INITIALE : revenir au départ.',
+    'La manche se termine dès que la bonne période est trouvée. Score : de 100 à 20, selon le temps pris et les sondes fausses (−10 chacune).',
+    'Piste : le bourgeon attaché au cardioïde à l’angle interne a/q a la période q ; plus q est grand, plus il est petit.',
+  ],
   levels: [
     { title: 'Grands bourgeons', brief: 'périodes 1 à 5, guide du cardioïde', rounds: 5, time: 35 },
     { title: 'Bourgeons fins', brief: 'périodes 5 à 9, il faut zoomer', rounds: 5, time: 45 },

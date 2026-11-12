@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { counterexample, maxDev, optimalDelta, PROVER_EASY, PROVER_HARD, REFUTE, DUEL, type DuelLogic, type LimitFn } from '../src/games/duel';
 import { eigenDirs, judge, lineGap, makeMatrix, EIGEN, type EigenLogic } from '../src/games/eigen';
-import { GAMES } from '../src/games/registry';
+import { GAMES, STORY_GAMES } from '../src/games/registry';
 import { grade, rng } from '../src/games/types';
 
 const fnByLabel = (list: LimitFn[], label: string, a?: number) => list.find((f) => f.label === label && (a === undefined || f.a === a))!;
@@ -123,6 +123,19 @@ describe('games registry', () => {
       expect(g.theorem.body.length).toBeGreaterThan(100);
       expect(['integrals', '4d', 'fractals', 'constants', 'principles', 'probability']).toContain(g.module);
     }
+  });
+  it('touch rules: given as soon as the rules name a key, a click or the wheel, and name none of them', () => {
+    // words (any case) and key names (exact case) that only make sense with a keyboard or a mouse
+    const device = (s: string) => /\bclic|\bclique|molette|\bmaj\b|⏎|←|→|↑|↓|touches? (maintenues|\d)/i.test(s) || /\b[A-Z]\/[A-Z]\b|(^|[.;] )[A-Z] : /.test(s);
+    for (const g of [...GAMES, ...STORY_GAMES]) {
+      if (!g.rules.some(device)) continue;
+      expect(g.touchRules, g.id).toBeDefined();
+      expect(g.touchRules!.length, g.id).toBe(g.rules.length);
+      for (const r of g.touchRules!) expect(device(r), `${g.id}: ${r}`).toBe(false);
+    }
+    // every game's desktop rules name a key or a click today: the check above really ran on all 11
+    expect([...GAMES, ...STORY_GAMES].filter((g) => g.rules.some(device)).length).toBe(11);
+    expect([...GAMES, ...STORY_GAMES].filter((g) => g.touchRules).length).toBe(11);
   });
   it('grades', () => {
     expect([95, 80, 60, 40, 10].map(grade)).toEqual(['S', 'A', 'B', 'C', 'D']);
