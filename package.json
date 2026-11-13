@@ -1,7 +1,7 @@
 {
   "name": "v3ct0r",
   "private": true,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "V3CT0R — logiciel web d'exploration mathématique (HUD monochrome, hors ligne)",
   "author": "jul3zzz",
   "main": "electron/main.cjs",
