@@ -140,7 +140,7 @@ Une branche et un plan validé par moi pour chaque phase.
 - Phase 0 : faite le 2026-11-11.
   - Plan validé, modèle de données dans `docs/ECOLES-MODELE.md`.
   - Réponses : le compte reste obligatoire pour les particuliers dès que le site est configuré ; passage en Pro avant les mails ; région UE ; fusion de `feat/mobile-layout` avant la phase 1.
-- Phase 1 (`feat/school-trial`) : faite le 2026-11-12, PR jul3zzz/v3ct0r#6 ouverte (fusion à faire par l'utilisateur).
+- Phase 1 (`feat/school-trial`) : faite le 2026-11-12, fusionnée dans main le 2026-11-13 (PR jul3zzz/v3ct0r#6).
   - **Fait.**
     - Migrations `supabase/migrations/` : schéma `school` non exposé, RLS sans policy, `trial_open` / `trial_ping`, fonctions `admin_*`.
     - 49 tests pgTAP (`npm run db:test`).
@@ -196,10 +196,9 @@ Une branche et un plan validé par moi pour chaque phase.
     - site sous Windows : TÉLÉCHARGER V3CT0R ou V3CT0R LYCÉE ; la clé est vérifiée par `key_check` (migration `20261113090000_school_editions.sql`, ni visite ni poste), puis OUVRIR V3CT0R LYCÉE (`v3ct0r-lycee://cle/<clé>`) la passe à l'app ;
     - la carte d'essai d'un lien propose aussi V3CT0R Lycée ;
     - en tout : 106 tests pgTAP et le smoke du site (http) et de V3CT0R Lycée (file://).
+  - **Fusionnée** dans main le 2026-11-13 (PR jul3zzz/v3ct0r#8 puis #6), site redéployé et vérifié ; release v1.2.0 avec les trois fichiers Windows.
   - **Reste**, à faire par l'utilisateur :
-    - fusion de la PR de la phase 1, puis de celle-ci ;
-    - migrations sur le projet réel ;
+    - migrations et variables sur le projet réel (`docs/ADMIN.md` §0) : sans `VITE_SUPABASE_ANON_KEY`, le mode école reste invisible sur le site et dans V3CT0R Lycée ;
     - compte Azure Trusted Signing et ses variables et secrets (`docs/ADMIN.md` §5) ;
-    - une release (tag `v*`) pour publier les trois fichiers ;
     - essai d'installation sur un vrai PC ou une VM (droits administrateur), et du lien OUVRIR V3CT0R LYCÉE dans un vrai navigateur.
 - Phases 2 à 6 : à faire.
