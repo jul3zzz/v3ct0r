@@ -110,7 +110,7 @@ describe('school trial', () => {
     const r = fromRow('aaaaa-bbbbb-ccccc-ddddd', row, now);
     expect(r.ok).toBe(true);
     if (!r.ok) return;
-    expect(r.info).toEqual({ key: 'AAAAABBBBBCCCCCDDDDD', school: 'Lycée Test', logo: null, accent: '#3366ff', start: '#/learn/riemann', endsAt: Date.parse('2026-12-01T10:00:00Z'), state: 'active', skew: 30_000, checkedAt: now });
+    expect(r.info).toEqual({ key: 'AAAAABBBBBCCCCCDDDDD', school: 'Lycée Test', logo: null, accent: '#3366ff', start: '#/learn/riemann', endsAt: Date.parse('2026-12-01T10:00:00Z'), state: 'active', skew: 30_000, checkedAt: now, kind: 'trial', source: 'code', seats: 0, seatsUsed: 0 });
     expect(parseTrial(JSON.parse(JSON.stringify(r.info)))).toEqual(r.info);
   });
 
@@ -138,7 +138,7 @@ describe('school trial', () => {
   });
 
   it('ends at the end date, in server time', () => {
-    const t: TrialInfo = { key: 'A', school: 'X', logo: null, accent: '#ffffff', start: '', endsAt: now + 2 * DAY, state: 'active', skew: 0, checkedAt: now };
+    const t: TrialInfo = { key: 'A', school: 'X', logo: null, accent: '#ffffff', start: '', endsAt: now + 2 * DAY, state: 'active', skew: 0, checkedAt: now, kind: 'trial', source: 'code', seats: 0, seatsUsed: 0 };
     expect(trialState(t, now)).toBe('active');
     expect(trialState(t, now + 2 * DAY)).toBe('expired');
     // this device is an hour late: the server's clock decides

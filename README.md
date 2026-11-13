@@ -82,9 +82,16 @@ connexion, au démarrage, quelques secondes après chaque progrès et quand l'on
 V3CT0R se propose aux établissements en trois temps : essai, classe pilote, licence (cahier des charges
 `docs/ECOLES.md`, modèle de données `docs/ECOLES-MODELE.md`). Une **clé d'essai** (lien `?essai=<clé>`, ou J'AI UN CODE
 sur l'écran d'accueil et dans COMPTE) ouvre V3CT0R aux couleurs de l'école, sans compte, toutes les vues et tous les
-cours débloqués, jusqu'à la date de fin, puis un écran bloquant donne l'adresse de contact. Administration (SQL, clés,
-`npm run school`, suivi des essais) : `docs/ADMIN.md` ; données personnelles : `docs/RGPD.md` ; tests des policies :
-`npm run db:test` (Docker).
+cours débloqués, jusqu'à la date de fin, puis un écran bloquant donne l'adresse de contact. Une **clé de licence**
+fait de même pour un établissement qui a acheté V3CT0R, avec un nombre de postes ; son **kit d'installation**
+(`npm run school -- licence … --kit`) met `V3CT0R-Lycee.msi` et la licence sur tous les PC à la fois (GPO, Intune, ou
+poste par poste), chaque poste débloqué pour tous ses comptes, sans saisie : `docs/DEPLOIEMENT.md`. Deux apps
+Windows distinctes : **V3CT0R** (`V3CT0R-Setup.exe`, pour tous, sans rien d'école) et **V3CT0R Lycée**
+(`V3CT0R-Lycee-Setup.exe`, `V3CT0R-Lycee.msi`), qui ne s'ouvre qu'avec une clé d'essai ou de licence. Sur le site,
+TÉLÉCHARGER propose les deux sous Windows : la clé est vérifiée avant le téléchargement de V3CT0R Lycée, puis OUVRIR
+V3CT0R LYCÉE la passe à l'app ; une fois V3CT0R choisi, l'offre lycée disparaît de ce navigateur (sauf lien d'essai). Administration
+(SQL, clés, `npm run school`, suivi, signature de l'installeur) : `docs/ADMIN.md` ; données personnelles :
+`docs/RGPD.md` ; tests des policies : `npm run db:test` (Docker).
 
 ## V3CT0R ATLAS
 

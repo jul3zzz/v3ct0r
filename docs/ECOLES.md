@@ -140,7 +140,7 @@ Une branche et un plan validé par moi pour chaque phase.
 - Phase 0 : faite le 2026-11-11.
   - Plan validé, modèle de données dans `docs/ECOLES-MODELE.md`.
   - Réponses : le compte reste obligatoire pour les particuliers dès que le site est configuré ; passage en Pro avant les mails ; région UE ; fusion de `feat/mobile-layout` avant la phase 1.
-- Phase 1 (`feat/school-trial`) : code et tests faits le 2026-11-12, commités ; `feat/mobile-layout` fusionnée dans main puis ramenée dans la branche ; PR ouverte.
+- Phase 1 (`feat/school-trial`) : faite le 2026-11-12, PR jul3zzz/v3ct0r#6 ouverte (fusion à faire par l'utilisateur).
   - **Fait.**
     - Migrations `supabase/migrations/` : schéma `school` non exposé, RLS sans policy, `trial_open` / `trial_ping`, fonctions `admin_*`.
     - 49 tests pgTAP (`npm run db:test`).
@@ -156,13 +156,50 @@ Une branche et un plan validé par moi pour chaque phase.
       - sur tablette, un nom long est coupé à 160 px ;
       - les onglets restent sur la première ligne (smoke à 375 px).
   - **Vérifié de bout en bout** sur la pile Supabase locale, dans le navigateur, y compris l'arrêt d'un essai en cours de session : école désactivée, écran bloquant au ping suivant, sans recharger (2026-11-12, ping envoyé au passage en arrière-plan ; le minuteur des 5 minutes appelle la même fonction).
-  - **Reste** :
-    - fusion de la PR dans main (le site se reconstruit ; sans `VITE_SUPABASE_ANON_KEY`, l'essai y reste inactif) ;
-    - à faire par l'utilisateur, côté Supabase : Pro, variables `VITE_SUPABASE_ANON_KEY` et `VITE_CONTACT_EMAIL`, migrations (`docs/ADMIN.md` §0) ;
-    - `SUPABASE_SECRET_KEY` dans `.env.local`, tapée par l'utilisateur.
-- Demande du 2026-11-12, à planifier avant les phases 2 à 6 :
-  - clé de licence d'établissement, à côté de la clé d'essai ;
-  - installation en même temps sur tous les PC de la prépa, chaque poste débloqué pour tous ses utilisateurs, sans saisie ;
-  - installeur signé : l'utilisateur prend le certificat ;
-  - améliorations demandées : accueil et apparence, espace proviseur, onglet CLASSE, tableau de bord pour l'administrateur.
+- Demande du 2026-11-12 : nouvelles phases, plan validé le même jour.
+  - L'utilisateur veut une clé de licence d'établissement à côté de la clé d'essai, et une installation en une fois sur tous les PC de la prépa, chaque poste débloqué pour tous ses comptes, sans saisie.
+  - L'installeur doit être signé ; l'utilisateur prend le certificat.
+  - Améliorations voulues : accueil et apparence, espace proviseur, onglet CLASSE, tableau de bord pour l'administrateur.
+  - Feuille de route :
+
+    | Phase | Branche | Contenu |
+    |---|---|---|
+    | 1b | `feat/school-licence` | licence, postes, MSI et kit d'installation, signature, accueil revu |
+    | 1c | `feat/school-admin` | tableau de bord de l'administrateur (page locale, la clé secrète reste dans Node) |
+    | 2 à 6 | comme ci-dessus | l'espace proviseur (4) gagne : postes de la licence, nouvelle clé, kit à télécharger |
+
+- Phase 1b (`feat/school-licence`, empilée sur `feat/school-trial`) : faite le 2026-11-12 (commit 887de22), puis les deux apps le 2026-11-13.
+  - **Fait.**
+    - Migration `20261112180000_school_licence.sql` :
+      - `school.trial_keys` (nom gardé) avec `kind` (`trial` ou `licence`) et `seats` ;
+      - table `school.devices` ;
+      - `key_open` / `key_ping` (état `full`), `trial_open` / `trial_ping` en relais ;
+      - `admin_key_create`, `admin_key_rotate`, `admin_devices`, `admin_devices_reset`, `admin_report`.
+    - App de bureau :
+      - `electron/main.cjs` lit `%ProgramData%\V3CT0R\licence.json` et l'empreinte du poste ;
+      - `electron/preload.cjs` les donne à la page (`window.v3ct0rDesktop`) ;
+      - cible MSI pour tout le poste, silencieuse ;
+      - `release.yml` la publie et signe si les réglages Azure existent.
+    - Licence du poste vérifiée sans carte ni saisie. Écrans d'échec : serveur injoignable (RÉESSAYER), clé refusée, postes complets.
+    - Accueil revu :
+      - carte avec ligne d'état, grille de ce qui est ouvert, bouton ÉCRIRE À ;
+      - écrans de fin par cas (terminé, arrêté, postes complets) ;
+      - badge ESSAI · J-n ou LICENCE ;
+      - avis des 7 derniers jours ;
+      - COMPTE → type, fin, postes.
+    - Script : `licence [--kit]`, `devices [--reset]`, `rotate [--kit]`, `report` avec type et postes. Kit généré par `src/school/kit.ts` hors du dépôt.
+    - `docs/DEPLOIEMENT.md` (guide du technicien), ADMIN.md (§1b, §5 signature), RGPD.md (postes).
+  - **Deux apps** (demande du 2026-11-12, plan validé ; réponses : V3CT0R Lycée ne s'ouvre qu'avec une clé, la clé se donne sur le site et l'app la reçoit, « key perso » = la licence de l'établissement, l'offre lycée disparaît une fois V3CT0R choisi sauf avec un lien d'essai) :
+    - éditions `standard` et `lycee` (`src/core/edition.ts`, `.env.lycee`, `electron-builder.lycee.yml`) ;
+    - V3CT0R (`V3CT0R-Setup.exe`, zip) n'a plus rien d'école ;
+    - V3CT0R Lycée (`V3CT0R-Lycee-Setup.exe`, `V3CT0R-Lycee.msi`) demande une clé, sans contournement ;
+    - site sous Windows : TÉLÉCHARGER V3CT0R ou V3CT0R LYCÉE ; la clé est vérifiée par `key_check` (migration `20261113090000_school_editions.sql`, ni visite ni poste), puis OUVRIR V3CT0R LYCÉE (`v3ct0r-lycee://cle/<clé>`) la passe à l'app ;
+    - la carte d'essai d'un lien propose aussi V3CT0R Lycée ;
+    - en tout : 106 tests pgTAP et le smoke du site (http) et de V3CT0R Lycée (file://).
+  - **Reste**, à faire par l'utilisateur :
+    - fusion de la PR de la phase 1, puis de celle-ci ;
+    - migrations sur le projet réel ;
+    - compte Azure Trusted Signing et ses variables et secrets (`docs/ADMIN.md` §5) ;
+    - une release (tag `v*`) pour publier les trois fichiers ;
+    - essai d'installation sur un vrai PC ou une VM (droits administrateur), et du lien OUVRIR V3CT0R LYCÉE dans un vrai navigateur.
 - Phases 2 à 6 : à faire.

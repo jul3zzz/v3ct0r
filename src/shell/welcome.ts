@@ -1,8 +1,11 @@
 // The way in, before the app starts:
-//   0. a school trial (docs/ECOLES.md), when accounts are configured: a key from ?essai= is checked
-//      first (welcome card in the school's colours, no account needed, one offered); an ended or
-//      stopped trial blocks the app until a new key is given;
+//   0. a school key (docs/ECOLES.md), when accounts are configured: the licence set on this PC by its
+//      installer is checked first, with no card unless it fails (server out of reach, key refused,
+//      every seat taken); then a key from ?essai= (welcome card in the school's colours, no account
+//      needed, one offered); an ended, stopped or seatless key blocks the app until a new key is given;
 //   1. on the website only, once: « Télécharger V3CT0R ? » (no: a download icon stays in the status bar);
+//      on Windows, also V3CT0R Lycée with a school key (shell/lycee.ts), until V3CT0R has been chosen;
+//   V3CT0R Lycée (src/core/edition.ts) asks for a school key instead, and nothing else;
 //   2. an account is required (website and downloaded version), when accounts are configured:
 //      create one or sign in, or J'AI UN CODE for a school trial. A device that has signed in once
 //      keeps its session and opens without a connection. If the account server cannot be reached:
@@ -15,8 +18,10 @@ import { store } from '../core/settings';
 import { cloud } from '../core/cloud';
 import { school } from '../school/school';
 import { accountForm } from './account';
-import { codeForm, contactLine, schoolHead } from './school-ui';
-import { DL_KEY, downloadKind, welcomeSteps } from './welcome-steps';
+import { codeForm, contactLine, openGrid, schoolHead, statusLine } from './school-ui';
+import { endedWords, keyLabel } from '../school/trial';
+import { DL_KEY, EDITION_KEY, downloadChoices, downloadKind, welcomeSteps } from './welcome-steps';
+import { lyceePanel } from './lycee';
 import { installPanel } from './install';
 import { installedApp } from './pwa';
 import './welcome.css';
@@ -26,8 +31,10 @@ export { DL_KEY };
 export const isOnline = (): boolean => location.protocol === 'https:' || location.protocol === 'http:';
 
 export interface WelcomeHooks {
-  /** start the download of the offline version */
+  /** start the download of the offline version (V3CT0R for everyone) */
   download(): void;
+  /** start the download of V3CT0R Lycée (Windows) */
+  downloadLycee(): void;
   /** its size, when known (« 6,4 Mo ») */
   size(): Promise<string | null>;
 }
@@ -68,24 +75,26 @@ const btn = (label: string, ico: string, run: () => void, primary = false) => {
 };
 const head = (k: string, title: string) => [h('div', { class: 'wl-k', text: k }), h('h1', { class: 'wl-title', text: title })];
 
-/** the blocking card of an ended (or stopped) trial; `onKey` once a running trial is kept */
+/** the blocking card of an ended, stopped or seatless key; `onKey` once a running key is kept */
 function paintEnded(card: HTMLElement, onKey: () => void): void {
   const info = school.info;
-  if (!info) return onKey();
+  const state = school.state();
+  if (!info || !state || state === 'active') return onKey();
   card.classList.add('sc-card');
-  const stopped = info.state === 'disabled';
+  const w = endedWords(info, state);
   const form = codeForm(
-    (state) => {
-      if (state === 'active') onKey();
+    (s) => {
+      if (s === 'active') onKey();
       else paintEnded(card, onKey);
     },
     { label: 'NOUVELLE CLÉ' },
   );
   card.replaceChildren(
-    h('div', { class: 'wl-k', text: 'V3CT0R · ESSAI TERMINÉ' }),
-    schoolHead(info, stopped ? `L’essai de ${info.school} est arrêté` : `L’essai de ${info.school} est terminé`),
+    h('div', { class: 'wl-k', text: w.k }),
+    schoolHead(info, w.title, info.school),
+    ...(w.text ? [h('p', { text: w.text })] : []),
     contactLine(),
-    h('p', { class: 'wl-dim', text: 'Une nouvelle clé d’essai ou de licence rouvre V3CT0R ici, avec ta progression.' }),
+    h('p', { class: 'wl-dim', text: 'Ta progression reste sur cet appareil. Une nouvelle clé d’essai ou de licence rouvre V3CT0R ici, avec elle.' }),
     form,
   );
 }
@@ -99,6 +108,35 @@ export function trialEnded(): void {
     // every screen reads the new trial (locks, colour, badge)
     location.reload();
   });
+}
+
+/** V3CT0R Lycée: a v3ct0r-lycee:// link opened while the app runs; a key already running is replaced
+ *  only if the person says so (any website can open such a link) */
+export function linkKeyArrived(key: string): void {
+  if (school.info?.key === key && school.active) return;
+  const s = screen();
+  const go = async () => {
+    s.card.replaceChildren(...head('V3CT0R LYCÉE', 'Vérification de la clé…'));
+    const r = await school.redeem(key, 'link');
+    if (r.ok && r.state === 'active') {
+      s.close();
+      // every screen reads the new key (locks, colour, badge)
+      location.reload();
+      return;
+    }
+    s.card.replaceChildren(
+      ...head('V3CT0R LYCÉE', 'Clé du lien refusée'),
+      h('p', { text: r.ok ? 'Cette clé n’ouvre plus V3CT0R Lycée (terminée, arrêtée ou postes complets).' : r.message }),
+      h('div', { class: 'wl-btns' }, btn('FERMER', 'close', () => s.close())),
+    );
+  };
+  const running = school.active ? school.info : null;
+  if (!running) return void go();
+  s.card.replaceChildren(
+    ...head('V3CT0R LYCÉE', 'Nouvelle clé reçue'),
+    h('p', { text: `Un lien donne une autre clé à V3CT0R Lycée. Remplacer la clé de ${running.school}, qui tourne ici ?` }),
+    h('div', { class: 'wl-btns' }, btn('REMPLACER', 'play', () => void go(), true), btn('GARDER', 'close', () => s.close())),
+  );
 }
 
 export function welcome(hooks: WelcomeHooks): Promise<void> {
@@ -144,6 +182,9 @@ export function welcome(hooks: WelcomeHooks): Promise<void> {
         return;
       }
       const installer = downloadKind(navigator.userAgent) === 'installer';
+      const lycee = downloadChoices({ kind: downloadKind(navigator.userAgent, navigator.maxTouchPoints), school: school.enabled, chosen: store.get<string | null>(EDITION_KEY, null), urlKey: false }).includes('lycee');
+      const ly = lycee ? btn('TÉLÉCHARGER V3CT0R LYCÉE', 'download', () => showLycee()) : null;
+      if (ly) yes.lastElementChild!.textContent = 'OUI, TÉLÉCHARGER V3CT0R';
       const size = h('span', { class: 'wl-dim', text: installer ? 'installeur Windows' : 'zip' });
       if (!installer) void hooks.size().then((s) => s && (size.textContent = `zip · ${s}`));
       card.replaceChildren(
@@ -154,10 +195,34 @@ export function welcome(hooks: WelcomeHooks): Promise<void> {
             : 'La version téléchargée s’ouvre d’un double-clic sur index.html, sans internet ni installation : les 46 vues, l’ATLAS, les cours, les jeux et le mode histoire, avec les voix.',
         }),
         ...(installer ? [h('p', { class: 'wl-dim', text: 'Au premier lancement, Windows peut afficher « Windows a protégé votre ordinateur » (app non signée) : Informations complémentaires, puis Exécuter quand même.' })] : []),
+        ...(ly ? [h('p', { class: 'wl-dim', text: 'Ton établissement t’a donné une clé d’essai ou de licence ? V3CT0R Lycée, l’app des établissements, s’ouvre avec elle, tout débloqué.' })] : []),
         h('p', { class: 'wl-dim', text: 'Si tu continues en ligne, une icône de téléchargement reste en bas de l’écran pour plus tard.' }),
-        h('div', { class: 'wl-btns' }, yes, no, size),
+        h('div', { class: 'wl-btns' }, yes, ly, no, size),
       );
       setTimeout(() => yes.focus(), 30);
+    };
+
+    /** the website: V3CT0R Lycée with a school key; `back`: where RETOUR goes */
+    const showLycee = (key?: string, back: () => void = showDownload, onDone: () => void = () => {
+      store.set(DL_KEY, 'yes');
+      next();
+    }) => {
+      card.replaceChildren(
+        ...head('V3CT0R · LYCÉE', 'Télécharger V3CT0R Lycée'),
+        lyceePanel({ key, auto: !!key, download: hooks.downloadLycee, onDone }),
+        h('div', { class: 'wl-btns' }, btn('RETOUR', 'close', back)),
+      );
+    };
+
+    /** V3CT0R Lycée: no app without a school key (trial or licence) */
+    const showRequired = () => {
+      card.classList.remove('sc-card');
+      card.replaceChildren(
+        ...head('V3CT0R LYCÉE', 'Clé de ton établissement'),
+        h('p', { text: 'V3CT0R Lycée s’ouvre avec la clé d’essai ou de licence que ton établissement t’a donnée (20 caractères, avec ou sans tirets). Depuis le site de V3CT0R, le bouton OUVRIR V3CT0R LYCÉE la donne à l’app tout seul.' }),
+        codeForm((state) => (state === 'active' ? showTrial() : next()), { label: 'CLÉ D’ÉTABLISSEMENT', button: 'OUVRIR' }),
+        h('p', { class: 'wl-dim', text: 'Pas de clé ? V3CT0R, l’app pour tous, se télécharge sur le site de V3CT0R.' }),
+      );
     };
 
     const showAccount = (problem = '') => {
@@ -173,7 +238,7 @@ export function welcome(hooks: WelcomeHooks): Promise<void> {
         );
         return;
       }
-      const code = btn('J’AI UN CODE', 'target', () => showCode());
+      const code = school.enabled ? btn('J’AI UN CODE', 'target', () => showCode()) : null;
       card.replaceChildren(
         ...head(pos(), 'Crée ton compte'),
         h('p', { text: 'Un compte est nécessaire pour ouvrir V3CT0R. Il garde ta progression (vues validées, cours, leçons-jeux, mode histoire) et tes notes, et les retrouve sur tous tes appareils.' }),
@@ -182,16 +247,16 @@ export function welcome(hooks: WelcomeHooks): Promise<void> {
           (msg) => showAccount(msg),
         ),
         h('p', { class: 'wl-dim', text: 'Déjà un compte ? Mêmes champs, puis SE CONNECTER. Un appareil déjà connecté s’ouvre ensuite même sans internet.' }),
-        h('div', { class: 'sc-or' }, h('p', { class: 'wl-dim', text: 'Ton établissement t’a envoyé une clé d’essai ?' }), code),
+        ...(code ? [h('div', { class: 'sc-or' }, h('p', { class: 'wl-dim', text: 'Ton établissement t’a envoyé une clé d’essai ou de licence ?' }), code)] : []),
       );
     };
 
     /** J'AI UN CODE (account card), or a key refused */
     const showCode = (value = '', problem = '') => {
       card.replaceChildren(
-        ...head('V3CT0R · ESSAI', problem ? 'Clé refusée' : 'Clé d’essai'),
-        h('p', { text: problem || 'Colle la clé reçue de ton établissement (20 caractères, avec ou sans tirets).' }),
-        codeForm((state) => (state === 'active' ? showTrial() : next()), { label: 'CLÉ D’ESSAI', value }),
+        ...head('V3CT0R · ÉCOLE', problem ? 'Clé refusée' : 'Clé d’établissement'),
+        h('p', { text: problem || 'Colle la clé d’essai ou de licence reçue de ton établissement (20 caractères, avec ou sans tirets).' }),
+        codeForm((state) => (state === 'active' ? showTrial() : next()), { label: 'CLÉ', value }),
         h('div', { class: 'wl-btns' }, btn('CONTINUER SANS CLÉ', 'close', () => {
           school.dismissKey();
           next();
@@ -203,36 +268,70 @@ export function welcome(hooks: WelcomeHooks): Promise<void> {
     const checkKey = async () => {
       const key = school.urlKey ?? '';
       card.replaceChildren(...head('V3CT0R · ESSAI', 'Vérification de la clé…'));
-      const r = await school.redeem(key);
+      const r = await school.redeem(key, school.urlSource);
       if (!r.ok) return showCode(key, r.offline ? `${r.message}. Vérifie la connexion, puis valide à nouveau.` : r.message);
       if (r.state === 'active') showTrial();
       else next();
     };
 
-    /** the school's welcome card */
+    /** the school's welcome card (a trial, or a licence typed here) */
     const showTrial = () => {
       const info = school.info;
       if (!info) return next();
       card.classList.add('sc-card');
-      const start = btn('COMMENCER L’ESSAI', 'play', () => done(), true);
+      const l = keyLabel(info, Date.now());
+      const lic = info.kind === 'licence';
+      const start = btn(lic ? 'OUVRIR V3CT0R' : 'COMMENCER L’ESSAI', 'play', () => done(), true);
       const acc = btn('CRÉER UN COMPTE (FACULTATIF)', 'user', () => {
         card.replaceChildren(
-          h('div', { class: 'wl-k', text: 'V3CT0R · ESSAI' }),
-          schoolHead(info, 'Compte facultatif'),
-          h('p', { text: 'Le compte garde ta progression et tes notes, et les retrouve sur tes autres appareils. L’essai reste ouvert sans lui.' }),
+          h('div', { class: 'wl-k', text: `V3CT0R · ${l.badge}` }),
+          schoolHead(info, 'Compte facultatif', info.school),
+          h('p', { text: `Le compte garde ta progression et tes notes, et les retrouve sur tes autres appareils. ${lic ? 'La licence' : 'L’essai'} reste ouvert${lic ? 'e' : ''} sans lui.` }),
           accountForm(() => done()),
           h('div', { class: 'wl-btns' }, btn('RETOUR', 'close', () => showTrial())),
         );
       });
+      // the website on Windows: the same key opens V3CT0R Lycée, the app of schools
+      const ly =
+        !school.required && downloadKind(navigator.userAgent, navigator.maxTouchPoints) === 'installer'
+          ? btn('TÉLÉCHARGER V3CT0R LYCÉE', 'download', () => showLycee(info.key, showTrial, () => done()))
+          : null;
       card.replaceChildren(
-        h('div', { class: 'wl-k', text: 'V3CT0R · ESSAI' }),
-        schoolHead(info),
-        h('p', { text: `Tu découvres V3CT0R aux couleurs de ${info.school}, ${school.until()} : les 46 vues, l’ATLAS, les cours, les leçons-jeux et le mode histoire, avec toutes les vues et tous les cours débloqués.` }),
-        h('p', { class: 'wl-dim', text: 'Aucun compte n’est nécessaire pendant l’essai. Un compte, facultatif, garde ta progression sur tous tes appareils.' }),
-        h('p', { class: 'wl-dim', text: 'Pendant l’essai, V3CT0R compte les ouvertures et le temps passé avec cette clé, rien d’autre.' }),
-        h('div', { class: 'wl-btns' }, start, acc),
+        h('div', { class: 'wl-k', text: `V3CT0R · ${l.badge}` }),
+        schoolHead(info, info.school, statusLine(info)),
+        h('p', { text: lic ? `V3CT0R aux couleurs de ${info.school}, avec tout débloqué :` : `Tu découvres V3CT0R aux couleurs de ${info.school}, avec tout débloqué :` }),
+        openGrid(),
+        h('p', { class: 'wl-dim', text: `Aucun compte n’est nécessaire ${lic ? 'avec la licence' : 'pendant l’essai'}. Un compte, facultatif, garde ta progression sur tous tes appareils.` }),
+        h('p', { class: 'wl-dim', text: `${lic ? 'Avec la licence' : 'Pendant l’essai'}, V3CT0R compte les ouvertures et le temps passé avec cette clé, rien d’autre.` }),
+        h('div', { class: 'wl-btns' }, start, ly, acc),
       );
       setTimeout(() => start.focus(), 30);
+    };
+
+    /** the licence of this PC (installation kit): checked with no card, one only if it fails */
+    const checkMachine = async () => {
+      card.classList.add('sc-card');
+      card.replaceChildren(...head('V3CT0R · LICENCE', 'Licence de l’établissement…'));
+      const r = await school.checkMachine();
+      if (r.ok) return next();
+      const retry = btn('RÉESSAYER', 'reset', () => void checkMachine(), true);
+      const without = btn('CONTINUER SANS LA LICENCE', 'close', () => {
+        school.dismissKey();
+        card.classList.remove('sc-card');
+        next();
+      });
+      card.replaceChildren(
+        ...head('V3CT0R · LICENCE', r.offline ? 'Serveur de licence injoignable' : 'Licence refusée'),
+        h('p', { text: r.offline ? 'Ce poste a une licence de l’établissement, mais il n’a pas pu la vérifier.' : r.message }),
+        h('p', {
+          class: 'wl-dim',
+          text: r.offline
+            ? 'Une seule vérification suffit : ensuite, le poste s’ouvre aussi sans internet. Si le réseau de l’établissement filtre les sites, le référent numérique doit autoriser le serveur de V3CT0R (voir le LISEZ-MOI du kit d’installation).'
+            : 'Signale-le au référent numérique de l’établissement : la clé du kit d’installation n’est plus reconnue.',
+        }),
+        h('div', { class: 'wl-btns' }, retry, without),
+      );
+      setTimeout(() => retry.focus(), 30);
     };
 
     const check = async () => {
@@ -247,6 +346,8 @@ export function welcome(hooks: WelcomeHooks): Promise<void> {
       if (s === 'download') showDownload();
       else if (s === 'account') void check();
       else if (s === 'trial') void checkKey();
+      else if (s === 'machine') void checkMachine();
+      else if (s === 'key-required') showRequired();
       else paintEnded(card, () => (school.active ? showTrial() : next()));
     };
     next();

@@ -1,17 +1,63 @@
-// V3CT0R desktop app (Windows): the same single-file build as the website (dist/index.html and
-// the course voices in dist/courses/), opened in its own window from the disk. No server, works
-// offline; only the account (Supabase) uses the network. Packaged by electron-builder
-// (electron-builder.yml) into an installer that puts V3CT0R on the desktop and in the Start menu.
+// V3CT0R desktop apps (Windows): the same single-file build as the website (dist/index.html and the
+// course voices in dist/courses/), opened in its own window from the disk. No server, works offline;
+// only accounts and school keys (Supabase) use the network. Two apps from this file:
+//   - V3CT0R (electron-builder.yml, V3CT0R-Setup.exe): for everyone, nothing of schools;
+//   - V3CT0R Lycée (electron-builder.lycee.yml, edition « lycee » in its package.json): V3CT0R-Lycee-Setup.exe
+//     and V3CT0R-Lycee.msi (installation kit, docs/DEPLOIEMENT.md). It reads the licence a school's kit
+//     sets on the PC (%ProgramData%\V3CT0R\licence.json) with a pseudonymous id of the PC for the seats,
+//     and the key of a v3ct0r-lycee://cle/<KEY> link from the website (link.cjs), and hands them to the
+//     page through preload.cjs (window.v3ct0rDesktop).
 const { app, BrowserWindow, Menu, shell, session } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
+const crypto = require('node:crypto');
+const { execFileSync } = require('node:child_process');
+const { SCHEME, keyFromArgs } = require('./link.cjs');
+
+/** the edition, set by electron-builder.lycee.yml (extraMetadata); V3CT0R_EDITION for tests only */
+const EDITION = (process.env.V3CT0R_EDITION || require('../package.json').v3ct0rEdition) === 'lycee' ? 'lycee' : 'standard';
+const LYCEE = EDITION === 'lycee';
 
 const INDEX = path.join(__dirname, '..', 'dist', 'index.html');
 const ICON = path.join(__dirname, '..', 'build', 'icon.ico');
 const external = (url) => /^https?:\/\//i.test(url);
 
-// one window: a second launch brings the first one back
+/** the licence key of this PC (null: none). V3CT0R_LICENCE_FILE points elsewhere for tests. */
+function machineKey() {
+  const file = process.env.V3CT0R_LICENCE_FILE || path.join(process.env.ProgramData || 'C:\\ProgramData', 'V3CT0R', 'licence.json');
+  try {
+    const v = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+    return typeof v.key === 'string' && v.key.length <= 64 ? v.key : null;
+  } catch {
+    return null;
+  }
+}
+
+/** one id per PC, whatever the Windows account: sha256 of the MachineGuid with an app prefix (the
+ *  MachineGuid itself never leaves the PC). null outside Windows or when the registry cannot be read. */
+function machineDevice() {
+  if (process.platform !== 'win32') return null;
+  try {
+    const out = execFileSync('reg', ['query', 'HKLM\\SOFTWARE\\Microsoft\\Cryptography', '/v', 'MachineGuid'], { encoding: 'utf8', windowsHide: true, timeout: 3000 });
+    const m = /MachineGuid\s+REG_SZ\s+([0-9a-fA-F-]{36})/.exec(out);
+    return m ? crypto.createHash('sha256').update(`v3ct0r:${m[1].toLowerCase()}`).digest('hex') : null;
+  } catch {
+    return null;
+  }
+}
+
+/** what preload.cjs gives the page, read once per launch (V3CT0R for everyone: its edition only) */
+const DESKTOP = encodeURIComponent(
+  JSON.stringify(LYCEE ? { edition: EDITION, machineKey: machineKey(), device: machineDevice(), linkKey: keyFromArgs(process.argv) } : { edition: EDITION }),
+);
+
+// one window: a second launch brings the first one back (with the key of its link, for V3CT0R Lycée)
 if (!app.requestSingleInstanceLock()) app.quit();
+
+// V3CT0R Lycée answers v3ct0r-lycee:// links (registered for this Windows account at each launch;
+// the installer opens the app once at the end, so the link works right after the installation).
+// Installed app only: a development or test run never writes the link into the registry.
+if (LYCEE && app.isPackaged) app.setAsDefaultProtocolClient(SCHEME);
 
 let win = null;
 
@@ -22,11 +68,18 @@ function createWindow() {
     minWidth: 960,
     minHeight: 600,
     backgroundColor: '#000000',
-    title: 'V3CT0R',
+    title: LYCEE ? 'V3CT0R Lycée' : 'V3CT0R',
     icon: ICON,
     show: false,
     autoHideMenuBar: true,
-    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, spellcheck: false },
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+      spellcheck: false,
+      preload: path.join(__dirname, 'preload.cjs'),
+      additionalArguments: [`--v3ct0r-desktop=${DESKTOP}`],
+    },
   });
   win.once('ready-to-show', () => win.show());
   // links (videos, GitHub, sources) open in the usual browser; the app never leaves its page
@@ -44,10 +97,12 @@ function createWindow() {
   void win.loadFile(INDEX);
 }
 
-app.on('second-instance', () => {
+app.on('second-instance', (_e, argv) => {
   if (!win) return;
   if (win.isMinimized()) win.restore();
   win.focus();
+  const key = LYCEE ? keyFromArgs(argv) : null;
+  if (key) win.webContents.send('v3ct0r:link-key', key);
 });
 
 /** a free name in the folder: « v3ct0r.png », then « v3ct0r (1).png »… */

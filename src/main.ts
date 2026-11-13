@@ -11,9 +11,10 @@ const COURSE_META = (id: string) => COURSES.get(id)?.meta;
 import { Soundtrack, soundCues, toWav } from './learn/soundtrack';
 import { music } from './core/music';
 import { cloud, cloudConfigured } from './core/cloud';
-import { trialEnded, welcome } from './shell/welcome';
+import { linkKeyArrived, trialEnded, welcome } from './shell/welcome';
 import { school } from './school/school';
-import { paintBadge } from './shell/school-ui';
+import { paintBadge, warnLastDays } from './shell/school-ui';
+import { toast } from './shell/overlays';
 import { setupPwa } from './shell/pwa';
 // last: the phone layout overrides the wider-window rules of every stylesheet imported above
 import './hud/phone.css';
@@ -81,7 +82,10 @@ async function main(): Promise<void> {
   await boot({ gpu: probe.gpu, maxTex: probe.maxTex, modules: MODULES.length, views, failure });
   if (!app) return;
   // the way in: school trial key, download offer (website), then the required account
-  await welcome({ download: () => app!.downloadApp(), size: () => app!.downloadSize() });
+  // V3CT0R Lycée: a v3ct0r-lycee:// link opened while the app runs (from the website), the key card of the
+  // way in included: listened to before it
+  school.onLinkKey((key) => linkKeyArrived(key));
+  await welcome({ download: () => app!.downloadApp(), downloadLycee: () => app!.downloadApp('lycee'), size: () => app!.downloadSize() });
   // school trial (docs/ECOLES.md): every lock open without saving it, the school's start route
   // when the address has none, its badge; an ended or stopped trial blocks the app
   app.progress.force(() => school.active);
@@ -103,6 +107,8 @@ async function main(): Promise<void> {
   });
   app.start();
   school.start();
+  // the last 7 days of a trial or a licence: one notice a day, after the start-up messages
+  setTimeout(() => warnLastDays(toast), 2500);
   window.__vm = {
     views: () => app!.allViews().map(([m, v]) => `${m.id}/${v.id}`),
     go: (id) => app!.goId(id),

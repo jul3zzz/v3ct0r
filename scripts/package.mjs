@@ -16,7 +16,7 @@ if (!existsSync(dist)) {
   process.exit(1);
 }
 const out = join(root, '..', 'V3CT0R.zip');
-const SKIP = new Set(['node_modules', 'dist', 'release', '.git', '.vite', 'voice-samples', '.temp', '.branches', 'dist-smoke']);
+const SKIP = new Set(['node_modules', 'dist', 'release', '.git', '.vite', 'voice-samples', '.temp', '.branches', 'dist-smoke', 'dist-lycee', 'dist-smoke-lycee']);
 const files = {};
 const add = (abs, rel) => (files[rel] = [readFileSync(abs), { level: 9 }]);
 

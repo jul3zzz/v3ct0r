@@ -24,7 +24,8 @@ Modèle validé en phase 0, le 2026-11-11, pour toutes les phases. Le cahier des
 | Table | Colonnes | Phase |
 |---|---|---|
 | `schools` | id, slug, name, logo (data URL SVG ou PNG), accent `#rrggbb`, start_route, status (`trial`/`pilot`/`licensed`/`disabled`), seats, created_at ; theme jsonb en phase 5 | 1 ✓ |
-| `trial_keys` | id, school_id, key_hash, label (note de l'admin), ends_at, disabled, created_at, first_opened_at, last_seen_at, visits, seconds | 1 ✓ |
+| `trial_keys` | id, school_id, key_hash, label (note de l'admin), ends_at, disabled, created_at, first_opened_at, last_seen_at, visits, seconds ; en 1b, kind (`trial`/`licence`) et seats (postes d'une licence, 0 = sans plafond). Le nom de la phase 1 est gardé : la table tient toutes les clés | 1 ✓, 1b ✓ |
+| `devices` | key_id (→ trial_keys, cascade), device (32 octets : empreinte du poste), first_seen, last_seen ; une ligne par poste qui tient une place d'une licence | 1b ✓ |
 | `attempts` | bucket, minute, failures (gardé 1 h) | 1 ✓ |
 | `codes` | school_id, role (`teacher`/`principal`), code_hash, created_at, revoked_at | 2 |
 | `classes` | id, school_id, name, code_hash, archived | 2 |
@@ -45,6 +46,29 @@ Modèle validé en phase 0, le 2026-11-11, pour toutes les phases. Le cahier des
 - `trial_ping(p_key, p_seconds)` ajoute au plus 900 s, et jamais plus que le temps écoulé depuis le dernier contact plus 60 s. Elle renvoie l'état.
 
 **Réservées à `service_role` :** `admin_school_upsert`, `admin_school_status`, `admin_trial_create` (qui reçoit l'empreinte, jamais la clé), `admin_trial_extend`, `admin_school_extend`, `admin_trial_disable`, `admin_trial_report`.
+
+### Phase 1b (fait : `supabase/migrations/20261112180000_school_licence.sql`)
+
+**Appels anonymes :**
+- `key_open(p_key, p_device)` : comme `trial_open`, avec en plus kind, seats, seats_used et l'état **`full`**.
+  - Une licence avec un plafond réserve une place au poste (`school.take_seat`). La ligne de la clé est verrouillée : deux postes ne prennent jamais la dernière place ensemble.
+  - Un poste déjà vu garde sa place. Sans empreinte valide (64 hexadécimaux minuscules), pas de place.
+- `key_ping(p_key, p_seconds, p_device)` : comme `trial_ping`. Elle vérifie aussi la place, pour qu'une remise à zéro des postes ou une rotation arrête une session en cours.
+- `trial_open` / `trial_ping` deviennent des relais (sans poste), pour les builds de la phase 1 : une licence avec plafond y répond `full`.
+
+**Réservées à `service_role` :**
+- `admin_key_create(p_slug, p_key_hash, p_kind, p_ends_at, p_seats, p_label)` :
+  - essai : sans poste, 366 jours au plus ;
+  - licence : de 1 à 10000 postes, 3 ans au plus.
+- `admin_key_rotate(p_key_id, p_key_hash)` : nouvelle clé (même école, type, postes et fin) ; l'ancienne est désactivée et ses postes libérés.
+- `admin_devices(p_key_id)` (8 premiers caractères de chaque empreinte), `admin_devices_reset(p_key_id)`.
+- `admin_report()` : le rapport, avec le type et les postes.
+
+### Deux apps (fait : `supabase/migrations/20261113090000_school_editions.sql`)
+
+- `key_check(p_key)` (anonyme) : une ligne, state (`active`, `expired`, `disabled`, `full`, `unknown`, `busy`), kind, school_name, ends_at.
+  - Ni visite comptée, ni place prise : le site s'en sert avant de télécharger V3CT0R Lycée.
+  - Même plafond d'échecs que les autres portes.
 
 ### Phase 2 (comptes)
 
