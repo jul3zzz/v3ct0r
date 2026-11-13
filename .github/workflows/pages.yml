@@ -1,6 +1,7 @@
 # Site web : construit l'application et la publie sur GitHub Pages à chaque push sur main.
 # Comptes : variables du dépôt VITE_SUPABASE_URL et VITE_SUPABASE_ANON_KEY
-# (Settings → Secrets and variables → Actions → Variables), facultatives.
+# (Settings → Secrets and variables → Actions → Variables), facultatives ; VITE_CONTACT_EMAIL :
+# l'adresse affichée à la fin d'un essai d'école (docs/ADMIN.md).
 name: Site web (GitHub Pages)
 
 on:
@@ -36,6 +37,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+          VITE_CONTACT_EMAIL: ${{ vars.VITE_CONTACT_EMAIL }}
       - run: cp ../V3CT0R.zip dist/V3CT0R.zip
       - uses: actions/upload-pages-artifact@v3
         with:

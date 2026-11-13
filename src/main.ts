@@ -11,7 +11,10 @@ const COURSE_META = (id: string) => COURSES.get(id)?.meta;
 import { Soundtrack, soundCues, toWav } from './learn/soundtrack';
 import { music } from './core/music';
 import { cloud, cloudConfigured } from './core/cloud';
-import { welcome } from './shell/welcome';
+import { linkKeyArrived, trialEnded, welcome } from './shell/welcome';
+import { school } from './school/school';
+import { paintBadge, warnLastDays } from './shell/school-ui';
+import { toast } from './shell/overlays';
 import { setupPwa } from './shell/pwa';
 // last: the phone layout overrides the wider-window rules of every stylesheet imported above
 import './hud/phone.css';
@@ -35,7 +38,7 @@ interface LearnState {
 
 declare global {
   interface Window {
-    __vm?: { views: () => string[]; go: (id: string) => boolean; ready: boolean; tours: () => string[]; tour: (id: string) => void; tourNext: () => void; tourState: () => string; unlockAll: () => void; progress: () => string; answers: () => (number | string)[]; missingLabels: () => string[]; learn: (id?: string, t?: number) => void; learnSeek: (t: number) => void; learnState: () => LearnState; learnSheet: () => void; learnColle: () => void; learnGraph: (cmd?: { filiere?: string; search?: string; pick?: string; open?: string }) => unknown; sfxWav: (id: string, mp3s?: Record<string, string>) => Promise<string>; atlas: (uni?: string) => void; atlasState: () => unknown; atlasApproach: (id: string) => boolean; atlasEnter: () => void; gameState: () => unknown; musicState: () => unknown; calc: (text?: string) => unknown; story: (chapter?: string) => unknown; account: () => unknown; notes: (text?: string) => unknown };
+    __vm?: { views: () => string[]; go: (id: string) => boolean; ready: boolean; tours: () => string[]; tour: (id: string) => void; tourNext: () => void; tourState: () => string; unlockAll: () => void; progress: () => string; answers: () => (number | string)[]; missingLabels: () => string[]; learn: (id?: string, t?: number) => void; learnSeek: (t: number) => void; learnState: () => LearnState; learnSheet: () => void; learnColle: () => void; learnGraph: (cmd?: { filiere?: string; search?: string; pick?: string; open?: string }) => unknown; sfxWav: (id: string, mp3s?: Record<string, string>) => Promise<string>; atlas: (uni?: string) => void; atlasState: () => unknown; atlasApproach: (id: string) => boolean; atlasEnter: () => void; gameState: () => unknown; musicState: () => unknown; calc: (text?: string) => unknown; story: (chapter?: string) => unknown; account: () => unknown; school: () => unknown; notes: (text?: string) => unknown };
   }
 }
 
@@ -78,9 +81,34 @@ async function main(): Promise<void> {
   await Promise.race([document.fonts?.ready, new Promise((r) => setTimeout(r, 400))]);
   await boot({ gpu: probe.gpu, maxTex: probe.maxTex, modules: MODULES.length, views, failure });
   if (!app) return;
-  // the way in: download offer (website), then the required account
-  await welcome({ download: () => app!.downloadApp(), size: () => app!.downloadSize() });
+  // the way in: school trial key, download offer (website), then the required account
+  // V3CT0R Lycée: a v3ct0r-lycee:// link opened while the app runs (from the website), the key card of the
+  // way in included: listened to before it
+  school.onLinkKey((key) => linkKeyArrived(key));
+  await welcome({ download: () => app!.downloadApp(), downloadLycee: () => app!.downloadApp('lycee'), size: () => app!.downloadSize() });
+  // school trial (docs/ECOLES.md): every lock open without saving it, the school's start route
+  // when the address has none, its badge; an ended or stopped trial blocks the app
+  app.progress.force(() => school.active);
+  const route = location.hash ? null : school.startRoute({ views: app.allViews().map(([m, v]) => `${m.id}/${v.id}`), courses: [...COURSES.keys()] });
+  if (route) {
+    try {
+      history.replaceState(null, '', route);
+    } catch {
+      /* file:// in some browsers */
+    }
+  }
+  const badge = document.querySelector<HTMLElement>('.sc-badge');
+  if (badge) paintBadge(badge);
+  school.onChange(() => {
+    if (badge) paintBadge(badge);
+    app!.progress.force(() => school.active);
+    const s = school.state();
+    if (s && s !== 'active') trialEnded();
+  });
   app.start();
+  school.start();
+  // the last 7 days of a trial or a licence: one notice a day, after the start-up messages
+  setTimeout(() => warnLastDays(toast), 2500);
   window.__vm = {
     views: () => app!.allViews().map(([m, v]) => `${m.id}/${v.id}`),
     go: (id) => app!.goId(id),
@@ -125,8 +153,10 @@ async function main(): Promise<void> {
     // account: configured in this build, signed in, the COMPTE dialog opened
     account: () => {
       app!.openAccount();
-      return { enabled: cloudConfigured, email: cloud.email, inputs: document.querySelectorAll('.acc input').length };
+      return { enabled: cloudConfigured, email: cloud.email, inputs: document.querySelectorAll('.acc input:not(.sc-input)').length, code: !!document.querySelector('.acc .sc-input') };
     },
+    // school trial: enabled in this build, step of the way in, state, school, accent in use
+    school: () => school.debug(),
     // calculator: open it, optionally evaluate a line, report its state
     calc: (text?: string) => {
       if (!app!.calc.isOpen) app!.calc.open();

@@ -33,6 +33,9 @@ type Listener = () => void;
 export class Progress {
   private s: Saved;
   private listeners = new Set<Listener>();
+  /** unlocked from outside without being saved (a school trial: src/school/school.ts). Never
+   *  setFree: `free` is synced with the account, and merging ORs it, so it would stay forever. */
+  private forced: () => boolean = () => false;
 
   constructor(private modules: ModuleDef[]) {
     this.s = store.get<Saved>(KEY, { free: false, views: {} });
@@ -56,6 +59,16 @@ export class Progress {
   setFree(v: boolean): void {
     this.s.free = v;
     this.save();
+  }
+
+  force(fn: () => boolean): void {
+    this.forced = fn;
+    this.listeners.forEach((l) => l());
+  }
+
+  /** every lock open: free mode (saved) or forced (school trial, not saved) */
+  get open(): boolean {
+    return this.s.free || this.forced();
   }
 
   reset(): void {
@@ -106,7 +119,7 @@ export class Progress {
   }
 
   unlocked(modId: string, vizId: string): boolean {
-    if (this.s.free) return true;
+    if (this.open) return true;
     const pre = this.prerequisite(modId, vizId);
     return !pre || this.validated(`${pre.modId}/${pre.vizId}`);
   }
@@ -127,6 +140,6 @@ export class Progress {
   }
 
   cinematicUnlocked(): boolean {
-    return this.s.free || this.validatedCount >= CINE_NEEDED;
+    return this.open || this.validatedCount >= CINE_NEEDED;
   }
 }

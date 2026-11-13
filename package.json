@@ -9,6 +9,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:smoke": "vite build --mode smoke --outDir dist-smoke",
+    "build:lycee": "vite build --mode lycee --outDir dist-lycee",
+    "build:smoke:lycee": "vite build --mode smoke-lycee --outDir dist-smoke-lycee",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.node.json",
     "test": "vitest run",
@@ -17,14 +20,18 @@
     "digits": "node scripts/gen-digits.mjs",
     "fonts": "node scripts/fetch-fonts.mjs",
     "package": "vite build && node scripts/package.mjs",
-    "check": "npm run typecheck && npm test && npm run build && npm run smoke && npm run pwa",
+    "check": "npm run typecheck && npm test && npm run build && npm run build:smoke && npm run build:smoke:lycee && npm run smoke && npm run pwa",
     "voice": "node tools/generate-voice.ts",
     "voice:list": "node tools/list-voices.ts",
     "voice:sample": "node tools/voice-sample.ts",
     "videos:check": "node tools/check-videos.ts",
     "icons": "node scripts/icons.mjs",
+    "school": "node tools/school.ts",
+    "supabase": "npx -y supabase@2.122.0",
+    "db:test": "npm run supabase -- start -x studio,realtime,storage-api,imgproxy,edge-runtime,logflare,vector,supavisor,mailpit && npm run supabase -- db reset && npm run supabase -- test db",
     "app": "vite build && electron .",
-    "app:win": "vite build && electron-builder --win --publish never"
+    "app:win": "vite build && electron-builder --win --publish never && npm run app:win:lycee",
+    "app:win:lycee": "vite build --mode lycee --outDir dist-lycee && electron-builder --win --publish never -c electron-builder.lycee.yml"
   },
   "dependencies": {
     "katex": "^0.19.1",

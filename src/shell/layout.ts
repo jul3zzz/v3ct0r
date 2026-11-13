@@ -28,6 +28,8 @@ export interface Layout {
   btnMusic: HTMLButtonElement;
   btnCalc: HTMLButtonElement;
   btnAccount: HTMLButtonElement;
+  /** school trial badge (hidden without a trial) */
+  schoolBadge: HTMLElement;
   btnNotes: HTMLButtonElement;
   btnDownload: HTMLButtonElement;
   sbDownload: HTMLButtonElement;
@@ -88,6 +90,8 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
   const wm = animatedWordmark('V3CT0R');
   const brand = h('div', { class: 'brand', title: 'V3CT0R' }, logoSymbol(20), wm.el);
   brand.addEventListener('pointerenter', () => wm.burst());
+  // school trial: logo and name of the school (src/shell/school-ui.ts paintBadge), hidden otherwise
+  const schoolBadge = h('div', { class: 'sc-badge', style: 'display:none' });
   const tabExplore = h('button', { type: 'button', role: 'tab', class: 'tab', 'aria-selected': 'true', title: 'Explorateur : les 46 visualisations' }, h('span', { text: 'EXPLORER' }));
   const tabLearn = h('button', { type: 'button', role: 'tab', class: 'tab', 'aria-selected': 'false', title: 'Cours de la prépa au doctorat' }, h('span', { text: 'LEARN' }), h('span', { class: 'kanji', text: '学' }));
   const tabAtlas = h('button', { type: 'button', role: 'tab', class: 'tab', 'aria-selected': 'false', title: 'ATLAS : tout le logiciel en vaisseau spatial (ZQSD)' }, h('span', { text: 'ATLAS' }), h('span', { class: 'kanji', text: '空間' }));
@@ -121,6 +125,7 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
     'header',
     { class: 'topbar' },
     brand,
+    schoolBadge,
     btnRail,
     tabs,
     crumbs,
@@ -266,6 +271,7 @@ export function buildLayout(host: HTMLElement, modules: ModuleDef[]): Layout {
     btnCalc,
     btnNotes,
     btnAccount,
+    schoolBadge,
     btnDownload,
     btnScan,
     btnHelp,

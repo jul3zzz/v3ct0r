@@ -36,7 +36,9 @@ import { NotesPanel } from '../shell/notes';
 import { cloud } from './cloud';
 import { accountDialog, reloadAfterSync } from '../shell/account';
 import { installDialog } from '../shell/install';
-import { DL_KEY, INSTALLER_URL, downloadKind, type DownloadKind } from '../shell/welcome-steps';
+import { DL_KEY, EDITION_KEY, INSTALLER_URL, LYCEE_URL, downloadChoices, downloadKind, type DownloadChoice } from '../shell/welcome-steps';
+import { school } from '../school/school';
+import { lyceePanel } from '../shell/lycee';
 
 /** pseudo-module hosting LEARN's own views (course tree, empty stage) */
 const LEARN_MOD = { id: 'learn', code: 'L', title: 'LEARN', kanji: '学', tagline: 'Cours', vizs: [], challenges: [] } as unknown as ModuleDef;
@@ -250,7 +252,8 @@ export class App {
       openExplorer: (view) => this.openExplorer(view),
       fullscreen: () => this.fullscreen(),
       setCrumbs: (parts) => this.L.crumbs.replaceChildren(...parts.flatMap((p, i) => (i ? [h('span', { text: '▸' }), h('span', { class: i === parts.length - 1 ? 'hi' : '', text: p })] : [h('span', { text: p })]))),
-      free: () => this.progress.free,
+      // free mode (saved) or a school trial (not saved): every course is open
+      free: () => this.progress.open,
       openDialog: (d) => this.openDialog(d),
       setHash: (hash) => {
         try {
@@ -1167,7 +1170,7 @@ export class App {
   }
 
   private tourLock(t: Tour): string | null {
-    if (t.kind === 'tuto' || this.progress.free) return null;
+    if (t.kind === 'tuto' || this.progress.open) return null;
     for (const s of t.steps) {
       if (!s.view) continue;
       const [mid, vid] = s.view.split('/');
@@ -1291,19 +1294,57 @@ export class App {
       .catch(() => undefined);
   }
 
-  /** Windows: the installer (V3CT0R on the desktop and in the Start menu); elsewhere, or on request, the zip */
-  downloadApp(kind: DownloadKind = downloadKind(navigator.userAgent, navigator.maxTouchPoints)): void {
+  /** what TÉLÉCHARGER offers here (welcome-steps.ts): V3CT0R Lycée too on Windows, until V3CT0R is chosen */
+  private downloadChoices(): DownloadChoice[] {
+    return downloadChoices({ kind: downloadKind(navigator.userAgent, navigator.maxTouchPoints), school: school.enabled, chosen: store.get<string | null>(EDITION_KEY, null), urlKey: !!school.urlKey || school.active });
+  }
+
+  /** TÉLÉCHARGER: straight to the download, or the choice between V3CT0R and V3CT0R Lycée */
+  downloadMenu(): void {
+    if (!this.downloadChoices().includes('lycee')) return this.downloadApp();
+    const d = new Dialog('TÉLÉCHARGER', { center: true, width: 560 });
+    const pick = (label: string, text: string, run: () => void, primary = false) => {
+      const b = h('button', { type: 'button', class: primary ? 'btn on' : 'btn' }, icon('download'), h('span', { text: label }));
+      b.addEventListener('click', run);
+      return h('div', { class: 'dl-pick' }, b, h('p', { class: 'acc-note', text }));
+    };
+    d.body.append(
+      pick('V3CT0R', 'L’app pour tous, sur ton bureau et hors ligne (V3CT0R-Setup.exe).', () => {
+        d.close();
+        this.downloadApp('installer');
+      }, true),
+      pick('V3CT0R LYCÉE', 'L’app des établissements : elle s’ouvre avec la clé d’essai ou de licence de ton établissement.', () => {
+        d.body.replaceChildren(lyceePanel({ download: () => this.downloadApp('lycee') }));
+      }),
+    );
+    d.foot.append(h('span', { text: 'V3CT0R CHOISI : V3CT0R LYCÉE N’EST PLUS PROPOSÉ SUR CE NAVIGATEUR (SAUF AVEC UNE CLÉ)' }));
+    this.openDialog(d);
+  }
+
+  /** V3CT0R Lycée with a school key (Ctrl+K) */
+  private openLyceeDownload(): void {
+    const d = new Dialog('V3CT0R LYCÉE', { center: true, width: 560 });
+    d.body.append(lyceePanel({ download: () => this.downloadApp('lycee') }));
+    this.openDialog(d);
+  }
+
+  /** Windows: the installer (V3CT0R on the desktop and in the Start menu), or V3CT0R Lycée (a school key
+   *  checked before, shell/lycee.ts); elsewhere, or on request, the zip. V3CT0R chosen: V3CT0R Lycée is no
+   *  longer offered on this browser (EDITION_KEY), except with a school key */
+  downloadApp(kind: DownloadChoice = downloadKind(navigator.userAgent, navigator.maxTouchPoints)): void {
     if (kind === 'mobile') {
       this.openDialog(installDialog());
       return;
     }
+    if (kind === 'installer') store.set(EDITION_KEY, 'standard');
     const a = document.createElement('a');
-    a.href = kind === 'installer' ? INSTALLER_URL : this.downloadUrl();
-    a.download = kind === 'installer' ? 'V3CT0R-Setup.exe' : 'V3CT0R.zip';
+    a.href = kind === 'installer' ? INSTALLER_URL : kind === 'lycee' ? LYCEE_URL : this.downloadUrl();
+    a.download = kind === 'installer' ? 'V3CT0R-Setup.exe' : kind === 'lycee' ? 'V3CT0R-Lycee-Setup.exe' : 'V3CT0R.zip';
     document.body.append(a);
     a.click();
     a.remove();
     if (kind === 'installer') toast('TÉLÉCHARGEMENT DE V3CT0R-SETUP.EXE — OUVRE-LE : V3CT0R S’INSTALLE ET APPARAÎT SUR TON BUREAU. SI WINDOWS AVERTIT : INFORMATIONS COMPLÉMENTAIRES → EXÉCUTER QUAND MÊME', 7000);
+    else if (kind === 'lycee') toast('TÉLÉCHARGEMENT DE V3CT0R-LYCEE-SETUP.EXE — OUVRE-LE, PUIS OUVRIR V3CT0R LYCÉE', 5000);
     else toast('TÉLÉCHARGEMENT DE V3CT0R.ZIP — DÉZIPPER PUIS OUVRIR INDEX.HTML (HORS LIGNE)', 4200);
   }
 
@@ -1351,6 +1392,7 @@ export class App {
     act('keymap', 'Raccourcis clavier', () => this.openKeymap(), 'aide help');
     if (location.protocol.startsWith('http')) {
       act('download', { installer: 'Installer V3CT0R sur Windows (app de bureau)', mobile: 'Installer V3CT0R sur ce téléphone (Android, iPhone, iPad)', zip: 'Télécharger V3CT0R (version hors ligne)' }[downloadKind(navigator.userAgent, navigator.maxTouchPoints)], () => this.downloadApp(), 'télécharger installer installeur app bureau windows exe hors ligne offline téléphone android iphone ipad écran d’accueil');
+      if (this.downloadChoices().includes('lycee')) act('download-lycee', 'Télécharger V3CT0R Lycée (Windows, avec la clé de ton établissement)', () => this.openLyceeDownload(), 'lycée lycee école établissement clé essai licence télécharger windows');
       act('install-phone', 'Installer V3CT0R sur un téléphone (Android, iPhone) : le tuto', () => this.downloadApp('mobile'), 'téléphone mobile android iphone ipad installer écran d’accueil pwa application');
       act('download-zip', 'Télécharger la version zip (tous systèmes, sans installation)', () => this.downloadApp('zip'), 'télécharger zip index.html mac linux portable hors ligne');
     }
@@ -1465,10 +1507,10 @@ export class App {
     on(L.btnCalc, () => this.calc.toggle());
     on(L.btnNotes, () => this.notes.toggle());
     on(L.btnAccount, () => this.openAccount());
-    on(L.btnDownload, () => this.downloadApp());
+    on(L.btnDownload, () => this.downloadMenu());
     on(L.btnRail, () => this.toggleRail());
     on(L.sheetGrip, () => setSheet(document.body.classList.contains('sheet-min')));
-    on(L.sbDownload, () => this.downloadApp());
+    on(L.sbDownload, () => this.downloadMenu());
     on(L.btnScan, () => this.toggleScan());
     on(L.btnHelp, () => this.openKeymap());
     on(L.btnChallenge, () => this.openChallenge());

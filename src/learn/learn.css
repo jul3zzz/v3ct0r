@@ -5,7 +5,7 @@
 .tabs .tab { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; font-size: var(--fs-xs); letter-spacing: var(--track-caps); color: var(--fg-60); }
 .tabs .tab + .tab { border-left: var(--line); }
 .tabs .tab:hover { color: var(--fg); }
-.tabs .tab[aria-selected='true'] { background: var(--fg); color: var(--bg); }
+.tabs .tab[aria-selected='true'] { background: var(--accent); color: var(--accent-ink); }
 .tabs .tab .kanji { font-family: var(--font-kanji); font-size: 11px; opacity: 0.7; }
 .lrail, .lpanel { display: none; }
 body.learn #app > .rail:not(.lrail), body.learn #app > .panel:not(.lpanel) { display: none; }

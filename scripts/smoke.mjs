@@ -3,10 +3,11 @@
 // error or uncaught exception.
 //   node scripts/smoke.mjs [--only=fractals] [--shots=<dir>] [--wait=900] [--headed]
 import { chromium } from 'playwright-core';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { preview } from 'vite';
 
 const arg = (name, def) => {
   const a = process.argv.find((x) => x.startsWith(`--${name}`));
@@ -24,6 +25,23 @@ if (!existsSync(file)) {
   process.exit(1);
 }
 const url = pathToFileURL(file).href;
+
+// no secret in the build: a Supabase secret key (sb_secret_…) or a service_role JWT would bypass
+// every rule of the database (docs/ADMIN.md); the public key (anon / publishable) is expected
+{
+  const html = await readFile(file, 'utf8');
+  const roles = (html.match(/eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]+/g) ?? []).map((j) => {
+    try {
+      return JSON.parse(Buffer.from(j.split('.')[1], 'base64url').toString()).role ?? null;
+    } catch {
+      return null;
+    }
+  });
+  if (/sb_secret_/.test(html) || roles.includes('service_role')) {
+    console.error('✕ une clé secrète Supabase se trouve dans le build : arrêt (elle ne va que dans .env.local, sans préfixe VITE_).');
+    process.exit(1);
+  }
+}
 
 const browser = await chromium.launch({
   channel: 'msedge',
@@ -194,11 +212,12 @@ if (!calcOk) errors.push(`[calc] ${JSON.stringify({ ...calc, calcClosed })}`);
 const mus = await page.evaluate(() => window.__vm.musicState());
 const musicOk = mus.playing && mus.mood === 'explore' && !mus.ducked;
 if (!musicOk) errors.push(`[music] ${JSON.stringify(mus)}`);
-// account: the COMPTE button exists only in a build configured for Supabase; its form has 2 fields
+// account: the COMPTE button exists only in a build configured for Supabase; its form has 2 fields, and
+// no school code here (V3CT0R in file:// has nothing of schools; the code is tested in the school section)
 current = 'account';
 const acc = await page.evaluate(() => ({ ...window.__vm.account(), shown: getComputedStyle([...document.querySelectorAll('.tb-btn')].find((b) => b.textContent.includes('COMPTE'))).display !== 'none' }));
 await page.keyboard.press('Escape');
-const accOk = acc.enabled ? acc.shown && acc.inputs === 2 : !acc.shown;
+const accOk = acc.enabled ? acc.shown && acc.inputs === 2 && !acc.code : !acc.shown;
 if (!accOk) errors.push(`[compte] ${JSON.stringify(acc)}`);
 // TÉLÉCHARGER: only online; this smoke runs the downloaded version (file://), where it is hidden
 const dlShown = await page.evaluate(() => getComputedStyle([...document.querySelectorAll('.tb-btn')].find((b) => b.textContent.includes('TÉLÉCHARGER'))).display !== 'none');
@@ -795,6 +814,268 @@ current = 'narrow';
   if (!narrowOk) errors.push(`[narrow] vue ${vpW} px · rail replié ${hidden} · tiroir ${drawer} · fermé ${closed}`);
   features.push(`FENÊTRE 960 vue ${Math.round(vpW)} px · tiroir MODULES ${narrowOk ? 'ok' : 'KO'}`);
   await np.close();
+}
+
+// school keys (docs/ECOLES.md, phases 1, 1b and the two apps). The page above is V3CT0R in file:// (the zip,
+// the app for everyone): nothing of schools, and the default theme stays black and white. The website is
+// dist-smoke/ (npm run build:smoke: accounts configured with a fake server, .env.smoke) served over http
+// as GitHub Pages serves it; V3CT0R Lycée is dist-smoke-lycee/ (npm run build:smoke:lycee) in file://, with
+// window.v3ct0rDesktop as electron/preload.cjs gives it. The server is simulated with page.route (key_open,
+// key_ping, key_check; no network), each page in a browser context of its own.
+//   website: a key in the address → the school's card → its start route, every lock open, badge and
+//   accent, phone badge; an ended trial → blocking screen; a new key reopens the app; an unknown key →
+//   « Clé refusée », then CONTINUER SANS CLÉ; the download offer: V3CT0R Lycée with a key checked by
+//   key_check (no seat), downloaded, then OUVRIR V3CT0R LYCÉE (v3ct0r-lycee:// link); V3CT0R chosen → the
+//   offer is gone, back with a key in the address.
+//   V3CT0R Lycée: no key → the key card, no way around; a v3ct0r-lycee:// link → its key, no typing; the
+//   licence of the PC: no card, LICENCE, notice of the last days; every seat taken; server out of reach.
+current = 'school';
+{
+  const theme = await page.evaluate(() => {
+    const b = document.createElement('button');
+    b.className = 'btn on';
+    document.body.append(b);
+    const c = getComputedStyle(b);
+    const r = { accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(), bg: c.backgroundColor, color: c.color, border: c.borderTopColor, enabled: window.__vm.school().enabled };
+    b.remove();
+    return r;
+  });
+  const themeOk = theme.bg === 'rgb(255, 255, 255)' && theme.color === 'rgb(0, 0, 0)' && theme.border === 'rgb(255, 255, 255)' && theme.enabled === false;
+  if (!themeOk) errors.push(`[école] V3CT0R en file:// : thème par défaut et rien d’école attendus ${JSON.stringify(theme)}`);
+  const siteDir = resolve('dist-smoke');
+  const lyceeFile = resolve('dist-smoke-lycee/index.html');
+  if (!existsSync(join(siteDir, 'index.html')) || !existsSync(lyceeFile)) features.push(`ÉCOLE non testée (npm run build:smoke et build:smoke:lycee) · V3CT0R sans école ${themeOk ? 'ok' : 'KO'}`);
+  else {
+    const site = await preview({ root: process.cwd(), build: { outDir: siteDir }, preview: { port: 0, host: '127.0.0.1' }, logLevel: 'silent' });
+    const surl = site.resolvedUrls?.local?.[0] ?? '';
+    const lurl = pathToFileURL(lyceeFile).href;
+    const KEY = 'AAAAABBBBBCCCCCDDDDD';
+    const LOGO = `data:image/svg+xml;base64,${Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#2255cc"/><path d="M3 7 5 2 7 7z" fill="#fff"/></svg>').toString('base64')}`;
+    const srv = { state: 'active', kind: 'trial', seats: 0, used: 0, days: 20, offline: false, opens: 0, pings: 0, checks: 0, devices: new Set(), downloads: [] };
+    const row = (key) =>
+      key === KEY
+        ? { state: srv.state, kind: srv.kind, school_name: 'Lycée Smoke', logo: LOGO, accent: '#2255cc', start_route: '#/learn/riemann', ends_at: new Date(Date.now() + (srv.state === 'expired' ? -1 : srv.days) * 86_400_000 - 3_600_000).toISOString(), seats: srv.seats, seats_used: srv.used, server_now: new Date().toISOString() }
+        : { state: 'unknown', kind: null, school_name: null, logo: null, accent: null, start_route: null, ends_at: null, seats: null, seats_used: null, server_now: new Date().toISOString() };
+    const json = (r, body) => r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
+    // `desktop`: what electron/preload.cjs hands the page; `e2e: false`: the way in as a first visitor sees it
+    const schoolPage = async (desktop = null, o = { e2e: true }) => {
+      const ctx = await browser.newContext({ viewport: { width: 1400, height: 850 }, serviceWorkers: 'block', acceptDownloads: true });
+      const p = await ctx.newPage();
+      await p.addInitScript(
+        ([d, e2e]) => {
+          if (e2e) localStorage.setItem('vector-math.e2e', 'true');
+          localStorage.setItem('vector-math.intro.seen', 'true');
+          if (d) Object.defineProperty(window, 'v3ct0rDesktop', { value: Object.freeze({ onLinkKey: () => undefined, ...d }) });
+        },
+        [desktop, o.e2e !== false],
+      );
+      p.on('pageerror', (e) => errors.push(`[école] pageerror: ${e.message}`));
+      p.on('console', (m) => m.type() === 'error' && !(srv.offline && /ERR_FAILED|Failed to load resource/.test(m.text())) && errors.push(`[école] console.error: ${m.text()}`));
+      // anything else of the fake server (the account step of a first visit pings it): reachable, empty
+      // (registered first: the routes below, more recent, take precedence)
+      await p.route('https://smoke.v3ct0r.invalid/**', (r) => json(r, {}));
+      await p.route('**/rest/v1/rpc/key_open', (r) => {
+        if (srv.offline) return r.abort('internetdisconnected');
+        srv.opens++;
+        const a = JSON.parse(r.request().postData() || '{}');
+        if (a.p_device) srv.devices.add(a.p_device);
+        return json(r, [row(a.p_key)]);
+      });
+      await p.route('**/rest/v1/rpc/key_ping', (r) => {
+        if (srv.offline) return r.abort('internetdisconnected');
+        srv.pings++;
+        return json(r, [{ state: srv.state, ends_at: row(KEY).ends_at, server_now: new Date().toISOString() }]);
+      });
+      await p.route('**/rest/v1/rpc/key_check', (r) => {
+        srv.checks++;
+        const k = (JSON.parse(r.request().postData() || '{}').p_key ?? '').replace(/-/g, '').toUpperCase();
+        const x = row(k);
+        return json(r, [{ state: x.state, kind: x.kind, school_name: x.school_name, ends_at: x.ends_at }]);
+      });
+      // the installers of the latest release: a small stand-in, downloaded as a file
+      await p.route('**/releases/latest/download/**', (r) => {
+        const name = r.request().url().split('/').pop();
+        srv.downloads.push(name);
+        return r.fulfill({ status: 200, headers: { 'Content-Type': 'application/octet-stream', 'Content-Disposition': `attachment; filename="${name}"` }, body: 'smoke' });
+      });
+      return { ctx, p };
+    };
+    let { ctx, p: sp } = await schoolPage();
+    const boot = async (u) => {
+      await sp.goto(u);
+      await sp.waitForTimeout(300);
+      await sp.keyboard.press('Space');
+    };
+    // 1. the link of the mail, on the website
+    await boot(`${surl}?essai=aaaaa-bbbbb-ccccc-ddddd`);
+    await sp.waitForSelector('.wl-card.sc-card .sc-head', { timeout: 15000 });
+    const card = await sp.evaluate(() => ({ title: document.querySelector('.sc-card .wl-title')?.textContent ?? '', logo: !!document.querySelector('.sc-card img.sc-logo'), border: getComputedStyle(document.querySelector('.sc-card')).borderTopColor, notice: document.querySelector('.sc-card')?.textContent?.includes('compte les ouvertures') ?? false, lycee: [...document.querySelectorAll('.sc-card button')].some((b) => b.textContent.includes('TÉLÉCHARGER V3CT0R LYCÉE')), url: location.href }));
+    if (shots) await sp.screenshot({ path: join(shots, 'school__1-trial-card.png') });
+    await sp.locator('.sc-card button', { hasText: 'COMMENCER L’ESSAI' }).click();
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    await sp.waitForTimeout(1500);
+    const run = await sp.evaluate(() => {
+      const b = document.querySelector('.sc-badge');
+      const tab = document.querySelector('.tabs .tab[aria-selected="true"]');
+      return { ...window.__vm.school(), hash: location.hash, course: window.__vm.learnState().course, badge: b && getComputedStyle(b).display !== 'none' ? b.textContent : '', tabBg: tab ? getComputedStyle(tab).backgroundColor : '', url: location.href };
+    });
+    if (shots) await sp.screenshot({ path: join(shots, 'school__2-running.png') });
+    if (!run.enabled) errors.push('[école] site sans comptes configurés (.env.smoke)');
+    const startOk = card.title === 'Lycée Smoke' && card.logo && card.border === 'rgb(34, 85, 204)' && card.notice && card.lycee && !card.url.includes('essai=');
+    const runOk = run.state === 'active' && run.course === 'riemann' && run.badge.includes('Lycée Smoke') && run.accent === '#2255cc' && run.tabBg === 'rgb(34, 85, 204)' && srv.opens === 1;
+    if (!startOk) errors.push(`[école] carte d’essai ${JSON.stringify(card)}`);
+    if (!runOk) errors.push(`[école] essai en cours ${JSON.stringify({ ...run, opens: srv.opens })}`);
+    // the same trial on a phone (src/hud/phone.css): the badge fits on the first row with the sections
+    await sp.setViewportSize({ width: 375, height: 812 });
+    await sp.waitForTimeout(500);
+    const phone = await sp.evaluate(() => {
+      const bar = document.querySelector('.topbar').getBoundingClientRect();
+      const b = document.querySelector('.sc-badge').getBoundingClientRect();
+      const tabs = [...document.querySelectorAll('.tabs .tab')].map((t) => t.getBoundingClientRect());
+      return { bar: Math.round(bar.height), badge: b.width > 0 && b.right <= innerWidth, row: tabs.every((t) => Math.abs(t.top - b.top) < 12 && t.right <= innerWidth + 0.5), page: document.documentElement.scrollWidth <= innerWidth };
+    });
+    if (shots) await sp.screenshot({ path: join(shots, 'school__4-phone.png') });
+    const phoneOk = phone.bar === 66 && phone.badge && phone.row && phone.page;
+    if (!phoneOk) errors.push(`[école] badge sur téléphone ${JSON.stringify(phone)}`);
+    await sp.setViewportSize({ width: 1400, height: 850 });
+    // 2. the trial ends: next opening → the blocking screen
+    srv.state = 'expired';
+    await boot(surl);
+    await sp.waitForSelector('.wl-card.sc-card input.sc-input', { timeout: 15000 });
+    const ended = await sp.evaluate(() => ({ text: document.querySelector('.sc-card')?.textContent ?? '', mail: !!document.querySelector('.sc-card a.sc-mail'), field: !!document.querySelector('.sc-card input.sc-input') }));
+    if (shots) await sp.screenshot({ path: join(shots, 'school__3-ended.png') });
+    const endedOk = ended.text.includes('ESSAI TERMINÉ') && ended.text.includes('Lycée Smoke') && ended.field && (ended.mail || ended.text.includes('contacte la personne'));
+    if (!endedOk) errors.push(`[école] écran de fin ${JSON.stringify(ended)}`);
+    // 3. a new key reopens the app
+    srv.state = 'active';
+    await sp.fill('.sc-card input.sc-input', 'AAAAA-BBBBB-CCCCC-DDDDD');
+    // accepted while the app runs: the page reloads to read the new trial everywhere
+    await Promise.all([sp.waitForEvent('load', { timeout: 15000 }), sp.locator('.sc-card button', { hasText: 'VALIDER' }).click()]);
+    await sp.waitForTimeout(300);
+    await sp.keyboard.press('Space');
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    const reopened = await sp.evaluate(() => window.__vm.school().state);
+    if (reopened !== 'active') errors.push(`[école] nouvelle clé : ${reopened}`);
+    // 4. an unknown key, on a fresh profile: refused, then the app without a trial (e2e skips the account)
+    await ctx.close();
+    ({ ctx, p: sp } = await schoolPage());
+    await boot(`${surl}?essai=ZZZZZ-ZZZZZ-ZZZZZ-ZZZZZ`);
+    await sp.waitForSelector('.wl-card .sc-code', { timeout: 15000 });
+    const refused = await sp.evaluate(() => document.querySelector('.wl-card .wl-title')?.textContent ?? '');
+    await sp.locator('.wl-card button', { hasText: 'CONTINUER SANS CLÉ' }).click();
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    const after = await sp.evaluate(() => ({ ...window.__vm.school(), badge: getComputedStyle(document.querySelector('.sc-badge')).display }));
+    const refusedOk = refused === 'Clé refusée' && after.state === null && after.badge === 'none' && after.accent === '#fff';
+    if (!refusedOk) errors.push(`[école] clé inconnue ${JSON.stringify({ refused, ...after })}`);
+    const trialOpens = srv.opens;
+
+    // 5. the download offer of a first visit on Windows: V3CT0R Lycée, the key checked (no seat), downloaded,
+    //    then OUVRIR V3CT0R LYCÉE hands it to the app; V3CT0R chosen elsewhere → the offer is gone, back with a key
+    await ctx.close();
+    Object.assign(srv, { opens: 0, checks: 0, downloads: [] });
+    ({ ctx, p: sp } = await schoolPage(null, { e2e: false }));
+    await boot(surl);
+    await sp.waitForSelector('.wl-card button:has-text("TÉLÉCHARGER V3CT0R LYCÉE")', { timeout: 15000 });
+    const offer = await sp.evaluate(() => [...document.querySelectorAll('.wl-card button')].map((b) => b.textContent.trim()));
+    if (shots) await sp.screenshot({ path: join(shots, 'school__8-download.png') });
+    await sp.locator('.wl-card button', { hasText: 'TÉLÉCHARGER V3CT0R LYCÉE' }).click();
+    await sp.fill('.wl-card .ly input.sc-input', 'aaaaa-bbbbb-ccccc-ddddd');
+    const [lyDl] = await Promise.all([sp.waitForEvent('download', { timeout: 15000 }), sp.locator('.wl-card button', { hasText: 'VÉRIFIER ET TÉLÉCHARGER' }).click()]);
+    await sp.waitForSelector('.wl-card a.ly-open', { timeout: 15000 });
+    const handed = await sp.evaluate(() => ({ href: document.querySelector('.wl-card a.ly-open')?.getAttribute('href') ?? '', key: document.querySelector('.wl-card .ly-key')?.textContent ?? '' }));
+    if (shots) await sp.screenshot({ path: join(shots, 'school__9-lycee-link.png') });
+    const lyceeOk = offer.some((t) => t.includes('OUI, TÉLÉCHARGER V3CT0R')) && offer.some((t) => t.includes('NON, CONTINUER EN LIGNE')) && lyDl.suggestedFilename() === 'V3CT0R-Lycee-Setup.exe' && handed.href === `v3ct0r-lycee://cle/${KEY}` && handed.key === 'AAAAA-BBBBB-CCCCC-DDDDD' && srv.checks === 1 && srv.opens === 0;
+    if (!lyceeOk) errors.push(`[école] téléchargement de V3CT0R Lycée ${JSON.stringify({ offer, file: lyDl.suggestedFilename(), ...handed, checks: srv.checks, opens: srv.opens })}`);
+    await ctx.close();
+    ({ ctx, p: sp } = await schoolPage(null, { e2e: false }));
+    await boot(surl);
+    await sp.waitForSelector('.wl-card button:has-text("OUI, TÉLÉCHARGER V3CT0R")', { timeout: 15000 });
+    const [stdDl] = await Promise.all([sp.waitForEvent('download', { timeout: 15000 }), sp.locator('.wl-card button', { hasText: 'OUI, TÉLÉCHARGER V3CT0R' }).click()]);
+    const chosen = await sp.evaluate(() => localStorage.getItem('vector-math.welcome.edition'));
+    // later visits (the account skipped as in every smoke page): TÉLÉCHARGER gives V3CT0R at once, no choice
+    await sp.evaluate(() => localStorage.setItem('vector-math.e2e', 'true'));
+    await boot(surl);
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    const [again] = await Promise.all([sp.waitForEvent('download', { timeout: 15000 }), sp.locator('.topbar .tb-btn', { hasText: 'TÉLÉCHARGER' }).click()]);
+    const noChoice = await sp.evaluate(() => !document.querySelector('.dlg .dl-pick'));
+    // a key in the address: V3CT0R Lycée is offered again on the trial card
+    await boot(`${surl}?essai=aaaaa-bbbbb-ccccc-ddddd`);
+    await sp.waitForSelector('.wl-card.sc-card .sc-head', { timeout: 15000 });
+    const back = await sp.evaluate(() => [...document.querySelectorAll('.sc-card button')].some((b) => b.textContent.includes('TÉLÉCHARGER V3CT0R LYCÉE')));
+    const choiceOk = stdDl.suggestedFilename() === 'V3CT0R-Setup.exe' && chosen === '"standard"' && again.suggestedFilename() === 'V3CT0R-Setup.exe' && noChoice && back;
+    if (!choiceOk) errors.push(`[école] V3CT0R choisi ${JSON.stringify({ first: stdDl.suggestedFilename(), chosen, again: again.suggestedFilename(), noChoice, back })}`);
+
+    // 6. V3CT0R Lycée without a key: the key card, no way around it; a typed key opens it
+    await ctx.close();
+    Object.assign(srv, { state: 'active', kind: 'trial', seats: 0, used: 0, days: 20, opens: 0 });
+    const LYCEE = { edition: 'lycee', machineKey: null, device: null, linkKey: null };
+    ({ ctx, p: sp } = await schoolPage(LYCEE));
+    await boot(lurl);
+    await sp.waitForSelector('.wl-card input.sc-input', { timeout: 15000 });
+    const req = await sp.evaluate(() => ({ title: document.querySelector('.wl-card .wl-title')?.textContent ?? '', buttons: [...document.querySelectorAll('.wl-card button')].map((b) => b.textContent.trim()), ready: window.__vm?.ready === true, enabled: window.__vm?.school?.().enabled }));
+    if (shots) await sp.screenshot({ path: join(shots, 'school__10-lycee-required.png') });
+    await sp.fill('.wl-card input.sc-input', 'AAAAA-BBBBB-CCCCC-DDDDD');
+    await sp.locator('.wl-card button', { hasText: 'OUVRIR' }).click();
+    await sp.waitForSelector('.wl-card.sc-card button:has-text("COMMENCER L’ESSAI")', { timeout: 15000 });
+    const noDlInApp = await sp.evaluate(() => ![...document.querySelectorAll('.sc-card button')].some((b) => b.textContent.includes('TÉLÉCHARGER')));
+    await sp.locator('.sc-card button', { hasText: 'COMMENCER L’ESSAI' }).click();
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    const typed = await sp.evaluate(() => window.__vm.school());
+    const requiredOk = req.title === 'Clé de ton établissement' && !req.ready && !req.buttons.some((t) => /CONTINUER|SANS/.test(t)) && noDlInApp && typed.state === 'active' && typed.source === 'code';
+    if (!requiredOk) errors.push(`[école] V3CT0R Lycée sans clé ${JSON.stringify({ ...req, noDlInApp, typed })}`);
+    // 7. V3CT0R Lycée opened by a v3ct0r-lycee:// link: the key comes with it, nothing to type
+    await ctx.close();
+    ({ ctx, p: sp } = await schoolPage({ ...LYCEE, linkKey: 'AAAAA-BBBBB-CCCCC-DDDDD' }));
+    await boot(lurl);
+    await sp.waitForSelector('.wl-card.sc-card button:has-text("COMMENCER L’ESSAI")', { timeout: 15000 });
+    await sp.locator('.sc-card button', { hasText: 'COMMENCER L’ESSAI' }).click();
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    const linked = await sp.evaluate(() => window.__vm.school());
+    const linkOk = linked.state === 'active' && linked.source === 'link';
+    if (!linkOk) errors.push(`[école] lien v3ct0r-lycee:// ${JSON.stringify(linked)}`);
+
+    // 8. the licence set on the PC by the installation kit: checked with no card, every lock open,
+    //    LICENCE in the badge, the PC's device id sent for the seats, the notice of the last 3 days
+    await ctx.close();
+    Object.assign(srv, { state: 'active', kind: 'licence', seats: 30, used: 3, days: 3, opens: 0 });
+    const DEVICE = 'a'.repeat(64);
+    ({ ctx, p: sp } = await schoolPage({ ...LYCEE, machineKey: 'aaaaa-bbbbb-ccccc-ddddd', device: DEVICE }));
+    await boot(lurl);
+    await sp.waitForFunction(() => window.__vm?.ready === true, null, { timeout: 15000 });
+    await sp.waitForTimeout(3000);
+    const lic = await sp.evaluate(() => ({ ...window.__vm.school(), card: !!document.querySelector('.wl-card'), badge: document.querySelector('.sc-badge')?.textContent ?? '', toast: document.querySelector('.toast')?.textContent ?? '' }));
+    if (shots) await sp.screenshot({ path: join(shots, 'school__5-licence.png') });
+    const licOk = lic.state === 'active' && lic.kind === 'licence' && lic.source === 'machine' && lic.seats === '3/30' && !lic.card && lic.badge.includes('LICENCE') && lic.badge.includes('J-3') && /LA LICENCE SE TERMINE DANS 3 JOURS/.test(lic.toast) && srv.devices.has(DEVICE) && srv.opens === 1;
+    if (!licOk) errors.push(`[école] licence du poste ${JSON.stringify({ ...lic, opens: srv.opens, devices: [...srv.devices].map((d) => d.slice(0, 8)) })}`);
+    // 9. every seat of the licence taken by other PCs: the blocking screen says so
+    await ctx.close();
+    Object.assign(srv, { state: 'full', used: 30, days: 200 });
+    ({ ctx, p: sp } = await schoolPage({ ...LYCEE, machineKey: 'aaaaa-bbbbb-ccccc-ddddd', device: 'b'.repeat(64) }));
+    await boot(lurl);
+    await sp.waitForSelector('.wl-card.sc-card input.sc-input', { timeout: 15000 });
+    const full = await sp.evaluate(() => document.querySelector('.sc-card')?.textContent ?? '');
+    if (shots) await sp.screenshot({ path: join(shots, 'school__6-full.png') });
+    const fullOk = full.includes('POSTES COMPLETS') && full.includes('30 postes') && full.includes('référent numérique');
+    if (!fullOk) errors.push(`[école] postes complets : ${full.slice(0, 160)}`);
+    // 10. the server out of reach on the first opening of a PC: RÉESSAYER, or go on to the key card
+    await ctx.close();
+    Object.assign(srv, { state: 'active', offline: true });
+    ({ ctx, p: sp } = await schoolPage({ ...LYCEE, machineKey: 'aaaaa-bbbbb-ccccc-ddddd', device: 'c'.repeat(64) }));
+    await boot(lurl);
+    await sp.waitForFunction(() => /RÉESSAYER/.test(document.querySelector('.wl-card')?.textContent ?? ''), null, { timeout: 15000 });
+    const off = await sp.evaluate(() => document.querySelector('.wl-card')?.textContent ?? '');
+    if (shots) await sp.screenshot({ path: join(shots, 'school__7-offline.png') });
+    await sp.locator('.wl-card button', { hasText: 'CONTINUER SANS LA LICENCE' }).click();
+    await sp.waitForFunction(() => document.querySelector('.wl-card .wl-title')?.textContent === 'Clé de ton établissement', null, { timeout: 15000 });
+    const offOk = off.includes('Serveur de licence injoignable') && off.includes('référent numérique');
+    if (!offOk) errors.push(`[école] serveur injoignable : ${off.slice(0, 120)}`);
+    srv.offline = false;
+    await ctx.close();
+    await site.close();
+    features.push(
+      `ÉCOLE · V3CT0R sans école ${themeOk ? 'ok' : 'KO'} · SITE (http) carte ${startOk ? 'ok' : 'KO'} · vue de départ + verrous + badge + accent ${runOk ? 'ok' : 'KO'} · badge téléphone ${phoneOk ? 'ok' : 'KO'} · fin d’essai ${endedOk ? 'ok' : 'KO'} · nouvelle clé ${reopened === 'active' ? 'ok' : 'KO'} · clé inconnue ${refusedOk ? 'ok' : 'KO'} (${trialOpens} key_open simulés) · TÉLÉCHARGER V3CT0R LYCÉE + clé vérifiée + lien ${lyceeOk ? 'ok' : 'KO'} · V3CT0R choisi puis offre retirée ${choiceOk ? 'ok' : 'KO'} · V3CT0R LYCÉE clé obligatoire ${requiredOk ? 'ok' : 'KO'} · lien v3ct0r-lycee:// ${linkOk ? 'ok' : 'KO'} · licence du poste + avis J-3 ${licOk ? 'ok' : 'KO'} · postes complets ${fullOk ? 'ok' : 'KO'} · serveur injoignable ${offOk ? 'ok' : 'KO'}`,
+    );
+  }
 }
 
 // phone (375 × 812, touch): one column, the top bar on two rows, the panel as a sheet under the view

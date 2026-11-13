@@ -1,6 +1,8 @@
-# Windows installer: npm run app:win → release/V3CT0R-Setup.exe
-# One click, no administrator rights: installs for the current user, puts V3CT0R on the desktop and in
-# the Start menu, then opens it. Uninstall from Windows settings (Applications).
+# V3CT0R for everyone, Windows installer: npm run app:win → release/V3CT0R-Setup.exe (the TÉLÉCHARGER
+# button): one click, no administrator rights, installs for the current user, puts V3CT0R on the desktop
+# and in the Start menu, then opens it. Nothing of schools in it (src/core/edition.ts): V3CT0R Lycée is
+# another app, electron-builder.lycee.yml. Uninstall from Windows settings (Applications).
+# Signing: release.yml (Azure Trusted Signing, when set up).
 appId: io.github.jul3zzz.v3ct0r
 productName: V3CT0R
 copyright: © 2026 V3CT0R

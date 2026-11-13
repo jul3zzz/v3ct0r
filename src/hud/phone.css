@@ -31,6 +31,13 @@
   .tabs .tab .kanji { display: none; }
   .tb-tools { flex: 1 0 100%; justify-content: space-between; gap: 4px; margin: 0 -10px; padding: 3px 10px; border-top: var(--line); }
   .topbar .tb-btn { height: 24px; padding: 0 8px; }
+  /* a school trial (shell/school-ui.ts): the school's logo takes the place of the V3CT0R symbol, without its name,
+     so that the sections keep the first row next to MODULES; a school without a logo gets a compact ESSAI */
+  .topbar:has(> .sc-badge.on) > .brand { display: none; }
+  .topbar .sc-badge { gap: 0; margin: 0; padding: 0 5px; max-width: none; }
+  .topbar .sc-badge-name, .topbar .sc-badge-logo ~ .sc-badge-k { display: none; }
+  .topbar .sc-badge-k { padding: 2px 4px; letter-spacing: 0.04em; }
+  .topbar .sc-badge:not(:has(> .sc-badge-logo)) { border: 0; padding: 0; }
 
   /* ── rail: still a drawer, over the view and the sheet ── */
   #app > .rail { grid-area: 2 / 1 / 5 / 2; width: min(300px, 86vw); border-right: var(--line-mid); }
