@@ -247,8 +247,9 @@ qui s'ouvrent dans le navigateur (connexion requise) : l'application reste hors 
 - **Renvois** : dans tout texte de cours (hors formules), `[[cours]]`, `[[cours#id]]` (un chapitre ou un énoncé,
   par son `{#id}`) ou `[[cours#id|texte affiché]]` devient un lien cliquable et une arête du graphe ; sans texte,
   le lien affiche le titre de la cible. `npm test` vérifie que chaque renvoi pointe quelque part.
-- **Déblocage** : un cours s'ouvre quand ses prérequis *disponibles* sont terminés (les prérequis en construction ne
-  bloquent pas). Le mode libre de l'explorateur (Ctrl+K) ouvre tout.
+- **Tout est ouvert** (choix de l'utilisateur, 2026-11-14) : chaque cours prêt s'ouvre tout de suite, dans le graphe,
+  la liste, Ctrl+K et l'ATLAS. Les prérequis restent affichés dans le panneau (PRÉREQUIS CONSEILLÉS) et dans le graphe,
+  comme conseil, sans jamais bloquer. Les vues de l'explorateur gardent leurs verrous (mode libre : Ctrl+K).
 - **Lecteur** : lecture/pause, vitesses 0,75× à 2×, barre de temps avec chapitres et exercices, chapitres cliquables,
   sous-titres, **transcription complète** cliquable, onglet EXERCICES, pause automatique avant chaque exercice
   (« À TOI. PRENDS 5 MIN. » + minuteur HUD), indices progressifs (3 niveaux), correction étape par étape.

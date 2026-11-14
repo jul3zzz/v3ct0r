@@ -763,24 +763,22 @@ const progOk = prog.startsWith('1/') && lockedAfter === lockedAtStart - 1 && has
 if (!progOk) errors.push(`[progression] after 2 answers: ${prog}, locked ${lockedAtStart}→${lockedAfter}, ${hashOpen}`);
 if (!railCount.includes('1')) errors.push(`[progression] rail counter not updated (${railCount})`);
 features.push(`PROGRESSION verrous ${lockedAtStart} → ${lockedAfter} · ${prog} · terminal ${termFollows ? 'suit la vue' : 'fermé'}`);
-// LEARN locks: Riemann needs the written course « Suites et séries » first, the master course needs Riemann
+// LEARN is open (user's choice, 2026-11-14), on this fresh profile without free mode: Riemann opens before its
+// prerequisite « Suites et séries » is read, the master course before Riemann; prerequisites are advice in the panel
 await lp.evaluate(() => window.__vm.learn('riemann'));
-await lp.waitForTimeout(400);
-const lockedCourse = await lp.evaluate(() => window.__vm.learnState().course);
-if (lockedCourse) errors.push(`[progression] locked LEARN course opened (${lockedCourse})`);
-await lp.evaluate(() => window.__vm.learn('suites-series'));
 await lp.waitForTimeout(500);
-await lp.click('.lr-list .lr-chap:last-child');
-await lp.waitForTimeout(1500);
+const openRiemann = await lp.evaluate(() => window.__vm.learnState().course);
 await lp.evaluate(() => window.__vm.learn('riemann-lebesgue'));
+await lp.waitForTimeout(500);
+const openMaster = await lp.evaluate(() => window.__vm.learnState().course);
+await lp.evaluate(() => window.__vm.learn());
+await lp.waitForTimeout(800);
+await lp.evaluate(() => window.__vm.learnGraph({ pick: 'c:riemann' }));
 await lp.waitForTimeout(400);
-const stillLocked = await lp.evaluate(() => window.__vm.learnState().course);
-if (stillLocked) errors.push(`[progression] locked LEARN course opened (${stillLocked})`);
-await lp.evaluate(() => window.__vm.learn('riemann'));
-await lp.waitForTimeout(400);
-const openCourse = await lp.evaluate(() => window.__vm.learnState().course);
-if (openCourse !== 'riemann') errors.push(`[progression] open LEARN course refused after reading its prerequisite (${openCourse})`);
-features.push(`LEARN VERROUS ${!lockedCourse && openCourse === 'riemann' ? 'ok' : 'KO'}`);
+const advice = await lp.evaluate(() => [...document.querySelectorAll('.sec-title')].some((e) => e.textContent === 'PRÉREQUIS CONSEILLÉS'));
+const learnOpenOk = openRiemann === 'riemann' && openMaster === 'riemann-lebesgue' && advice;
+if (!learnOpenOk) errors.push(`[progression] LEARN pas entièrement ouvert ${JSON.stringify({ openRiemann, openMaster, advice })}`);
+features.push(`LEARN OUVERT (prérequis conseillés) ${learnOpenOk ? 'ok' : 'KO'}`);
 await lp.close();
 
 // narrow window (the desktop app's minimum, 960 × 600): the rail is a drawer, the view keeps its room

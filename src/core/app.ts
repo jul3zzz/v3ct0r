@@ -252,8 +252,6 @@ export class App {
       openExplorer: (view) => this.openExplorer(view),
       fullscreen: () => this.fullscreen(),
       setCrumbs: (parts) => this.L.crumbs.replaceChildren(...parts.flatMap((p, i) => (i ? [h('span', { text: '▸' }), h('span', { class: i === parts.length - 1 ? 'hi' : '', text: p })] : [h('span', { text: p })]))),
-      // free mode (saved) or a school trial (not saved): every course is open
-      free: () => this.progress.open,
       openDialog: (d) => this.openDialog(d),
       setHash: (hash) => {
         try {

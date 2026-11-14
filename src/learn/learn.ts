@@ -38,7 +38,6 @@ export interface LearnHost {
   openExplorer(view?: string): void;
   fullscreen(): void;
   setCrumbs(parts: string[]): void;
-  free(): boolean;
   openDialog(d: Dialog): void;
   setHash(hash: string): void;
 }
@@ -213,12 +212,11 @@ export class Learn {
     const c = COURSES.get(id);
     if (!c || !isReady(c)) return 'construction';
     if (this.progress.course(id).done) return 'done';
-    if (this.host.free()) return 'open';
-    const missing = this.missing(id);
-    return missing.length ? 'locked' : 'open';
+    // the whole of LEARN is open (user's choice, 2026-11-14): prerequisites are advice, shown in the panel
+    return 'open';
   }
 
-  /** ready prerequisites not finished yet (prerequisites under construction do not block) */
+  /** ready prerequisites not finished yet (advice only: shown in the panel, they never lock a course) */
   missing(id: string): Course[] {
     const c = COURSES.get(id);
     if (!c) return [];
@@ -896,7 +894,7 @@ export class Learn {
         intro ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'VOIX' }), h('span', { class: 'v', text: c.voiced ? 'voix off' : 'sous-titres (voix non générée)' })) : null,
         st !== 'construction' && !intro ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'PROGRESSION' }), h('span', { class: 'v', text: cs.done ? 'terminé' : c.written ? (cs.pos > 1 ? `${Math.round(cs.pos)} % lus` : 'pas commencé') : cs.pos > 5 ? `${clock(cs.pos)} vues` : 'pas commencé' })) : null,
         st !== 'construction' && !intro ? h('div', { class: 'ro' }, h('span', { class: 'k', text: 'EXERCICES' }), h('span', { class: 'v', text: `${this.progress.solvedCount(m.id)}/${c.exercises.length} réussis` })) : null,
-        intro ? null : h('div', { class: 'sec-title', text: 'PRÉREQUIS' }),
+        intro ? null : h('div', { class: 'sec-title', text: 'PRÉREQUIS CONSEILLÉS' }),
         intro ? null : pre.length ? h('ul', { class: 'lp-pre' }, ...pre) : h('div', { class: 'dim', text: 'aucun' }),
         intro && mod ? h('div', { class: 'sec-title', text: 'VUES DU MODULE' }) : null,
         intro && mod ? h('ol', { class: 'lp-ch' }, ...mod.vizs.map((v) => h('li', { text: v.title }))) : null,
